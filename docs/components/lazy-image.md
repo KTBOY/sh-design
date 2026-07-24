@@ -2,20 +2,50 @@
 
 带骨架屏占位、原生懒加载、加载淡入与**加载失败兜底**的图片组件。失败时默认展示"兜底插图 + 文案"，也可通过插槽完全自定义，适用于列表、卡片、头像墙等业务场景。
 
+<script setup>
+import { ref } from 'vue'
+
+const v = ref(0)
+const refresh = () => (v.value += 1)
+const seeds = ['forest', 'ocean', 'city', 'desert']
+</script>
+
 ## 基础用法
 
-组件默认填满父容器，尺寸由父级控制。加载完成后淡入显示。
+组件默认填满父容器，尺寸由父级控制。加载中显示**骨架屏**，加载完成后**淡入**。点击「刷新」会改变图片地址触发重新加载，可直观看到「骨架屏 → 淡入」的过程。
 
-<div class="sh-demo">
-  <div style="width: 220px; height: 150px; border-radius: 8px; overflow: hidden;">
-    <ShLazyImage src="https://picsum.photos/seed/shdesign/440/300" alt="demo" />
+<div class="sh-demo" style="flex-direction: column; align-items: stretch; gap: 16px;">
+  <div>
+    <button
+      style="padding: 6px 14px; border: none; border-radius: 6px; background: var(--vp-c-brand-1); color: #fff; font-size: 13px; cursor: pointer;"
+      @click="refresh"
+    >🔄 刷新重新加载</button>
+  </div>
+  <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+    <div
+      v-for="s in seeds"
+      :key="s"
+      style="width: 150px; height: 110px; border-radius: 8px; overflow: hidden;"
+    >
+      <ShLazyImage :src="'https://picsum.photos/seed/' + s + '/300/220?v=' + v" :alt="s" />
+    </div>
   </div>
 </div>
 
 ```vue
+<script setup lang="ts">
+import { ref } from 'vue'
+import { ShLazyImage } from 'sh-design'
+
+const v = ref(0)
+const seeds = ['forest', 'ocean', 'city', 'desert']
+// 改变 src（这里用查询参数 ?v= 破缓存）即可触发组件重新加载，展示骨架屏
+</script>
+
 <template>
-  <div style="width: 220px; height: 150px">
-    <ShLazyImage src="https://picsum.photos/seed/shdesign/440/300" alt="demo" />
+  <button @click="v++">🔄 刷新</button>
+  <div v-for="s in seeds" :key="s" style="width: 150px; height: 110px">
+    <ShLazyImage :src="`https://picsum.photos/seed/${s}/300/220?v=${v}`" />
   </div>
 </template>
 ```
