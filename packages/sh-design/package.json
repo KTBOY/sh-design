@@ -45,6 +45,7 @@
   ],
   "scripts": {
     "build": "vite build",
+    "prepublishOnly": "vite build",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json"
   },
   "peerDependencies": {
