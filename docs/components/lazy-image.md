@@ -1,4 +1,4 @@
-# Image 图片
+# LazyImage 懒加载图片
 
 带骨架屏占位、原生懒加载、加载淡入与**加载失败兜底**的图片组件。失败时默认展示"兜底插图 + 文案"，也可通过插槽完全自定义，适用于列表、卡片、头像墙等业务场景。
 
@@ -8,14 +8,14 @@
 
 <div class="sh-demo">
   <div style="width: 220px; height: 150px; border-radius: 8px; overflow: hidden;">
-    <ShImage src="https://picsum.photos/seed/shdesign/440/300" alt="demo" />
+    <ShLazyImage src="https://picsum.photos/seed/shdesign/440/300" alt="demo" />
   </div>
 </div>
 
 ```vue
 <template>
   <div style="width: 220px; height: 150px">
-    <ShImage src="https://picsum.photos/seed/shdesign/440/300" alt="demo" />
+    <ShLazyImage src="https://picsum.photos/seed/shdesign/440/300" alt="demo" />
   </div>
 </template>
 ```
@@ -26,17 +26,17 @@
 
 <div class="sh-demo">
   <div style="width: 140px; height: 140px; border: 1px dashed var(--vp-c-divider)">
-    <ShImage src="https://picsum.photos/seed/fit/300/200" fit="contain" />
+    <ShLazyImage src="https://picsum.photos/seed/fit/300/200" fit="contain" />
   </div>
   <div style="width: 140px; height: 140px; border: 1px dashed var(--vp-c-divider)">
-    <ShImage src="https://picsum.photos/seed/fit/300/200" fit="cover" />
+    <ShLazyImage src="https://picsum.photos/seed/fit/300/200" fit="cover" />
   </div>
 </div>
 
 ```vue
 <template>
-  <ShImage src="..." fit="contain" />
-  <ShImage src="..." fit="cover" />
+  <ShLazyImage src="..." fit="contain" />
+  <ShLazyImage src="..." fit="cover" />
 </template>
 ```
 
@@ -46,13 +46,13 @@
 
 <div class="sh-demo">
   <div style="width: 150px; height: 150px">
-    <ShImage src="https://picsum.photos/seed/radius/300/300" :radius="16" />
+    <ShLazyImage src="https://picsum.photos/seed/radius/300/300" :radius="16" />
   </div>
 </div>
 
 ```vue
 <template>
-  <ShImage src="..." :radius="16" />
+  <ShLazyImage src="..." :radius="16" />
 </template>
 ```
 
@@ -62,13 +62,13 @@
 
 <div class="sh-demo">
   <div style="width: 220px; height: 150px">
-    <ShImage src="https://example.com/does-not-exist.png" error-text="图片走丢了" />
+    <ShLazyImage src="https://example.com/does-not-exist.png" error-text="图片走丢了" />
   </div>
 </div>
 
 ```vue
 <template>
-  <ShImage src="/broken.png" error-text="图片走丢了" />
+  <ShLazyImage src="/broken.png" error-text="图片走丢了" />
 </template>
 ```
 
@@ -78,27 +78,27 @@
 
 <div class="sh-demo">
   <div style="width: 240px; height: 160px">
-    <ShImage src="https://example.com/does-not-exist.png">
+    <ShLazyImage src="https://example.com/does-not-exist.png">
       <template #error="{ src }">
         <div style="display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--vp-c-text-2)">
           <img :src="src" style="width:54px;height:54px;object-fit:contain" />
           <span>加载失败，请稍后重试</span>
         </div>
       </template>
-    </ShImage>
+    </ShLazyImage>
   </div>
 </div>
 
 ```vue
 <template>
-  <ShImage src="/broken.png">
+  <ShLazyImage src="/broken.png">
     <template #error="{ src, text }">
       <div class="my-fallback">
         <img :src="src" />
         <span>{{ text }}，请稍后重试</span>
       </div>
     </template>
-  </ShImage>
+  </ShLazyImage>
 </template>
 ```
 

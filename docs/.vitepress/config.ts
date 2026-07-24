@@ -40,7 +40,7 @@ export default defineConfig({
           text: '业务组件',
           items: [
             { text: 'CopyButton 复制按钮', link: '/components/copy-button' },
-            { text: 'Image 图片', link: '/components/image' }
+            { text: 'LazyImage 懒加载图片', link: '/components/lazy-image' }
           ]
         }
       ]

@@ -1,2 +1,2 @@
 export * from './copy-button'
-export * from './image'
+export * from './lazy-image'

@@ -1,9 +1,9 @@
 import type { ExtractPropTypes, PropType } from 'vue'
 
-export type ImageFit = 'fill' | 'contain' | 'cover' | 'none' | 'scale-down'
-export type ImageStatus = 'loading' | 'loaded' | 'error'
+export type LazyImageFit = 'fill' | 'contain' | 'cover' | 'none' | 'scale-down'
+export type LazyImageStatus = 'loading' | 'loaded' | 'error'
 
-export const imageProps = {
+export const lazyImageProps = {
   /** Image URL. */
   src: {
     type: String,
@@ -16,7 +16,7 @@ export const imageProps = {
   },
   /** How the image fills its box (CSS `object-fit`). */
   fit: {
-    type: String as PropType<ImageFit>,
+    type: String as PropType<LazyImageFit>,
     default: 'cover'
   },
   /** Enable native lazy loading. */
@@ -56,13 +56,13 @@ export const imageProps = {
   }
 }
 
-export type ImageProps = ExtractPropTypes<typeof imageProps>
+export type LazyImageProps = ExtractPropTypes<typeof lazyImageProps>
 
-export const imageEmits = {
+export const lazyImageEmits = {
   /** Emitted when the image finishes loading. */
   load: (e: Event) => e instanceof Event,
   /** Emitted when the image fails to load. */
   error: (e: Event) => e instanceof Event
 }
 
-export type ImageEmits = typeof imageEmits
+export type LazyImageEmits = typeof lazyImageEmits
