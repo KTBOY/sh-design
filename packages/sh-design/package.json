@@ -1,0 +1,60 @@
+{
+  "name": "sh-design",
+  "version": "0.0.1",
+  "description": "A functional & business-oriented Vue 3 component library",
+  "keywords": [
+    "vue",
+    "vue3",
+    "component-library",
+    "components",
+    "ui",
+    "business-components",
+    "sh-design"
+  ],
+  "author": "shukezlc",
+  "license": "MIT",
+  "homepage": "https://ktboy.github.io/sh-design/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KTBOY/sh-design.git",
+    "directory": "packages/sh-design"
+  },
+  "bugs": {
+    "url": "https://github.com/KTBOY/sh-design/issues"
+  },
+  "type": "module",
+  "main": "./dist/sh-design.cjs",
+  "module": "./dist/sh-design.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/sh-design.js",
+      "require": "./dist/sh-design.cjs"
+    },
+    "./dist/style.css": "./dist/style.css",
+    "./style.css": "./dist/style.css",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "scripts": {
+    "build": "vite build",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "vue": "^3.3.0"
+  },
+  "devDependencies": {
+    "vite-plugin-dts": "^4.3.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  }
+}

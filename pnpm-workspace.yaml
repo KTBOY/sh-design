@@ -1,0 +1,13 @@
+packages:
+  - 'packages/*'
+  - 'docs'
+  - 'play'
+
+# pnpm v11 build-script allow list (replaces onlyBuiltDependencies /
+# ignoredBuiltDependencies). true = run the install/build script, false = skip.
+allowBuilds:
+  # esbuild's prebuilt binary is provided by its optional dependency
+  # (@esbuild/<platform>), so its postinstall script is not required.
+  esbuild: false
+  # vue-demi ships a safe, pure-JS postinstall.
+  vue-demi: true

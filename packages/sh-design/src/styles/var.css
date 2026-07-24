@@ -1,0 +1,30 @@
+:root {
+  /* Brand */
+  --sh-color-primary: #3b82f6;
+  --sh-color-primary-hover: #2563eb;
+  --sh-color-primary-active: #1d4ed8;
+
+  /* Neutral */
+  --sh-color-white: #ffffff;
+  --sh-color-text: #1f2937;
+  --sh-color-text-secondary: #6b7280;
+  --sh-color-border: #d1d5db;
+  --sh-color-bg: #ffffff;
+  --sh-color-bg-hover: #f3f4f6;
+  --sh-color-bg-active: #e5e7eb;
+
+  /* Status */
+  --sh-color-success: #16a34a;
+
+  /* Radius */
+  --sh-radius-sm: 4px;
+  --sh-radius: 6px;
+
+  /* Typography */
+  --sh-font-size-sm: 12px;
+  --sh-font-size-base: 14px;
+  --sh-font-size-lg: 16px;
+
+  /* Motion */
+  --sh-transition: 0.2s ease;
+}
