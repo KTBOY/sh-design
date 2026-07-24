@@ -58,6 +58,13 @@ onMounted(() => {
   object-fit: cover;
 }
 
+/* Light placeholder for the base video: before it decodes there is no frame,
+   so the `color` blend above would otherwise sit on black and show as DARK
+   blue. A light backdrop keeps it light blue, matching the loaded state. */
+.hero-bg__video:not(.hero-bg__code) {
+  background-color: #cfe6ff;
+}
+
 /* White code lines composited over the green base. */
 .hero-bg__code {
   mix-blend-mode: screen;
