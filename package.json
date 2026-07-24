@@ -3,7 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "packageManager": "pnpm@11.7.0",
   "description": "sh-design - A functional & business-oriented Vue 3 component library",
   "author": "shukezlc",
   "license": "MIT",
