@@ -17,6 +17,14 @@ export default defineConfig({
       { text: '指南', link: '/guide/introduction', activeMatch: '/guide/' },
       { text: '组件', link: '/components/copy-button', activeMatch: '/components/' },
       {
+        text: '更多产品',
+        items: [
+          { text: '珊瑚打码小程序', link: 'https://github.com/KTBOY/ydw' },
+          { text: '实验室', link: 'https://github.com/KTBOY/shukelab' },
+          { text: '粤电玩游戏', link: 'https://www.ps521.asia/' }
+        ]
+      },
+      {
         text: '0.0.2',
         items: [
           { text: 'npm', link: 'https://www.npmjs.com/package/sh-design' }
