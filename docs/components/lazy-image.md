@@ -12,7 +12,7 @@ const seeds = ['forest', 'ocean', 'city', 'desert']
 </script>
 
 <div style="margin: 20px 0 8px;">
-  <MiniProgramDialog label="小程序版" title="小程序版" address="xx" />
+  <MiniProgramDialog label="小程序版" title="小程序版" address="xx" gif="/mini-program-demo.gif" />
 </div>
 
 ## 基础用法
