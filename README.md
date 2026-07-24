@@ -2,38 +2,49 @@
 
 # sh-design
 
-**A functional & business-oriented Vue 3 component library**
+**面向业务场景的 Vue 3 组件库** — 功能性、开箱即用、TypeScript 友好
+<br/>
+<sub>A functional & business-oriented Vue 3 component library</sub>
 
-面向功能性 / 业务场景的 Vue 3 组件库
+<p>
+  <a href="https://www.npmjs.com/package/sh-design"><img src="https://img.shields.io/npm/v/sh-design.svg?color=2563eb&label=npm" alt="npm version" /></a>
+  <a href="https://www.npmjs.com/package/sh-design"><img src="https://img.shields.io/npm/dm/sh-design.svg?color=2563eb" alt="npm downloads" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/npm/l/sh-design.svg?color=2563eb" alt="license" /></a>
+  <a href="https://github.com/KTBOY/sh-design/stargazers"><img src="https://img.shields.io/github/stars/KTBOY/sh-design?color=2563eb" alt="GitHub stars" /></a>
+  <a href="https://github.com/KTBOY/sh-design/actions/workflows/deploy-docs.yml"><img src="https://github.com/KTBOY/sh-design/actions/workflows/deploy-docs.yml/badge.svg" alt="Deploy Docs" /></a>
+</p>
 
-[![npm version](https://img.shields.io/npm/v/sh-design.svg)](https://www.npmjs.com/package/sh-design)
-[![license](https://img.shields.io/npm/l/sh-design.svg)](./LICENSE)
+<p>
+  <a href="https://ktboy.github.io/sh-design/"><b>📖 文档</b></a> ·
+  <a href="https://ktboy.github.io/sh-design/guide/quickstart"><b>🚀 快速上手</b></a> ·
+  <a href="https://ktboy.github.io/sh-design/components/copy-button"><b>🧩 在线组件预览</b></a> ·
+  <a href="https://www.npmjs.com/package/sh-design"><b>📦 npm</b></a>
+</p>
 
-[📖 Documentation](https://ktboy.github.io/sh-design/) · [🚀 Getting Started](https://ktboy.github.io/sh-design/guide/quickstart.html)
+<!-- 👉 建议录制一段 20~30s 的演示 GIF（命名 preview.gif 放到 docs/public/），然后取消下一行注释并替换路径，首屏动图对点击→star 转化影响最大 -->
+<!-- <img src="https://ktboy.github.io/sh-design/preview.gif" alt="sh-design 演示" width="760" /> -->
 
 </div>
 
-## ✨ Features
+## ✨ 为什么是 sh-design
 
-- 🧩 **Business-oriented** — focuses on functional / business components, not just primitives.
-- ⚡ **Vue 3 + Vite** — built with `<script setup>`, Composition API and Vite library mode.
-- 🦾 **TypeScript first** — ships full type declarations (`.d.ts`).
-- 📦 **Tree-shakeable** — ESM + CommonJS outputs, import only what you use.
-- 🎨 **Themeable** — driven by CSS variables.
-- 🔌 **Flexible usage** — global registration or on-demand import.
+- 🧩 **业务组件优先** — 不止是 Button/Input 这类基础原语，更聚焦复制、懒加载图片、导出、权限等**真实业务里反复要写**的功能型组件，开箱即用。
+- ⚡ **现代且轻量** — Vue 3 `<script setup>` + Vite 库模式构建，输出 ESM/CJS，支持 Tree-Shaking，只打包你用到的部分。
+- 🦾 **TypeScript 优先** — 完整 `.d.ts` 类型声明，Props / Emits / Slots 全程可推导。
+- 🎨 **主题可定制** — CSS 变量驱动的设计令牌，覆盖即换肤。
+- 🔌 **两种用法** — `app.use(ShDesign)` 全量注册，或按需 `import { ShLazyImage }`。
 
-## 📦 Installation
+## 📦 安装
 
 ```bash
 npm install sh-design
-# or
-pnpm add sh-design
+# 或 pnpm add sh-design / yarn add sh-design
 ```
 
-## 🚀 Usage
+## 🚀 快速上手
 
 ```ts
-// main.ts — full registration
+// main.ts
 import { createApp } from 'vue'
 import ShDesign from 'sh-design'
 import 'sh-design/dist/style.css'
@@ -43,46 +54,41 @@ createApp(App).use(ShDesign).mount('#app')
 ```
 
 ```vue
-<!-- On-demand import -->
 <script setup lang="ts">
-import { ShCopyButton } from 'sh-design'
+import { ShLazyImage } from 'sh-design'
 import 'sh-design/dist/style.css'
 </script>
 
 <template>
-  <ShCopyButton text="Hello sh-design" />
+  <ShLazyImage src="https://picsum.photos/400/300" style="width: 200px; height: 140px" />
 </template>
 ```
 
-## 🏗️ Repository Structure
+## 🧩 组件 Components
 
-This is a **pnpm monorepo**:
+| 组件 | 说明 | 文档 |
+| --- | --- | --- |
+| `ShCopyButton` | 一键复制文本，内置成功反馈 | [查看](https://ktboy.github.io/sh-design/components/copy-button) |
+| `ShLazyImage` | 懒加载图片：骨架屏 + 淡入 + **失败兜底（图 + 文案，可插槽自定义）** | [查看](https://ktboy.github.io/sh-design/components/lazy-image) |
 
-```
-sh-design/
-├── packages/
-│   └── sh-design/      # 📦 the component library (published to npm)
-├── docs/               # 📖 VitePress docs & live preview (GitHub Pages)
-├── play/               # 🧪 local playground for developing components
-└── .github/workflows/  # 🤖 CI: auto-deploy docs to GitHub Pages
-```
+> 组件持续增加中，欢迎 [提 Issue](https://github.com/KTBOY/sh-design/issues) 提需求或 PR。
 
-## 🧑‍💻 Development
+## 🧑‍💻 本地开发
 
 ```bash
-pnpm install        # install all workspace deps
-pnpm play           # start the playground
-pnpm docs:dev       # start the docs site locally
-pnpm build          # build the component library
-pnpm docs:build     # build the docs site
-pnpm lint           # lint the codebase
+pnpm install        # 安装依赖
+pnpm play           # 组件调试场
+pnpm docs:dev       # 本地预览文档站
+pnpm build          # 构建组件库
+pnpm docs:build     # 构建文档站
+pnpm lint           # 代码检查
 ```
 
-### Adding a new component
+**新增组件**：参考 `packages/sh-design/src/components/copy-button/`（组件目录约定）→ 在 `src/components/index.ts` 导出 → 在 `docs/components/` 增加文档页。
 
-1. Create `packages/sh-design/src/components/<name>/` (see `copy-button` as a template).
-2. Export it from `packages/sh-design/src/components/index.ts`.
-3. Add a demo page under `docs/components/`.
+## 🤝 贡献
+
+欢迎 Issue / PR！如果这个项目对你有帮助，点个 ⭐ 是最好的支持。
 
 ## 📄 License
 
