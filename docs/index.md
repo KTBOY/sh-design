@@ -3,8 +3,8 @@ layout: home
 
 hero:
   name: sh-design
-  text: 业务场景优先的 Vue 3 组件库
-  tagline: 功能性、开箱即用、TypeScript 友好，专注解决真实业务问题
+  text: 让开发更简单的 Vue 3 组件库
+  tagline: 面向学校 B 端业务场景，沉淀多个项目通用能力，开箱即用的功能性组件库
   actions:
     - theme: brand
       text: 快速上手
@@ -19,7 +19,7 @@ hero:
 features:
   - icon: 🧩
     title: 业务组件优先
-    details: 不止是基础 UI 原语，更聚焦复制、导出、鉴权等真实业务功能场景，开箱即用。
+    details: 面向学校 B 端真实业务场景，沉淀多个项目通用能力，开箱即用。
   - icon: ⚡
     title: Vue 3 + Vite
     details: 基于 script setup 与组合式 API，使用 Vite 库模式构建，轻量而现代。

@@ -3,6 +3,7 @@ import DefaultTheme from 'vitepress/theme'
 import { useData } from 'vitepress'
 import { computed } from 'vue'
 import CursorGlow from './components/CursorGlow.vue'
+import NavLogo from './components/NavLogo.vue'
 
 const { Layout } = DefaultTheme
 const { frontmatter } = useData()
@@ -13,5 +14,9 @@ const isHome = computed(() => frontmatter.value.layout === 'home')
 
 <template>
   <CursorGlow v-if="isHome" />
-  <Layout />
+  <Layout>
+    <template #nav-bar-title-before>
+      <NavLogo />
+    </template>
+  </Layout>
 </template>

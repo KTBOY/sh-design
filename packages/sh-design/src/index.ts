@@ -1,13 +1,14 @@
 import type { Plugin } from 'vue'
 import { makeInstaller } from './utils/install'
 import { ShCopyButton } from './components/copy-button'
+import { ShImage } from './components/image'
 import { version } from './version'
 
 // Bundled styles (design tokens). Consumers importing the built package should
 // additionally import 'sh-design/dist/style.css'.
 import './styles/index.css'
 
-const components: Plugin[] = [ShCopyButton]
+const components: Plugin[] = [ShCopyButton, ShImage]
 
 const { install } = makeInstaller(components)
 

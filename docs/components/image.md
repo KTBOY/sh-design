@@ -1,0 +1,135 @@
+# Image 图片
+
+带骨架屏占位、原生懒加载、加载淡入与**加载失败兜底**的图片组件。失败时默认展示"兜底插图 + 文案"，也可通过插槽完全自定义，适用于列表、卡片、头像墙等业务场景。
+
+## 基础用法
+
+组件默认填满父容器，尺寸由父级控制。加载完成后淡入显示。
+
+<div class="sh-demo">
+  <div style="width: 220px; height: 150px; border-radius: 8px; overflow: hidden;">
+    <ShImage src="https://picsum.photos/seed/shdesign/440/300" alt="demo" />
+  </div>
+</div>
+
+```vue
+<template>
+  <div style="width: 220px; height: 150px">
+    <ShImage src="https://picsum.photos/seed/shdesign/440/300" alt="demo" />
+  </div>
+</template>
+```
+
+## 填充方式
+
+通过 `fit` 设置图片填充方式，与 CSS `object-fit` 一致：`fill` / `contain` / `cover` / `none` / `scale-down`。
+
+<div class="sh-demo">
+  <div style="width: 140px; height: 140px; border: 1px dashed var(--vp-c-divider)">
+    <ShImage src="https://picsum.photos/seed/fit/300/200" fit="contain" />
+  </div>
+  <div style="width: 140px; height: 140px; border: 1px dashed var(--vp-c-divider)">
+    <ShImage src="https://picsum.photos/seed/fit/300/200" fit="cover" />
+  </div>
+</div>
+
+```vue
+<template>
+  <ShImage src="..." fit="contain" />
+  <ShImage src="..." fit="cover" />
+</template>
+```
+
+## 圆角
+
+通过 `radius` 设置圆角（数字按 px 处理）。
+
+<div class="sh-demo">
+  <div style="width: 150px; height: 150px">
+    <ShImage src="https://picsum.photos/seed/radius/300/300" :radius="16" />
+  </div>
+</div>
+
+```vue
+<template>
+  <ShImage src="..." :radius="16" />
+</template>
+```
+
+## 加载失败兜底
+
+当图片加载失败时，默认展示内置的**兜底插图 + 文案**（文案可通过 `error-text` 自定义）。
+
+<div class="sh-demo">
+  <div style="width: 220px; height: 150px">
+    <ShImage src="https://example.com/does-not-exist.png" error-text="图片走丢了" />
+  </div>
+</div>
+
+```vue
+<template>
+  <ShImage src="/broken.png" error-text="图片走丢了" />
+</template>
+```
+
+## 自定义失败内容
+
+通过 `#error` 插槽完全自定义兜底内容，插槽提供 `src`（兜底图地址）与 `text`（兜底文案）作用域参数。
+
+<div class="sh-demo">
+  <div style="width: 240px; height: 160px">
+    <ShImage src="https://example.com/does-not-exist.png">
+      <template #error="{ src }">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--vp-c-text-2)">
+          <img :src="src" style="width:54px;height:54px;object-fit:contain" />
+          <span>加载失败，请稍后重试</span>
+        </div>
+      </template>
+    </ShImage>
+  </div>
+</div>
+
+```vue
+<template>
+  <ShImage src="/broken.png">
+    <template #error="{ src, text }">
+      <div class="my-fallback">
+        <img :src="src" />
+        <span>{{ text }}，请稍后重试</span>
+      </div>
+    </template>
+  </ShImage>
+</template>
+```
+
+## API
+
+### Props
+
+| 属性              | 说明                             | 类型                                              | 默认值    |
+| ----------------- | -------------------------------- | ------------------------------------------------- | --------- |
+| `src`             | 图片地址                         | `string`                                          | `''`      |
+| `alt`             | 无障碍描述                       | `string`                                          | `''`      |
+| `fit`             | 填充方式（CSS object-fit）       | `'fill' \| 'contain' \| 'cover' \| 'none' \| 'scale-down'` | `'cover'` |
+| `lazy`            | 是否启用原生懒加载               | `boolean`                                         | `true`    |
+| `radius`          | 圆角（数字按 px 处理）           | `string \| number`                                | `0`       |
+| `width`           | 容器宽度（数字按 px；默认撑满）  | `string \| number`                                | `''`      |
+| `height`          | 容器高度（数字按 px；默认撑满）  | `string \| number`                                | `''`      |
+| `error-text`      | 加载失败时的文案                 | `string`                                          | `'加载失败'` |
+| `error-src`       | 加载失败时的兜底图（默认内置图） | `string`                                          | `''`      |
+| `show-error-image`| 失败时是否展示兜底图             | `boolean`                                         | `true`    |
+
+### Events
+
+| 事件名  | 说明             | 回调参数        |
+| ------- | ---------------- | --------------- |
+| `load`  | 图片加载成功触发 | `(e: Event)`    |
+| `error` | 图片加载失败触发 | `(e: Event)`    |
+
+### Slots
+
+| 插槽名        | 说明                       | 作用域参数                          |
+| ------------- | -------------------------- | ----------------------------------- |
+| `placeholder` | 自定义加载占位（默认骨架屏）| -                                   |
+| `error`       | 自定义加载失败内容         | `{ src: string; text: string }`     |
+| `default`     | 叠加在图片上的内容（遮罩等）| -                                   |

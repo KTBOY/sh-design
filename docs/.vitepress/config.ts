@@ -12,6 +12,7 @@ export default defineConfig({
   cleanUrls: true,
   head: [['meta', { name: 'theme-color', content: '#2563eb' }]],
   themeConfig: {
+    siteTitle: false,
     nav: [
       { text: '指南', link: '/guide/introduction', activeMatch: '/guide/' },
       { text: '组件', link: '/components/copy-button', activeMatch: '/components/' },
@@ -37,7 +38,10 @@ export default defineConfig({
       '/components/': [
         {
           text: '业务组件',
-          items: [{ text: 'CopyButton 复制按钮', link: '/components/copy-button' }]
+          items: [
+            { text: 'CopyButton 复制按钮', link: '/components/copy-button' },
+            { text: 'Image 图片', link: '/components/image' }
+          ]
         }
       ]
     },
@@ -45,7 +49,7 @@ export default defineConfig({
     search: { provider: 'local' },
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2026 shukezlc'
+      copyright: 'Copyright © 2026 shukezlc 思涵'
     },
     outline: { label: '本页目录', level: [2, 3] },
     docFooter: { prev: '上一页', next: '下一页' }

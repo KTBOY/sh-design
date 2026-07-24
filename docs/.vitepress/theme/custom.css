@@ -3,7 +3,7 @@
   --vp-c-brand-2: #3b82f6;
   --vp-c-brand-3: #60a5fa;
   --vp-home-hero-name-color: transparent;
-  --vp-home-hero-name-background: linear-gradient(120deg, #2563eb 30%, #f59e0b);
+  --vp-home-hero-name-background: linear-gradient(120deg, #2563eb 20%, #22d3ee);
 }
 
 /* Lift home content above the animated background (see CursorGlow.vue). */
@@ -30,8 +30,39 @@
 
 .VPHome .VPFeature:hover {
   transform: translateY(-4px);
-  border-color: rgba(245, 158, 11, 0.55);
-  box-shadow: 0 14px 34px -14px rgba(245, 158, 11, 0.45);
+  border-color: rgba(37, 99, 235, 0.5);
+  box-shadow: 0 14px 34px -14px rgba(37, 99, 235, 0.4);
+}
+
+/* Hero action buttons */
+.VPHome .VPButton.brand {
+  border: none;
+  background: linear-gradient(120deg, #2563eb, #3b82f6);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    filter 0.25s ease;
+}
+
+.VPHome .VPButton.brand:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+  box-shadow: 0 10px 26px -8px rgba(37, 99, 235, 0.5);
+}
+
+.VPHome .VPButton.alt {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.VPHome .VPButton.alt:hover {
+  transform: translateY(-2px);
+  border-color: var(--vp-c-brand-1);
+  box-shadow: 0 10px 24px -10px rgba(37, 99, 235, 0.35);
 }
 
 /* Live demo container used across component docs */
