@@ -17,7 +17,7 @@ export default defineConfig({
       { text: '指南', link: '/guide/introduction', activeMatch: '/guide/' },
       { text: '组件', link: '/components/copy-button', activeMatch: '/components/' },
       {
-        text: '0.0.1',
+        text: '0.0.2',
         items: [
           { text: 'npm', link: 'https://www.npmjs.com/package/sh-design' },
           { text: '更新日志', link: 'https://github.com/KTBOY/sh-design/releases' }
