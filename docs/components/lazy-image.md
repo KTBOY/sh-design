@@ -1,14 +1,19 @@
 # LazyImage 懒加载图片
 
-带骨架屏占位、原生懒加载、加载淡入与**加载失败兜底**的图片组件。失败时默认展示"兜底插图 + 文案"，也可通过插槽完全自定义，适用于列表、卡片、头像墙等业务场景。
+带骨架屏占位、原生懒加载、加载淡入与**加载失败兜底**的图片组件。失败时默认展示“兜底插图 + 文案”，也可通过插槽完全自定义，适用于列表、卡片、头像墙等业务场景。
 
 <script setup>
 import { ref } from 'vue'
+import MiniProgramDialog from '../.vitepress/theme/components/MiniProgramDialog.vue'
 
 const v = ref(0)
 const refresh = () => (v.value += 1)
 const seeds = ['forest', 'ocean', 'city', 'desert']
 </script>
+
+<div style="margin: 20px 0 8px;">
+  <MiniProgramDialog label="小程序版" title="小程序版" address="xx" />
+</div>
 
 ## 基础用法
 
@@ -19,7 +24,7 @@ const seeds = ['forest', 'ocean', 'city', 'desert']
     <button
       style="padding: 6px 14px; border: none; border-radius: 6px; background: var(--vp-c-brand-1); color: #fff; font-size: 13px; cursor: pointer;"
       @click="refresh"
-    >🔄 刷新重新加载</button>
+    >刷新</button>
   </div>
   <div style="display: flex; gap: 12px; flex-wrap: wrap;">
     <div
@@ -39,11 +44,10 @@ import { ShLazyImage } from 'sh-design'
 
 const v = ref(0)
 const seeds = ['forest', 'ocean', 'city', 'desert']
-// 改变 src（这里用查询参数 ?v= 破缓存）即可触发组件重新加载，展示骨架屏
 </script>
 
 <template>
-  <button @click="v++">🔄 刷新</button>
+  <button @click="v++">刷新</button>
   <div v-for="s in seeds" :key="s" style="width: 150px; height: 110px">
     <ShLazyImage :src="`https://picsum.photos/seed/${s}/300/220?v=${v}`" />
   </div>
@@ -132,34 +136,68 @@ const seeds = ['forest', 'ocean', 'city', 'desert']
 </template>
 ```
 
+## 进阶用法：接口取图 / 轮询 / 视口懒加载
+
+对接**鉴权图片接口**（返回 Blob）、需要**近实时轮询**或**长列表视口懒加载**时，用 `loader` + `lazy="observer"` + `poll-interval`。`loader` 返回 `Blob` 时组件会自动 `createObjectURL` 并在切换/卸载时回收，无需手动管理内存。
+
+```vue
+<script setup lang="ts">
+import { ShLazyImage } from 'sh-design'
+import { screenshot } from '@/api/screenshot'
+
+const props = defineProps<{ classroomCode: string }>()
+</script>
+
+<template>
+  <ShLazyImage
+    :loader="() => screenshot({ classroomCode: props.classroomCode })"
+    lazy="observer"
+    :poll-interval="300000"
+    keep-previous-on-reload
+    placeholder-src="/loading.png"
+    @load="({ url }) => console.log('loaded', url)"
+    @error="({ error }) => console.warn(error)"
+  />
+</template>
+```
+
+- `keep-previous-on-reload`：轮询刷新时保留上一张图、失败也不闪断。
+- `lazy="observer"`：进入视口（含 `root-margin` 预加载）才开始加载，适合长列表 / 大屏。
+
 ## API
 
 ### Props
 
-| 属性              | 说明                             | 类型                                              | 默认值    |
-| ----------------- | -------------------------------- | ------------------------------------------------- | --------- |
-| `src`             | 图片地址                         | `string`                                          | `''`      |
-| `alt`             | 无障碍描述                       | `string`                                          | `''`      |
-| `fit`             | 填充方式（CSS object-fit）       | `'fill' \| 'contain' \| 'cover' \| 'none' \| 'scale-down'` | `'cover'` |
-| `lazy`            | 是否启用原生懒加载               | `boolean`                                         | `true`    |
-| `radius`          | 圆角（数字按 px 处理）           | `string \| number`                                | `0`       |
-| `width`           | 容器宽度（数字按 px；默认撑满）  | `string \| number`                                | `''`      |
-| `height`          | 容器高度（数字按 px；默认撑满）  | `string \| number`                                | `''`      |
-| `error-text`      | 加载失败时的文案                 | `string`                                          | `'加载失败'` |
-| `error-src`       | 加载失败时的兜底图（默认内置图） | `string`                                          | `''`      |
-| `show-error-image`| 失败时是否展示兜底图             | `boolean`                                         | `true`    |
+| 属性 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `src` | 图片地址（URL 模式；提供 `loader` 时忽略） | `string` | `''` |
+| `loader` | 自定义加载器，返回 URL 或 Blob（对接鉴权接口）；Blob 自动创建/回收 objectURL | `() => Promise<string \| Blob>` | `undefined` |
+| `alt` | 无障碍描述 | `string` | `''` |
+| `fit` | 填充方式（CSS object-fit） | `'fill' \| 'contain' \| 'cover' \| 'none' \| 'scale-down'` | `'cover'` |
+| `lazy` | 懒加载策略：`true` 原生懒加载 / `'observer'` 视口懒加载 / `false` 立即 | `boolean \| 'observer'` | `true` |
+| `root-margin` | 视口懒加载预加载边距（`lazy="observer"` 时） | `string` | `'200px'` |
+| `poll-interval` | 轮询刷新间隔（毫秒，loader 模式）；`0` 关闭 | `number` | `0` |
+| `keep-previous-on-reload` | 刷新/轮询时保留上一张图，不闪占位 | `boolean` | `false` |
+| `skeleton` | 是否显示内置骨架屏 | `boolean` | `true` |
+| `placeholder-src` | 加载中占位图（优先级高于骨架屏） | `string` | `''` |
+| `radius` | 圆角（数字按 px） | `string \| number` | `0` |
+| `width` | 容器宽度（数字按 px；默认撑满） | `string \| number` | `''` |
+| `height` | 容器高度（数字按 px；默认撑满） | `string \| number` | `''` |
+| `error-text` | 加载失败文案 | `string` | `'加载失败'` |
+| `error-src` | 加载失败兜底图（默认内置图） | `string` | `''` |
+| `show-error-image` | 失败时是否展示兜底图 | `boolean` | `true` |
 
 ### Events
 
-| 事件名  | 说明             | 回调参数        |
-| ------- | ---------------- | --------------- |
-| `load`  | 图片加载成功触发 | `(e: Event)`    |
-| `error` | 图片加载失败触发 | `(e: Event)`    |
+| 事件名 | 说明 | 回调参数 |
+| --- | --- | --- |
+| `load` | 加载成功 | `({ url: string })` |
+| `error` | 加载失败 | `({ error?: Error })` |
 
 ### Slots
 
-| 插槽名        | 说明                       | 作用域参数                          |
-| ------------- | -------------------------- | ----------------------------------- |
-| `placeholder` | 自定义加载占位（默认骨架屏）| -                                   |
-| `error`       | 自定义加载失败内容         | `{ src: string; text: string }`     |
-| `default`     | 叠加在图片上的内容（遮罩等）| -                                   |
+| 插槽名 | 说明 | 作用域参数 |
+| --- | --- | --- |
+| `placeholder` | 自定义加载占位（默认骨架屏 / `placeholder-src`） | - |
+| `error` | 自定义加载失败内容 | `{ src: string; text: string }` |
+| `default` | 叠加在图片上的内容（遮罩等） | - |

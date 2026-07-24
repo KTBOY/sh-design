@@ -25,7 +25,7 @@ export default defineConfig({
         ]
       },
       {
-        text: '0.0.2',
+        text: '0.0.3',
         items: [
           { text: 'npm', link: 'https://www.npmjs.com/package/sh-design' }
         ]
