@@ -44,9 +44,10 @@
     "**/*.css"
   ],
   "scripts": {
-    "build": "vite build",
-    "prepublishOnly": "vite build",
-    "typecheck": "vue-tsc --noEmit -p tsconfig.json"
+    "build": "node ./scripts/sync-version.mjs && vite build",
+    "prepublishOnly": "npm run build",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "version": "node ./scripts/sync-version.mjs && git add src/version.ts"
   },
   "peerDependencies": {
     "vue": "^3.3.0"

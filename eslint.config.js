@@ -8,6 +8,7 @@ export default ts.config(
     ignores: [
       '**/dist/**',
       '**/node_modules/**',
+      '**/scripts/**',
       '**/.vitepress/cache/**',
       '**/.vitepress/dist/**'
     ]
