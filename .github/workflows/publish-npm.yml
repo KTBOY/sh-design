@@ -1,7 +1,8 @@
 name: Publish to npm
 
-# Publishes the `sh-design` package when a GitHub Release is published.
-# Requires an `NPM_TOKEN` repository secret (npm automation access token).
+# Publishes the `sh-design` package via npm Trusted Publishing (OIDC) — no token.
+# Prerequisite: on npmjs.com, configure a Trusted Publisher for `sh-design`
+# pointing to this repository (KTBOY/sh-design) and this workflow (publish-npm.yml).
 on:
   release:
     types: [published]
@@ -23,9 +24,13 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           registry-url: 'https://registry.npmjs.org'
           cache: pnpm
+
+      # Trusted Publishing (OIDC) requires npm >= 11.5.1; runners ship npm 10.x.
+      - name: Upgrade npm
+        run: npm install --global npm@latest
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -33,7 +38,8 @@ jobs:
       - name: Build library
         run: pnpm build
 
-      - name: Publish sh-design
-        run: pnpm --filter sh-design publish --no-git-checks --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # No NPM_TOKEN: npm authenticates via OIDC using the configured Trusted
+      # Publisher and attaches build provenance automatically.
+      - name: Publish sh-design (OIDC Trusted Publishing)
+        run: npm publish --access public
+        working-directory: packages/sh-design

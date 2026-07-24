@@ -71,20 +71,24 @@ git push --follow-tags
 
 ---
 
-## 二、自动发布（推荐）
+## 二、自动发布（推荐：Trusted Publishing / OIDC）
 
-配置一次，之后只需在 GitHub 打 Release 即可自动发版，无需再手输验证码。
+采用 npm 的可信发布（Trusted Publishing）：GitHub Actions 通过 OIDC 短期身份直接发布，**无需保存任何 NPM_TOKEN 密钥**，并自动附带发布溯源（provenance）。仅需一次性配置。
 
-### 1. 创建 npm 令牌
+### 1. 在 npm 配置可信发布者（一次性）
 
-npmjs.com → 头像 → **Access Tokens** → Generate New Token → **Classic Token** → 类型选 **Automation**（会自动绕过 2FA）。复制 `npm_` 开头的令牌。
+登录 npmjs.com → 打开 `sh-design` 包的 **Settings** → 找到 **Trusted Publisher / 可信发布者** → 选择 **GitHub Actions**，填写：
 
-### 2. 配置到 GitHub
+- Organization or user：`KTBOY`
+- Repository：`sh-design`
+- Workflow filename：`publish-npm.yml`
+- Environment：留空
 
-仓库 **Settings → Secrets and variables → Actions → New repository secret**：
+保存即可。
 
-- Name: `NPM_TOKEN`
-- Secret: 粘贴上一步的令牌
+### 2. 工作流已就绪
+
+[`.github/workflows/publish-npm.yml`](./.github/workflows/publish-npm.yml) 已配置为 OIDC 发布：`id-token: write` 权限 + 升级 npm 到最新 + `npm publish`，**无需任何密钥，也无需改动**。
 
 ### 3. 发版
 
@@ -96,7 +100,7 @@ cd d:\my\git\sh-ui
 git push --follow-tags
 ```
 
-然后在 GitHub 仓库 **Releases → Draft a new release** 选中该 tag 发布。发布后，[`.github/workflows/publish-npm.yml`](./.github/workflows/publish-npm.yml) 会自动安装依赖、构建并 `pnpm publish`。
+然后在 GitHub 仓库 **Releases → Draft a new release** 选中该 tag 发布。发布后，[`.github/workflows/publish-npm.yml`](./.github/workflows/publish-npm.yml) 会自动安装依赖、构建并通过 OIDC 完成 `npm publish`（无需令牌）。
 
 ---
 
