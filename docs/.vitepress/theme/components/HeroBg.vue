@@ -21,6 +21,7 @@ onMounted(() => {
 <template>
   <div class="hero-bg" aria-hidden="true">
     <video class="hero-bg__video" :src="greenSrc" autoplay muted loop playsinline preload="auto" />
+    <div class="hero-bg__tint" />
     <video
       class="hero-bg__video hero-bg__code"
       :src="codeSrc"
@@ -46,6 +47,7 @@ onMounted(() => {
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
+  isolation: isolate;
 }
 
 .hero-bg__video {
@@ -61,11 +63,20 @@ onMounted(() => {
   mix-blend-mode: screen;
 }
 
+/* Recolor the (green) base video to the brand blue theme. `color` blend keeps
+   the video's luminance/detail but replaces its hue with the brand gradient. */
+.hero-bg__tint {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #2563eb, #22d3ee);
+  mix-blend-mode: color;
+}
+
 /* Soft scrim to keep hero text readable over the video. */
 .hero-bg__scrim {
   position: absolute;
   inset: 0;
-  background: radial-gradient(70% 60% at 50% 42%, rgba(255, 255, 255, 0.25), transparent 72%);
+  background: radial-gradient(70% 60% at 50% 42%, rgba(255, 255, 255, 0.3), transparent 72%);
 }
 
 .dark .hero-bg__scrim {
