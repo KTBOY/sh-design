@@ -19,8 +19,7 @@ export default defineConfig({
       {
         text: '0.0.2',
         items: [
-          { text: 'npm', link: 'https://www.npmjs.com/package/sh-design' },
-          { text: '更新日志', link: 'https://github.com/KTBOY/sh-design/releases' }
+          { text: 'npm', link: 'https://www.npmjs.com/package/sh-design' }
         ]
       }
     ],
@@ -33,6 +32,10 @@ export default defineConfig({
             { text: '安装', link: '/guide/installation' },
             { text: '快速上手', link: '/guide/quickstart' }
           ]
+        },
+        {
+          text: '更多',
+          items: [{ text: '更新日志', link: '/guide/changelog' }]
         }
       ],
       '/components/': [
