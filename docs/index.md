@@ -4,7 +4,7 @@ layout: home
 hero:
   name: sh-design
   text: 让开发更简单的 Vue 3 组件库
-  tagline: 面向学校 B 端业务场景，沉淀多个项目通用能力，开箱即用的功能性组件库
+  tagline: 沉淀多个项目通用能力，开箱即用的高性能组件库
   actions:
     - theme: brand
       text: 快速上手
