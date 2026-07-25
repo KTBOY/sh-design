@@ -1,6 +1,9 @@
 <script setup lang="ts">
 // Nav logo in the "mark / wordmark" style (inspired by the Next.js logo):
-// a small brand mark, a thin slash divider, then the wordmark with a muted suffix.
+// a small brand mark, a thin slash divider, then the wordmark image.
+import { withBase } from 'vitepress'
+
+const wordmark = withBase('/logo-bark.png')
 </script>
 
 <template>
@@ -15,9 +18,8 @@
       <path d="M14 3.5 L25 23.5 H3 Z" fill="url(#sh-logo-grad)" />
     </svg>
     <span class="sh-logo__slash">/</span>
-    <span class="sh-logo__word">
-      <span class="sh-logo__name">sh</span><span class="sh-logo__muted">-design</span>
-    </span>
+    <!-- Wordmark image (transparent bg, black strokes); dark mode inverts. -->
+    <img class="sh-logo__img" :src="wordmark" alt="sh-design" draggable="false" />
   </span>
 </template>
 
@@ -41,18 +43,13 @@
   transform: translateY(-1px);
 }
 
-.sh-logo__word {
-  font-size: 16px;
-  letter-spacing: 0.2px;
+.sh-logo__img {
+  display: block;
+  height: 13px;
+  width: auto;
 }
 
-.sh-logo__name {
-  font-weight: 700;
-  color: var(--vp-c-text-1);
-}
-
-.sh-logo__muted {
-  font-weight: 500;
-  color: var(--vp-c-text-3);
+.dark .sh-logo__img {
+  filter: invert(1);
 }
 </style>

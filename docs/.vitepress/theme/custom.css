@@ -12,6 +12,23 @@
   z-index: 1;
 }
 
+/* Home hero title: replace the gradient text with the wordmark image
+   (transparent background, black strokes); dark mode simply inverts. */
+.VPHome .VPHero .name .clip {
+  display: inline-block;
+  font-size: 0;
+  line-height: 0;
+  width: min(560px, 86vw);
+  aspect-ratio: 720 / 126;
+  background: url('../../public/logo-bark.png') no-repeat left center / contain;
+  -webkit-background-clip: border-box;
+  background-clip: border-box;
+}
+
+.dark .VPHome .VPHero .name .clip {
+  filter: invert(1);
+}
+
 /* Glassy, interactive feature cards so the animated background shows through. */
 .VPHome .VPFeature {
   background: rgba(255, 255, 255, 0.55);
