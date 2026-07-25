@@ -1,6 +1,10 @@
 <div align="center">
 
-# sh-design
+<!-- Wordmark: black strokes for light theme, white strokes for dark theme -->
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/public/logo-bark-dark.png" />
+  <img src="docs/public/logo-bark.png" alt="sh-design" width="380" />
+</picture>
 
 **面向业务场景的 Vue 3 组件库** — 功能性、开箱即用、TypeScript 友好
 <br/>
