@@ -1,5 +1,5 @@
 ---
-description: 组件库组件发生新增/修改/修复时，必须同步更新更新日志 docs/guide/changelog.md（记录版本、日期、新增、修改、修复）
+description: 组件库组件发生新增/修改/修复时，必须同步更新更新日志 docs/guide/changelog.md，新增/重命名/删除组件时还必须同步 README.md 组件表、文档页与侧边栏（可用 scripts/check-components.mjs 校验）
 globs:
   - packages/sh-design/src/components/**
   - packages/sh-design/src/hooks/**
@@ -40,3 +40,13 @@ alwaysApply: false
 - 发版前：先在 changelog 顶部补齐当前版本条目，再执行 `npm version <patch|minor|major>`（会自动同步 `src/version.ts`）。
 - 保持三处版本号一致：`changelog.md` 顶部版本 = `package.json` version = 文档站 nav 版本徽标。
 - 尚未发布的累积改动，可先记在顶部的 `## 未发布 (Unreleased)` 小节，发版时替换为正式「版本号 + 日期」。
+
+## 组件信息同步（新增 / 重命名 / 删除组件时必做）
+
+除 changelog 外，以下三处必须同步，缺一不可：
+
+1. **`README.md` 组件表**：新增一行「组件名 + 一句话能力说明 + 文档链接」；已有组件能力有重大增强时也要更新说明。
+2. **文档页**：`docs/components/<组件目录名>.md`。
+3. **侧边栏**：`docs/.vitepress/config.ts` 的 `/components/` sidebar。
+
+校验方式：`node scripts/check-components.mjs`（release.bat 的验证步骤已内置，不同步会直接中断提交）。

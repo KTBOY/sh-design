@@ -36,6 +36,8 @@
 
 ## 📦 安装
 
+> 环境要求：Vue `>= 3.2`
+
 ```bash
 npm install sh-design
 # 或 pnpm add sh-design / yarn add sh-design
@@ -69,7 +71,8 @@ import 'sh-design/dist/style.css'
 | 组件 | 说明 | 文档 |
 | --- | --- | --- |
 | `ShCopyButton` | 一键复制文本，内置成功反馈 | [查看](https://ktboy.github.io/sh-design/components/copy-button) |
-| `ShLazyImage` | 懒加载图片：骨架屏 + 淡入 + **失败兜底（图 + 文案，可插槽自定义）** | [查看](https://ktboy.github.io/sh-design/components/lazy-image) |
+| `ShLazyImage` | 懒加载图片：骨架屏 + 淡入 + **失败兜底** + loader 接口取图 / 视口懒加载 / 轮询刷新 | [查看](https://ktboy.github.io/sh-design/components/lazy-image) |
+| `ShSeamlessScroll` | 高性能无缝滚动：四向 / 悬停暂停 / 滚轮手动滚 / 步进滚动，每帧零重渲染 | [查看](https://ktboy.github.io/sh-design/components/seamless-scroll) |
 
 > 组件持续增加中，欢迎 [提 Issue](https://github.com/KTBOY/sh-design/issues) 提需求或 PR。
 
