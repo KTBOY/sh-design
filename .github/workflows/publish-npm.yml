@@ -3,17 +3,21 @@ name: Publish to npm
 # Publishes the `sh-design` package via npm Trusted Publishing (OIDC) — no token.
 # Prerequisite: on npmjs.com, configure a Trusted Publisher for `sh-design`
 # pointing to this repository (KTBOY/sh-design) and this workflow (publish-npm.yml).
+#
+# Trigger: push a version tag (v*). After a successful npm publish the workflow
+# also creates the GitHub Release automatically — fully hands-free releases.
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      id-token: write
+      contents: write # create the GitHub Release
+      id-token: write # npm OIDC Trusted Publishing
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,3 +48,14 @@ jobs:
       - name: Publish sh-design (OIDC Trusted Publishing)
         run: npm publish --access public
         working-directory: packages/sh-design
+
+      # Create the GitHub Release only after npm publish succeeded.
+      # Skipped if the release already exists (e.g. workflow re-run).
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || \
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+            --title "$GITHUB_REF_NAME" --generate-notes --verify-tag

@@ -76,12 +76,10 @@ if not errorlevel 1 (
 git tag -a "v%VER%" -m "v%VER%"
 git push origin "v%VER%" || goto :fail
 echo.
-echo tag v%VER% 已推送。最后一步需要你手动点一下：
-echo   发布 GitHub Release 触发 npm 自动发布，OIDC 免验证码
-echo   1. 填标题 v%VER%
-echo   2. 点 Generate release notes
-echo   3. 点 Publish release
-start "" "https://github.com/KTBOY/sh-design/releases/new?tag=v%VER%"
+echo tag v%VER% 已推送，后面全自动，无需任何手动操作：
+echo   CI 会自动构建并发布 npm（OIDC 免验证码），发布成功后自动创建 GitHub Release。
+echo   可在 Actions 页面观察进度（约 1 分钟），完成后 npm 上即可搜到新版本。
+start "" "https://github.com/KTBOY/sh-design/actions/workflows/publish-npm.yml"
 goto :end
 
 :fail
