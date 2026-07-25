@@ -50,7 +50,7 @@
     "version": "node ./scripts/sync-version.mjs && git add src/version.ts"
   },
   "peerDependencies": {
-    "vue": "^3.3.0"
+    "vue": "^3.2.0"
   },
   "devDependencies": {
     "vite-plugin-dts": "^4.3.0"

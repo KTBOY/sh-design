@@ -6,6 +6,8 @@
 
 ## Installation
 
+> Requires Vue `>= 3.2`.
+
 ```bash
 npm install sh-design
 # or

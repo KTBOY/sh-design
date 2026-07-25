@@ -1,0 +1,92 @@
+version: 1
+
+# ---------------------------------------------------------------------------
+# File-scope control (layered ON TOP of .qoderignore). Glob = .gitignore syntax.
+# include is left empty because this is a small, focused repo — the whole
+# source tree is relevant. We only exclude generated / vendored artifacts.
+# ---------------------------------------------------------------------------
+scope:
+  include: []
+  exclude:
+    - "node_modules/**"
+    - "**/dist/**"
+    - "docs/.vitepress/cache/**"
+    - "docs/.vitepress/dist/**"
+    - "pnpm-lock.yaml"
+
+repowiki:
+  # No global preset template: pages span both narrative (getting started) and
+  # architecture, so each page is organised from its goal/hints instead.
+  template: ""
+
+  # Strong priors the planner cannot reliably infer from code alone.
+  notes:
+    - text: "项目定位：sh-design 是面向『功能性 / 业务组件』的 Vue 3 组件库，区别于通用 UI 原语库（如 Button/Input 级别）。文档与知识卡应突出业务场景价值与可复用性，而非基础样式控件。"
+    - text: "命名区分（易混淆，务必澄清）：npm 包名与 GitHub 仓库名均为 sh-design，但本地工作区/目录名是 sh-ui；GitHub 地址为 KTBOY/sh-design，文档站 base 为 /sh-design/。切勿把 sh-ui 当作包名。"
+    - text: "技术栈与版本：Vue 3.5、Vite 5（library mode）、TypeScript 5.6、pnpm 11（workspace/monorepo）、VitePress 1.5、vite-plugin-dts 4；运行环境 Node >= 18。"
+    - text: "安装范式：单组件用 withInstall 包裹并暴露 install 方法；整库用 makeInstaller 聚合所有组件，支持 app.use(ShDesign) 全量注册与 import { ShCopyButton } 按需引入两种方式。组件命名统一使用 Sh 前缀（如 ShCopyButton）。"
+    - text: "构建产物约定：Vite 库模式输出 dist/sh-design.js(ESM)、dist/sh-design.cjs(CJS)、dist/style.css 及逐文件 .d.ts；vue 被 external 且声明为 peerDependency；消费方需额外引入 'sh-design/dist/style.css'。package.json 通过 exports/main/module/types 映射产物，sideEffects 仅含 CSS。"
+    - text: "发布约定：本机全局 registry 指向淘宝镜像（registry.npmmirror.com，只读、不可发布）；发布依赖 package.json 的 publishConfig 强制指向 registry.npmjs.org 且 access=public。发布前需在官方源 npm login。打 GitHub Release 会触发 publish-npm 工作流（依赖 NPM_TOKEN 仓库密钥）。"
+    - text: "pnpm v11 关键差异：构建脚本白名单写在 pnpm-workspace.yaml 的 allowBuilds（映射式，值为 true/false），旧版 onlyBuiltDependencies / ignoredBuiltDependencies 已被移除。本项目设 esbuild:false（二进制由 optional dep @esbuild/<platform> 提供，postinstall 非必需）、vue-demi:true。"
+    - text: "新增组件目录约定：packages/sh-design/src/components/<name>/ 下含 index.ts（withInstall 导出）、src/<name>.vue（SFC，defineOptions 指定 name）、src/<name>.ts（props/emits 类型），并在 src/components/index.ts 汇总导出，在 docs/components/ 新增文档页与实时 Demo。"
+    - text: "主题与设计令牌：视觉风格由 packages/sh-design/src/styles/var.css 中以 --sh- 开头的 CSS 变量驱动，覆盖这些变量即可换肤；样式通过 src/index.ts 引入 styles/index.css 参与打包。"
+    - text: "文档站运行机制：docs 与 play 通过 Vite alias 将 'sh-design' 精确映射到 packages/sh-design/src/index.ts（正则 ^sh-design$），因此开发预览无需先构建库；VitePress 主题在 enhanceApp 中 app.use(ShDesign) 全局注册组件供 Markdown Demo 直接使用。"
+
+  # Curated page whitelist (strict-shape mode). Each maps to a real code area.
+  documents:
+    - title: "项目概览与定位"
+      parent: ""
+      goal: "介绍 sh-design 的目标（业务/功能性组件库）、核心特性、技术栈与整体仓库结构，帮助新成员快速建立全局认知。"
+      hints: "参考根 README.md、根 package.json 的 scripts/devDependencies、pnpm-workspace.yaml；强调业务组件定位与 sh-ui(目录) vs sh-design(包名) 的区分。"
+
+    - title: "快速开始与两种使用方式"
+      parent: ""
+      goal: "说明安装、样式引入，以及全量注册（app.use）与按需引入两种用法，并给出组合式函数的独立用法。"
+      hints: "参考 packages/sh-design/README.md、docs/guide/installation.md、docs/guide/quickstart.md、packages/sh-design/src/index.ts。"
+
+    - title: "Monorepo 工程结构"
+      parent: ""
+      goal: "解析 pnpm workspace 的三大子项目（packages/sh-design 组件库、docs 文档站、play 调试场）职责、依赖关系与 workspace:* 链接方式。"
+      hints: "参考 pnpm-workspace.yaml、根 tsconfig.json、docs/package.json、play/package.json，以及 docs/play 中对 sh-design 的 alias 配置。"
+
+    - title: "组件库构建与产物"
+      parent: ""
+      goal: "讲清 Vite 库模式构建：入口、ESM/CJS 输出与命名、external vue、vite-plugin-dts 生成类型声明，以及 package.json 的 exports/types/sideEffects 与 style.css。"
+      hints: "参考 packages/sh-design/vite.config.ts、packages/sh-design/package.json、packages/sh-design/tsconfig.json。"
+
+    - title: "组件安装范式（withInstall / makeInstaller）"
+      parent: ""
+      goal: "剖析组件如何通过 withInstall 具备插件能力、整库如何用 makeInstaller 聚合注册，以及 Sh 前缀与默认导出/具名导出的组织方式。"
+      hints: "参考 packages/sh-design/src/utils/install.ts、packages/sh-design/src/index.ts、packages/sh-design/src/components/copy-button/index.ts。"
+
+    - title: "新增业务组件开发指南"
+      parent: ""
+      goal: "以 ShCopyButton 为范例，给出新增一个业务组件的端到端流程：目录约定、SFC 与 props/emits 类型、导出、样式令牌、文档页。"
+      hints: "参考 packages/sh-design/src/components/copy-button/ 全部文件、src/components/index.ts、docs/components/copy-button.md、src/styles/var.css。"
+
+    - title: "组合式函数（Composables）"
+      parent: ""
+      goal: "介绍 hooks 目录约定与 useClipboard 的实现（响应式 copied 状态、错误处理、SSR 安全），以及底层 copyText 工具的降级策略。"
+      hints: "参考 packages/sh-design/src/hooks/use-clipboard.ts、packages/sh-design/src/hooks/index.ts、packages/sh-design/src/utils/clipboard.ts。"
+
+    - title: "文档预览站（VitePress + GitHub Pages）"
+      parent: ""
+      goal: "说明 VitePress 站点配置、主题如何注册组件库、alias 指向源码、base=/sh-design/ 与实时 Demo 容器，用于对外预览。"
+      hints: "参考 docs/.vitepress/config.ts、docs/.vitepress/theme/index.ts、docs/.vitepress/theme/custom.css、docs/index.md。"
+
+    - title: "持续集成与 npm 发布"
+      parent: ""
+      goal: "梳理两条 CI 流水线（GitHub Pages 文档部署、GitHub Release 触发 npm 发布）与发布关键配置：publishConfig、镜像源限制、NPM_TOKEN、pnpm allowBuilds、版本管理。"
+      hints: "参考 .github/workflows/deploy-docs.yml、.github/workflows/publish-npm.yml、packages/sh-design/package.json 的 publishConfig/prepublishOnly、pnpm-workspace.yaml 的 allowBuilds。"
+
+    - title: "代码规范与工程工具链"
+      parent: ""
+      goal: "汇总 ESLint(flat config)、Prettier、EditorConfig、TypeScript 配置与命名/目录约定，作为贡献者规范参考。"
+      hints: "参考 eslint.config.js、.prettierrc.json、.editorconfig、.gitattributes、根 tsconfig.json 与 packages/sh-design/tsconfig.json。"
+
+knowledgecard:
+  notes:
+    - text: "模块边界：先按 workspace 分为『组件库(packages/sh-design)』『文档站(docs)』『调试场(play)』三大模块；组件库内部再细分 components / hooks / utils / styles 四层。"
+    - text: "知识卡优先沉淀可复用经验：①新增业务组件的端到端流程；②withInstall/makeInstaller 安装范式；③Vite 库模式 + vite-plugin-dts 构建与 exports 映射；④npm 发布（publishConfig + 官方源登录）与 GitHub Pages 部署流程；⑤pnpm v11 的 allowBuilds 处理 esbuild/vue-demi。"
+    - text: "命名澄清：仓库/包名为 sh-design，本地目录为 sh-ui，二者不可混用；组件统一 Sh 前缀。"
+    - text: "知识来源过滤：忽略 node_modules、**/dist/**、docs/.vitepress/cache 与 dist、pnpm-lock.yaml，不作为知识抽取依据。"

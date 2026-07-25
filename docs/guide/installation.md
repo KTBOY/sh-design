@@ -2,7 +2,7 @@
 
 ## 环境要求
 
-- [Vue](https://vuejs.org/) `>= 3.3`
+- [Vue](https://vuejs.org/) `>= 3.2`
 - 现代浏览器或 SSR 环境
 
 ## 使用包管理器安装
