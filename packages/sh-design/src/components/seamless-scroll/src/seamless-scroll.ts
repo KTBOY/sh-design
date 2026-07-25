@@ -23,6 +23,11 @@ export const seamlessScrollProps = {
     type: Boolean,
     default: true
   },
+  /** 悬停时允许滚轮手动滚动（建议搭配 hover-pause 使用） */
+  wheel: {
+    type: Boolean,
+    default: false
+  },
   /** 内容未超出容器时也强制滚动 */
   force: {
     type: Boolean,

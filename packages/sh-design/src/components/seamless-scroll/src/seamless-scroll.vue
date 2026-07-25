@@ -140,8 +140,23 @@ function onLeave() {
   schedule()
 }
 
+// Manual wheel scrolling while hovered: adjusts `progress` directly and wraps
+// through the seamless loop. Registered with { passive: false } so we can
+// prevent the page from scrolling while the pointer is over the marquee.
+function onWheelEvt(e: WheelEvent) {
+  if (!props.wheel || !hovered || !canScroll) return
+  e.preventDefault()
+  // Wheel-down always moves content up/left (matches normal scroll intuition).
+  const forward = props.direction === 'up' || props.direction === 'left'
+  progress += forward ? e.deltaY : -e.deltaY
+  progress = ((progress % contentSize) + contentSize) % contentSize
+  apply()
+}
+
 onMounted(() => {
   measure()
+
+  root.value?.addEventListener('wheel', onWheelEvt, { passive: false })
 
   // Re-measure on container/content size changes (data updates included).
   if (typeof ResizeObserver !== 'undefined') {
@@ -170,6 +185,7 @@ onBeforeUnmount(() => {
   stop()
   if (waitTimer) clearTimeout(waitTimer)
   if (delayTimer) clearTimeout(delayTimer)
+  root.value?.removeEventListener('wheel', onWheelEvt)
   ro?.disconnect()
   io?.disconnect()
 })

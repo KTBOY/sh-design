@@ -139,6 +139,30 @@ const news = ['公告一', '公告二', '公告三', '公告四', '公告五']
 </template>
 ```
 
+## 悬停滚轮手动滚动
+
+开启 `wheel` 后，鼠标悬停（自动滚动已暂停）时可用**滚轮上下翻看**，滚到头会无缝循环衔接；离开后从当前位置继续自动滚。悬停期间页面不会跟着滚动。
+
+<div class="sh-demo" style="display:block">
+  <div style="height: 150px; width: 320px; border: 1px solid var(--vp-c-divider); border-radius: 8px; padding: 0 12px;">
+    <ShSeamlessScroll :speed="40" wheel>
+      <ul style="margin: 0; padding: 0; list-style: none;">
+        <li v-for="item in news" :key="item" style="padding: 9px 0; font-size: 13px; border-bottom: 1px dashed var(--vp-c-divider);">{{ item }}</li>
+      </ul>
+    </ShSeamlessScroll>
+  </div>
+</div>
+
+```vue
+<template>
+  <div style="height: 150px">
+    <ShSeamlessScroll :speed="40" wheel>
+      <ul>...</ul>
+    </ShSeamlessScroll>
+  </div>
+</template>
+```
+
 ## 与 vue3-seamless-scroll 的差异
 
 | | vue3-seamless-scroll | ShSeamlessScroll |
@@ -160,6 +184,7 @@ const news = ['公告一', '公告二', '公告三', '公告四', '公告五']
 | `speed` | 滚动速度（px/秒，与刷新率无关） | `number` | `40` |
 | `active` | 是否滚动（可动态启停） | `boolean` | `true` |
 | `hover-pause` | 鼠标悬停时暂停 | `boolean` | `true` |
+| `wheel` | 悬停时允许滚轮手动滚动（建议搭配 `hover-pause`） | `boolean` | `false` |
 | `force` | 内容未超出容器时也强制滚动 | `boolean` | `false` |
 | `single-step` | 单步滚动距离（px），`> 0` 启用步进模式 | `number` | `0` |
 | `single-wait` | 步进模式每步停顿时长（ms） | `number` | `1000` |
