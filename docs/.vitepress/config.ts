@@ -25,7 +25,7 @@ export default defineConfig({
         ]
       },
       {
-        text: '0.0.3',
+        text: '0.0.4',
         items: [
           { text: 'npm', link: 'https://www.npmjs.com/package/sh-design' }
         ]
@@ -51,7 +51,8 @@ export default defineConfig({
           text: '业务组件',
           items: [
             { text: 'CopyButton 复制按钮', link: '/components/copy-button' },
-            { text: 'LazyImage 懒加载图片', link: '/components/lazy-image' }
+            { text: 'LazyImage 懒加载图片', link: '/components/lazy-image' },
+            { text: 'SeamlessScroll 无缝滚动', link: '/components/seamless-scroll' }
           ]
         }
       ]

@@ -4,6 +4,15 @@
 
 > 说明：这里只记录**组件库**相关的改动（组件、Composable、公共 API）。纯文档 / 站点 / CI 等工程改动一般不单独收录。
 
+## 0.0.4
+
+<sub>2026-07-24</sub>
+
+### ✨ 新增
+
+- 新增 `ShSeamlessScroll` 无缝滚动组件：支持上/下/左/右四向滚动、悬停暂停、步进滚动（`single-step` + `single-wait`）、动态启停（`active`）与实时调速（`speed`，px/秒）。
+- 性能：动画循环绕开 Vue 响应式（每帧直接写 `transform`，零重渲染），`translate3d` + `will-change` GPU 合成，离开视口自动暂停（IntersectionObserver），内容变化自动重测（ResizeObserver）。
+
 ## 0.0.3
 
 <sub>2026-07-24</sub>
