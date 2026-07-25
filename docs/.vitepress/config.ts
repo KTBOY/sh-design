@@ -54,6 +54,12 @@ export default defineConfig({
             { text: 'LazyImage 懒加载图片', link: '/components/lazy-image' },
             { text: 'SeamlessScroll 无缝滚动', link: '/components/seamless-scroll' }
           ]
+        },
+        {
+          text: '小程序组件',
+          items: [
+            { text: 'ImageWaterfall 图片瀑布流', link: '/components/sk-image-waterfall' }
+          ]
         }
       ]
     },

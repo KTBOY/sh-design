@@ -4,7 +4,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import MiniProgramDialog from '../.vitepress/theme/components/MiniProgramDialog.vue'
+import { withBase } from 'vitepress'
 
 const v = ref(0)
 const refresh = () => (v.value += 1)
@@ -12,12 +12,13 @@ const seeds = ['forest', 'ocean', 'city', 'desert']
 </script>
 
 <div style="margin: 20px 0 8px;">
-  <MiniProgramDialog
-    label="小程序版"
-    title="小程序版"
-    address="https://www.npmjs.com/package/sk-image-waterfall"
-    gif="/mini-program-demo.gif"
-  />
+  <a
+    :href="withBase('/components/sk-image-waterfall')"
+    style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; background: linear-gradient(120deg, #2563eb, #3b82f6); color: #fff; font-size: 13px; font-weight: 600; line-height: 1; text-decoration: none; box-shadow: 0 6px 18px -8px rgba(37, 99, 235, 0.6);"
+  >
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm4.28 7.53-4.95 6.6a1 1 0 0 1-1.5.11l-2.83-2.83a1 1 0 1 1 1.42-1.42l2 2 4.26-5.68a1 1 0 1 1 1.6 1.22Z"/></svg>
+    <span>小程序版 ImageWaterfall →</span>
+  </a>
 </div>
 
 ## 基础用法
