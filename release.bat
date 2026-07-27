@@ -46,7 +46,14 @@ echo 全部检查通过。
 echo.
 
 REM ---------- 4. 提交并推送 ----------
-echo 即将提交以下改动，git add -A 会包含所有新文件，
+REM 先暂存全部改动；若没有新改动（如上次已 commit 但未 push）则跳过提交直接推送
+git add -A
+git diff --cached --quiet
+if not errorlevel 1 (
+  echo 没有新改动需要提交，直接推送本地已有提交...
+  goto :push
+)
+echo 即将提交以下改动，git add -A 已包含所有新文件，
 echo 防止"文档引用了某个新文件但忘了提交"导致 CI 挂掉：
 echo ------------------------------------------
 git status --short
@@ -57,8 +64,8 @@ if errorlevel 2 goto :end
 set /p MSG=请输入提交信息: 
 if "%MSG%"=="" set MSG=chore: update
 
-git add -A
 git commit -m "%MSG%" || goto :fail
+:push
 git push origin main || goto :fail
 echo.
 echo 已推送。CI 会自动构建并部署文档站：
