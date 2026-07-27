@@ -6,7 +6,18 @@
 
 ## 0.0.6
 
-<sub>2026-07-25</sub>
+<sub>2026-07-27</sub>
+
+### ✨ 新增
+
+- 新增 `ShWaterfall` 瀑布流组件：
+  - **双布局**：`layout="waterfall"` 瀑布流（最矮列优先）/ `layout="grid"` 等高网格（`grid-ratio` 控制单元格比例），支持动态切换列数与间距。
+  - **虚拟列表 + 分页加载**：只渲染可视区±`buffer` 内的卡片（每列二分查找）；触底基于 `IntersectionObserver` 哨兵触发 `load-more`，`loading` / `finished` 控制底部状态，内容不足一屏自动续载。
+  - **零抖动**：卡片高度布局时一次性确定（真实宽高比 → `ratios` 兜底比例池按下标取模），加载前后 0 回流；`scrollbar-gutter: stable` 防滚动条引起列宽跳变。
+  - **双滚动模式**：`scroller="self"`（固定高度容器内滚动）/ `scroller="window"`（自然撑开跟随页面滚动）。
+  - **性能**：布局数据绕开深层响应式，分页追加增量布局不重排已有卡片，滚动 rAF 节流，卡片 `translate3d` GPU 合成，容器尺寸变化自动重排（ResizeObserver）。
+  - 默认以 `ShLazyImage` 渲染图片（骨架屏 + 淡入 + 失败兜底），`#item` 插槽完全自定义卡片（`extra-height` 预留标题区）；`#loading` / `#finished` / `#empty` 插槽与对应文案属性自定义底部与空状态。
+  - 入场动画（上滑回弹）默认开启，`animate` 可关；暴露 `relayout()` / `scrollTo()` / `check()` 方法；事件 `load-more` / `item-click` / `scroll`。
 
 ### 🔧 修改
 

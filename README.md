@@ -77,6 +77,7 @@ import 'sh-design/dist/style.css'
 | `ShCopyButton` | 一键复制文本，内置成功反馈 | [查看](https://ktboy.github.io/sh-design/components/copy-button) |
 | `ShLazyImage` | 懒加载图片：骨架屏 + 淡入 + **失败兜底** + loader 接口取图 / 视口懒加载 / 轮询刷新 | [查看](https://ktboy.github.io/sh-design/components/lazy-image) |
 | `ShSeamlessScroll` | 高性能无缝滚动：四向 / 悬停暂停 / 滚轮手动滚 / 步进滚动，每帧零重渲染 | [查看](https://ktboy.github.io/sh-design/components/seamless-scroll) |
+| `ShWaterfall` | 高性能虚拟瀑布流：瀑布流/网格双布局 + 虚拟列表 + 触底分页，**零抖动**预留高度，内置懒加载图片 | [查看](https://ktboy.github.io/sh-design/components/waterfall) |
 
 > 组件持续增加中，欢迎 [提 Issue](https://github.com/KTBOY/sh-design/issues) 提需求或 PR。
 

@@ -3,13 +3,14 @@ import { makeInstaller } from './utils/install'
 import { ShCopyButton } from './components/copy-button'
 import { ShLazyImage } from './components/lazy-image'
 import { ShSeamlessScroll } from './components/seamless-scroll'
+import { ShWaterfall } from './components/waterfall'
 import { version } from './version'
 
 // Bundled styles (design tokens). Consumers importing the built package should
 // additionally import 'sh-design/dist/style.css'.
 import './styles/index.css'
 
-const components: Plugin[] = [ShCopyButton, ShLazyImage, ShSeamlessScroll]
+const components: Plugin[] = [ShCopyButton, ShLazyImage, ShSeamlessScroll, ShWaterfall]
 
 const { install } = makeInstaller(components)
 

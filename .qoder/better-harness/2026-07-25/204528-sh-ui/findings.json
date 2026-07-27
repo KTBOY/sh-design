@@ -1,0 +1,148 @@
+{
+  "summary": {
+    "projectName": "sh-ui (sh-design)",
+    "locale": "zh-CN",
+    "modelId": "agent-work-loop-v4",
+    "reportContractVersion": 25,
+    "overview": "发布与文档部署自动化成熟（v* tag 触发 OIDC 免令牌发布、main 推送自动部署 Pages），但质量门控几乎全部停留在本地 release.bat：CI 不执行类型检查 / lint / 组件同步检查，组件库零自动化测试，changelog 规则在发布边界不可强制。本窗口（2026-06-25 至 2026-07-25）无可分析会话，行为类结论保持 Unobserved，评审基于项目与资产静态证据（session-limited）。",
+    "aiAgentPractice": {
+      "inspectedSurfaces": [
+        "Rules",
+        "Workflows"
+      ],
+      "coverageRows": [
+        {
+          "surface": "Rules",
+          "scopes": [
+            "Project"
+          ],
+          "count": 1,
+          "paths": [
+            ".qoder/rules/changelog.md"
+          ]
+        },
+        {
+          "surface": "Workflows",
+          "scopes": [
+            "Project"
+          ],
+          "count": 2,
+          "paths": [
+            ".github/workflows/deploy-docs.yml",
+            ".github/workflows/publish-npm.yml"
+          ]
+        },
+        {
+          "surface": "Custom Agents",
+          "scopes": [
+            "Project"
+          ],
+          "count": 0
+        }
+      ]
+    },
+    "assignmentSummaries": [],
+    "dimensions": [
+      {
+        "id": "task-understanding",
+        "label": "任务理解",
+        "score": 62,
+        "summary": "agent.md、README、组件发布流程.md 与按 globs 限定作用域的 changelog 规则共同给出清晰的任务与文档同步边界；本窗口无会话证据验证实际任务中的应用，仅达 Present。",
+        "findingRefs": []
+      },
+      {
+        "id": "controlled-execution",
+        "label": "可控执行",
+        "score": 60,
+        "summary": "启动 / 构建 / 发布路线通过 package.json 脚本与 release.bat 可发现且非交互步骤明确；但 engines 声明（node>=18）与实际硬性要求（Node≥22.13，pnpm 11.7+）冲突，会误导环境准备。",
+        "findingRefs": [
+          "engines-conflicts-with-required-node"
+        ]
+      },
+      {
+        "id": "change-validation",
+        "label": "改动验证",
+        "score": 45,
+        "summary": "typecheck / lint / 构建 / 组件同步检查路线存在且在 release.bat 中串联；但组件行为没有任何自动化测试（evidence-pack 统计 testFiles=0），最终变更缺少覆盖其行为的相关检查，Relevant Verification 为 Missing。",
+        "findingRefs": [
+          "component-library-has-no-automated-tests"
+        ]
+      },
+      {
+        "id": "reliable-delivery",
+        "label": "可靠交付",
+        "score": 52,
+        "summary": "tag 触发 OIDC Trusted Publishing 与 GitHub Release 自动创建已配置（Present/Wired）；但发布与部署 CI 均不执行项目自有的验证步骤，绕过 release.bat 即可无门控发布，changelog 治理要求在发布边界也不可强制。",
+        "findingRefs": [
+          "release-ci-skips-local-quality-gates",
+          "changelog-rule-not-enforced-at-release"
+        ]
+      },
+      {
+        "id": "learning-capture",
+        "label": "经验沉淀",
+        "score": 35,
+        "summary": "本窗口 0 个可用会话（源根 1/5 可用），无法评估重复工作识别、复用与后续改进闭环；完成了有界评审但全部检查保持 Unobserved，无干预台账。",
+        "findingRefs": []
+      }
+    ]
+  },
+  "findings": [
+    {
+      "id": "component-library-has-no-automated-tests",
+      "title": "组件库发布到 npm 但没有任何自动化测试，行为变更无法回归验证",
+      "severity": "Medium",
+      "reason": "事实：项目证据包统计 testFiles=0；package.json 与 packages/sh-design/package.json 均无 test 脚本；仓库内无测试目录（已核查）。推断：copy-button、lazy-image、seamless-scroll 的 props / 事件 / 行为改动只能靠 play 演示场手动验证，回归缺陷会随 tag 发布直接进入 npm 正式版本。owner：packages/sh-design。不确定性：未发现测试被有意放在其他位置或以 E2E 形式存在的证据。",
+      "expectedOutput": [
+        "每个对外组件的关键行为都有可重复执行的最小回归检查，发布前可自动验证而非仅靠手动演示。"
+      ],
+      "expectedArtifact": "Test route",
+      "aiFixPrompt": "/better-harness fix this issue\n\n为 packages/sh-design 的 3 个组件（copy-button、lazy-image、seamless-scroll）建立最小的项目自有测试路线：新增 test 脚本，并为每个组件补一条覆盖其关键对外行为（props / 事件）的用例；测试路线需与现有 Vite 构建链兼容，并接入 release.bat 的本地验证步骤。引入任何新的测试运行器属于新增依赖，需先获得确认再安装。\n\n## Validation\n\n- 运行新增的 test 脚本，确认 3 个组件各有至少一条行为用例通过\n- 运行 pnpm build，确认测试相关改动不影响组件库构建",
+      "dimensionRefs": [
+        "change-validation"
+      ]
+    },
+    {
+      "id": "release-ci-skips-local-quality-gates",
+      "title": "发布 / 部署 CI 只执行构建，本地 5 步验证可被绕过直接上线",
+      "severity": "Medium",
+      "reason": "事实：publish-npm.yml 仅 install → build → npm publish；deploy-docs.yml 仅 install → docs:build → 部署；而 release.bat 在本地串联 typecheck、lint、build、docs:build、node scripts/check-components.mjs 共 5 步。推断：不经过 release.bat 直接 git push 或 push tag 时，类型错误、lint 违规或组件三处信息（README 表 / 文档页 / 侧边栏）不同步都能进入 main 或发布到 npm，本地门控形同虚设。owner：.github/workflows。不确定性：窗口内未观察到此类事故实际发生（UNVERIFIED）。",
+      "expectedOutput": [
+        "无论改动是否经过 release.bat，进入 main 与发布到 npm 的内容都必须通过与本地相同的类型 / 规范 / 组件同步门控。"
+      ],
+      "expectedArtifact": "CI workflow",
+      "aiFixPrompt": "/better-harness fix this issue\n\n把 release.bat 中已有的验证步骤复用到 CI：在 .github/workflows/publish-npm.yml 的 Build library 之前、以及 .github/workflows/deploy-docs.yml 的 Build docs 之前，加入 pnpm typecheck、pnpm lint、node scripts/check-components.mjs 三个步骤，保持与本地 release.bat 相同的失败即中断语义。不修改触发条件与发布 / 部署步骤本身。\n\n## Validation\n\n- 本地依次运行 pnpm typecheck、pnpm lint、node scripts/check-components.mjs，确认当前仓库全部通过\n- 检查两个 workflow YAML 结构有效且新步骤位于对应构建步骤之前",
+      "dimensionRefs": [
+        "reliable-delivery"
+      ]
+    },
+    {
+      "id": "changelog-rule-not-enforced-at-release",
+      "title": "changelog 更新规则在发布边界不可强制，本地检查可一键跳过",
+      "severity": "Low",
+      "reason": "事实：.qoder/rules/changelog.md 要求组件对外能力变更必须同步 docs/guide/changelog.md，且发版时 changelog 顶部版本 = package.json version；唯一的自动检查在 release.bat（findstr 匹配 \"## 当前版本\"），且提供\"仍要继续\"选项可跳过；publish-npm.yml 在发布前没有任何 changelog 检查。推断：发布到 npm 的版本可能没有对应 changelog 条目，违反项目自有治理规则，使用者在文档站看不到该版本的变更说明。owner：.github/workflows/publish-npm.yml。不确定性：已发布的历史版本是否发生过 changelog 缺失未核查。",
+      "expectedOutput": [
+        "任何发布到 npm 的版本都保证在 changelog 中有对应条目，规则从口头约定变为发布边界的硬门控。"
+      ],
+      "expectedArtifact": "CI workflow",
+      "aiFixPrompt": "/better-harness fix this issue\n\n在 .github/workflows/publish-npm.yml 的 Publish 步骤之前新增一个检查步骤：读取 packages/sh-design/package.json 的 version，用 node 检查 docs/guide/changelog.md 是否包含 \"## <version>\" 条目，缺失则以非零退出码中断发布。保持 release.bat 现有交互提示不变。\n\n## Validation\n\n- 用当前版本号在本地运行同等 node 检查命令，确认 docs/guide/changelog.md 中存在对应条目时通过、移除条目时失败",
+      "dimensionRefs": [
+        "reliable-delivery"
+      ]
+    },
+    {
+      "id": "engines-conflicts-with-required-node",
+      "title": "engines 声明 Node>=18 与实际硬性要求 Node≥22.13 冲突，误导环境准备",
+      "severity": "Low",
+      "reason": "事实：根 package.json engines 为 node>=18.0.0、pnpm>=8.0.0；release.bat 第 12 行强制 Node≥22.13 否则中断；组件发布流程.md 明确记录\"Node<22.13 跑 pnpm 11.7+ 会报 node:sqlite 错误\"为已踩过的坑，且两个 workflow 均锁定 pnpm 11.7.0。推断：贡献者或编码代理按 engines 准备 Node 18–22.12 环境时能通过 engines 校验，但在 pnpm install 阶段以与真实原因不直观的 node:sqlite 报错崩溃。owner：package.json。不确定性：CI 中 node-version: 22 由 setup-node 解析为最新 22.x，当前 CI 不受影响。",
+      "expectedOutput": [
+        "engines 声明成为可信的环境准备依据，低版本 Node 在安装前即被明确拒绝，而不是在 pnpm 运行期以晦涩报错失败。"
+      ],
+      "expectedArtifact": "Manifest",
+      "aiFixPrompt": "/better-harness fix this issue\n\n将根 package.json 的 engines 更新为与实际要求一致：node \">=22.13.0\"、pnpm \">=11.7.0\"，使环境声明与 release.bat 的强制检查、workflow 锁定的 pnpm 版本保持同一事实来源。不改动其他字段。\n\n## Validation\n\n- 运行 node -p \"require('./package.json').engines\" 确认新值\n- 运行 pnpm install 确认当前环境（Node 22.22）无 engines 告警",
+      "dimensionRefs": [
+        "controlled-execution"
+      ]
+    }
+  ]
+}

@@ -20,12 +20,11 @@ export default defineConfig({
         text: '更多产品',
         items: [
           { text: '珊瑚打码小程序', link: 'https://github.com/KTBOY/ydw' },
-          { text: '实验室', link: 'https://github.com/KTBOY/shukelab' },
-          { text: '粤电玩游戏', link: 'https://www.ps521.asia/' }
+          { text: '实验室', link: 'https://github.com/KTBOY/shukelab' }
         ]
       },
       {
-        text: '0.0.5',
+        text: '0.0.6',
         items: [
           { text: 'npm', link: 'https://www.npmjs.com/package/sh-design' }
         ]
@@ -52,7 +51,8 @@ export default defineConfig({
           items: [
             { text: 'CopyButton 复制按钮', link: '/components/copy-button' },
             { text: 'LazyImage 懒加载图片', link: '/components/lazy-image' },
-            { text: 'SeamlessScroll 无缝滚动', link: '/components/seamless-scroll' }
+            { text: 'SeamlessScroll 无缝滚动', link: '/components/seamless-scroll' },
+            { text: 'Waterfall 瀑布流', link: '/components/waterfall' }
           ]
         },
         {

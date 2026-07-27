@@ -10,7 +10,9 @@ export default ts.config(
       '**/node_modules/**',
       '**/scripts/**',
       '**/.vitepress/cache/**',
-      '**/.vitepress/dist/**'
+      '**/.vitepress/dist/**',
+      // Qoder 工具产物（评审报告等），不参与代码检查
+      '**/.qoder/**'
     ]
   },
   js.configs.recommended,
