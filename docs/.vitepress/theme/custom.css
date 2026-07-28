@@ -20,7 +20,7 @@
   line-height: 0;
   width: min(560px, 86vw);
   aspect-ratio: 720 / 126;
-  background: url('../../public/logo-bark.png') no-repeat left center / contain;
+  background: url('../../public/logo-bark-dark.png') no-repeat left center / contain;
   -webkit-background-clip: border-box;
   background-clip: border-box;
 }
