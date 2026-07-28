@@ -4,13 +4,43 @@ import { fileURLToPath, URL } from 'node:url'
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
   title: 'sh-design',
-  description: 'A functional & business-oriented Vue 3 component library',
+  description:
+    'sh-design — 面向业务场景的 Vue3 组件库：高性能瀑布流（虚拟列表/无限滚动）、图片懒加载、无缝滚动、一键复制等开箱即用组件，TypeScript 友好，支持按需引入',
   lang: 'zh-CN',
   // GitHub Pages project site: https://ktboy.github.io/sh-design/
   base: '/sh-design/',
   lastUpdated: true,
   cleanUrls: true,
-  head: [['meta', { name: 'theme-color', content: '#2563eb' }]],
+  // SEO: 生成 sitemap.xml，供 Google/百度站长平台提交收录
+  sitemap: { hostname: 'https://ktboy.github.io/sh-design/' },
+  head: [
+    ['meta', { name: 'theme-color', content: '#2563eb' }],
+    // SEO: 关键词与作者
+    [
+      'meta',
+      {
+        name: 'keywords',
+        content:
+          'Vue3 组件库, 瀑布流组件, 虚拟列表, 虚拟滚动, 图片懒加载, 无缝滚动, 无限滚动, 分页加载, masonry, waterfall, lazyload, sh-design'
+      }
+    ],
+    ['meta', { name: 'author', content: 'shukezlc' }],
+    // Open Graph：社交/IM 分享卡片
+    ['meta', { property: 'og:type', content: 'website' }],
+    ['meta', { property: 'og:site_name', content: 'sh-design' }],
+    ['meta', { property: 'og:title', content: 'sh-design · 面向业务场景的 Vue3 组件库' }],
+    [
+      'meta',
+      {
+        property: 'og:description',
+        content:
+          '高性能瀑布流（虚拟列表 + 分页加载）、图片懒加载、无缝滚动等开箱即用组件，TypeScript 友好。'
+      }
+    ],
+    ['meta', { property: 'og:image', content: 'https://ktboy.github.io/sh-design/logo2.png' }],
+    ['meta', { property: 'og:url', content: 'https://ktboy.github.io/sh-design/' }],
+    ['meta', { name: 'twitter:card', content: 'summary_large_image' }]
+  ],
   themeConfig: {
     siteTitle: false,
     nav: [

@@ -1,3 +1,7 @@
+---
+description: Vue3 瀑布流组件 ShWaterfall：虚拟列表 + 触底分页无限滚动，零抖动预留高度，支持瀑布流/网格双布局、图片懒加载，适用于图片流、商品流、内容 Feed。
+---
+
 # Waterfall 瀑布流
 
 高性能**虚拟瀑布流 / 网格**容器：内置 [ShLazyImage](/components/lazy-image) 懒加载、触底分页加载、双滚动模式，专为图片流、商品流、内容 Feed 设计。

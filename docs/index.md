@@ -1,5 +1,6 @@
 ---
 layout: home
+description: sh-design — 面向业务场景的 Vue3 组件库：高性能瀑布流（虚拟列表 + 分页加载）、图片懒加载、无缝滚动、一键复制，TypeScript 友好，支持按需引入。
 
 hero:
   name: sh-design
