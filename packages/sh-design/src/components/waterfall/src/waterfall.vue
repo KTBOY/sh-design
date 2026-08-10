@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { waterfallProps, waterfallEmits } from './waterfall'
+import { waterfallProps, waterfallEmits, waterfallAnimateDefaults } from './waterfall'
 import type { WaterfallItemData, WaterfallItemRect } from './waterfall'
 import { ShLazyImage } from '../../lazy-image'
 
@@ -28,6 +28,40 @@ const totalHeight = ref(0)
 
 // load-more 触发锁：触发一次后上锁，数据变化 / loading 结束后再解锁
 let armed = true
+
+// ---------- 入场动画状态 ----------
+// 动画不绑定在「节点挂载」上：虚拟列表在视口外 buffer 处就已创建节点，
+// 挂载即播放的话，卡片滚进视口时动画早已结束（看起来就是没有动画）。
+// 这里改为「跨入视口」才播：视口外的卡片先置 pending（opacity: 0），
+// 进入视口时再挂动画类，并按滚动方向决定入场方向。
+
+/** dir: 1 从下方入场（下滚）/ -1 从上方入场（上滚）/ 0 直接显示不播动画 */
+interface EnterState {
+  dir: 1 | -1 | 0
+  delay: number
+}
+
+const STATIC_ENTER: EnterState = { dir: 0, delay: 0 }
+/** 错峰延迟最多累加的卡片数，防止一次进入大量卡片时尾部等待过久 */
+const STAGGER_LIMIT = 8
+
+let enterMap = new Map<string | number, EnterState>()
+/** once 用：记录曾经播过动画的 key（关闭时不记录，避免长列表堆积） */
+let enterSeen = new Set<string | number>()
+let scrollDown = true
+let lastTop = 0
+/** 首次测量只记录基准位置，不据此判定方向（window 模式下初始可能为负） */
+let topInited = false
+const enterVersion = ref(0)
+
+/** animate 支持 boolean | 对象：归一为「开关 + 完整参数」两个派生状态 */
+const animateOn = computed(() => props.animate !== false)
+const animateOptions = computed(() => {
+  const raw = props.animate
+  return raw && typeof raw === 'object'
+    ? { ...waterfallAnimateDefaults, ...raw }
+    : waterfallAnimateDefaults
+})
 
 const colWidth = computed(() => {
   const n = Math.max(1, props.cols)
@@ -85,6 +119,7 @@ function appendLayout(from: number) {
   for (let c = 0; c < n; c++) max = Math.max(max, colHeights[c])
   totalHeight.value = Math.max(0, max - props.gap)
   layoutVersion.value++
+  syncEnter()
 }
 
 /** 全量重排（数据重置 / 列数、间距、容器宽度变化） */
@@ -126,17 +161,103 @@ const visibleRects = computed(() => {
   return out
 })
 
+/**
+ * 同步可视卡片的入场状态：
+ * 已入场的保持原状（避免视口边缘抖动导致反复重放），
+ * 新跨入视口的按当前滚动方向入场并累加错峰延迟，
+ * 移出渲染范围的直接剔除 → 下次回看重新入场。
+ */
+function syncEnter() {
+  const rects = visibleRects.value
+  if (!animateOn.value) {
+    if (enterMap.size) {
+      enterMap = new Map()
+      enterVersion.value++
+    }
+    return
+  }
+  const { stagger, once } = animateOptions.value
+  const top = scrollTop.value
+  const vh = viewHeight.value
+  // 视口高度未测出时（父级未给高度等）不做 pending，避免卡片停在 opacity: 0
+  const measured = vh > 0
+  const dir = scrollDown ? 1 : -1
+  const next = new Map<string | number, EnterState>()
+  let batch = 0
+  let dirty = false
+  for (const r of rects) {
+    const key = keyOf(r.index)
+    const prev = enterMap.get(key)
+    if (prev) {
+      next.set(key, prev)
+      continue
+    }
+    if (once && enterSeen.has(key)) {
+      next.set(key, STATIC_ENTER)
+      dirty = true
+      continue
+    }
+    // 与真实视口相交才算入场，只在 buffer 内的保持 pending
+    if (measured && (r.y >= top + vh || r.y + r.height <= top)) continue
+    if (once) enterSeen.add(key)
+    next.set(key, {
+      dir,
+      delay: Math.min(batch++, STAGGER_LIMIT) * Math.max(0, stagger)
+    })
+    dirty = true
+  }
+  if (!dirty && next.size === enterMap.size) return
+  enterMap = next
+  enterVersion.value++
+}
+
+/** 卡片入场状态（读 enterVersion 建立响应式依赖） */
+function enterOf(index: number): EnterState | undefined {
+  void enterVersion.value
+  return enterMap.get(keyOf(index))
+}
+
+function cardClass(index: number) {
+  if (!animateOn.value) return null
+  const state = enterOf(index)
+  if (!state) return 'sh-waterfall__card--pending'
+  return state.dir === 0 ? null : 'sh-waterfall__card--in'
+}
+
+function cardStyle(index: number) {
+  if (!animateOn.value) return undefined
+  const state = enterOf(index)
+  if (!state || state.dir === 0) return undefined
+  const { distance, duration } = animateOptions.value
+  return {
+    '--sh-waterfall-from': `${state.dir * distance}px`,
+    '--sh-waterfall-duration': `${duration}ms`,
+    animationDelay: state.delay ? `${state.delay}ms` : undefined
+  }
+}
+
 /** 同步视口尺寸与滚动位置（self 读容器，window 读 getBoundingClientRect） */
 function updateScrollState() {
   const el = container.value
   if (!el) return
+  let top: number
   if (props.scroller === 'self') {
-    scrollTop.value = el.scrollTop
+    top = el.scrollTop
     viewHeight.value = el.clientHeight
   } else {
-    scrollTop.value = -el.getBoundingClientRect().top
+    top = -el.getBoundingClientRect().top
     viewHeight.value = window.innerHeight
   }
+  // 方向判定留 1px 死区，过滤回弹与亚像素抖动
+  if (!topInited) {
+    topInited = true
+    lastTop = top
+  } else if (Math.abs(top - lastTop) > 1) {
+    scrollDown = top > lastTop
+    lastTop = top
+  }
+  scrollTop.value = top
+  syncEnter()
 }
 
 /**
@@ -227,18 +348,18 @@ function onItemClick(index: number) {
 }
 
 // 数据变化：同一数组追加 → 增量布局；数组替换 / 变短 → 重建
-watch(
-  [() => props.items, () => props.items.length],
-  ([list, len], [oldList]) => {
-    armed = true
-    if (list !== oldList || len < laidCount) rebuild()
-    else if (len > laidCount) appendLayout(laidCount)
-    nextTick(() => {
-      updateScrollState()
-      maybeLoadMore()
-    })
-  }
-)
+watch([() => props.items, () => props.items.length], ([list, len], [oldList]) => {
+  armed = true
+  if (list !== oldList || len < laidCount) {
+    // 数据整体替换（切分类等）视为全新列表，允许重新入场
+    enterSeen = new Set()
+    rebuild()
+  } else if (len > laidCount) appendLayout(laidCount)
+  nextTick(() => {
+    updateScrollState()
+    maybeLoadMore()
+  })
+})
 
 // 布局参数变化 → 全量重排
 watch(
@@ -268,14 +389,15 @@ watch([() => props.loading, () => props.finished], ([loading, finished]) => {
 })
 
 // 滚动模式切换 → 重新绑定监听与哨兵
-watch(
-  [() => props.scroller, () => props.threshold],
-  () => {
-    bindScroll()
-    bindLoadObserver()
-    nextTick(updateScrollState)
-  }
-)
+watch([() => props.scroller, () => props.threshold], () => {
+  bindScroll()
+  bindLoadObserver()
+  nextTick(updateScrollState)
+})
+
+// 动画开关变化 → 立即同步入场状态（关闭时清空 pending）
+// 只盯开关：animate 传内联对象时引用每渲染都变，盯字面值会白白重算
+watch(animateOn, syncEnter)
 
 function measure() {
   const el = container.value
@@ -342,7 +464,7 @@ defineExpose({
   <div
     ref="container"
     class="sh-waterfall"
-    :class="{ 'sh-waterfall--window': scroller === 'window', 'sh-waterfall--animate': animate }"
+    :class="{ 'sh-waterfall--window': scroller === 'window', 'sh-waterfall--animate': animateOn }"
   >
     <!-- 空状态 / 首次加载 -->
     <div v-if="!items.length" class="sh-waterfall__empty">
@@ -370,7 +492,11 @@ defineExpose({
           @click="onItemClick(rect.index)"
         >
           <!-- 入场动画作用在内层，不与外层定位 transform 冲突 -->
-          <div class="sh-waterfall__card">
+          <div
+            class="sh-waterfall__card"
+            :class="cardClass(rect.index)"
+            :style="cardStyle(rect.index)"
+          >
             <slot
               name="item"
               :item="items[rect.index]"
@@ -444,9 +570,19 @@ defineExpose({
   height: 100%;
 }
 
-/* 入场动画：上滑 + 回弹；虚拟列表滚动时新进入的卡片挂载即重放 */
-.sh-waterfall--animate .sh-waterfall__card {
-  animation: sh-waterfall-in 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+/* 已创建但尚未进入视口的卡片：先藏起来，跨入视口时才播入场动画 */
+.sh-waterfall--animate .sh-waterfall__card--pending {
+  opacity: 0;
+}
+
+/*
+ * 入场动画：位移方向由 --sh-waterfall-from 决定（下滚为正 → 从下方滑入，
+ * 上滚为负 → 从上方滑入）；fill-mode: both 保证错峰延迟期间保持起始态。
+ */
+.sh-waterfall--animate .sh-waterfall__card--in {
+  will-change: transform, opacity;
+  animation: sh-waterfall-in var(--sh-waterfall-duration, 460ms) cubic-bezier(0.21, 1.02, 0.28, 1)
+    both;
 }
 
 /* 列数/布局切换时已有卡片平滑归位 */
@@ -491,21 +627,33 @@ defineExpose({
 @keyframes sh-waterfall-in {
   0% {
     opacity: 0;
-    transform: translateY(160px);
+    transform: translate3d(0, var(--sh-waterfall-from, 80px), 0) scale(0.92);
   }
-  70% {
+  60% {
     opacity: 1;
-    transform: translateY(-6px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
 @keyframes sh-waterfall-spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* 尊重系统「减少动态效果」偏好：直接显示，不做入场位移 */
+@media (prefers-reduced-motion: reduce) {
+  .sh-waterfall--animate .sh-waterfall__card--pending {
+    opacity: 1;
+  }
+
+  .sh-waterfall--animate .sh-waterfall__card--in,
+  .sh-waterfall--animate .sh-waterfall__item {
+    animation: none;
+    transition: none;
   }
 }
 </style>

@@ -18,7 +18,7 @@ createApp(App).use(ShDesign).mount('#app')
 
 ```vue
 <template>
-  <ShCopyButton text="Hello sh-design" type="primary" />
+  <ShLazyImage src="https://picsum.photos/400/300" style="width: 200px; height: 140px" />
 </template>
 ```
 
@@ -28,33 +28,13 @@ createApp(App).use(ShDesign).mount('#app')
 
 ```vue
 <script setup lang="ts">
-import { ShCopyButton } from 'sh-design'
+import { ShLazyImage } from 'sh-design'
 import 'sh-design/dist/style.css'
 </script>
 
 <template>
-  <ShCopyButton text="Hello sh-design" />
+  <ShLazyImage src="https://picsum.photos/400/300" style="width: 200px; height: 140px" />
 </template>
 ```
 
-## 使用组合式函数
-
-sh-design 也提供了可独立使用的组合式函数（Composables）：
-
-```vue
-<script setup lang="ts">
-import { useClipboard } from 'sh-design'
-
-const { copied, copy } = useClipboard()
-
-function handleCopy() {
-  copy('要复制的内容')
-}
-</script>
-
-<template>
-  <button @click="handleCopy">{{ copied ? '已复制' : '复制' }}</button>
-</template>
-```
-
-前往 [组件](/components/copy-button) 查看在线示例。
+前往 [组件](/components/lazy-image) 查看在线示例。

@@ -158,11 +158,34 @@ async function onLoadMore() {
 
 ## 入场动画
 
-默认开启 `animate`：新进入视口的卡片上滑 + 回弹入场，列数/布局切换时已有卡片平滑归位。追求极简可关闭：
+默认开启。与常见实现不同的两点，也是动画真能被看见的关键：
+
+- **触发时机是「真正进入视口」，而非节点创建**。虚拟列表会提前在视口外 `buffer` 处创建节点，如果挂载就播，卡片滑进视口时动画早已结束——看起来就像没有动画。
+- **方向跟随滚动**：下滚时卡片从下方滑入，上滚时从上方滑入，不会出现「倒着飞」的迷向感。
+
+同一批进入视口的卡片会错峰入场；卡片移出渲染范围后再回看会重放（可用 `once` 改为只播一次）。
+
+`animate` 支持布尔值和对象两种写法，微调参数只写需要的字段，其余取默认：
 
 ```vue
+<!-- 关闭 -->
 <ShWaterfall :animate="false" :items="items" />
+
+<!-- 微调：位移更大、稍快、取消错峰、只播一次 -->
+<ShWaterfall
+  :animate="{ distance: 120, duration: 380, stagger: 0, once: true }"
+  :items="items"
+/>
 ```
+
+| 字段 | 说明 | 类型 | 默认值 |
+| --- | --- | --- | --- |
+| `distance` | 入场位移距离（px），越大动感越强 | `number` | `80` |
+| `duration` | 动画时长（ms） | `number` | `460` |
+| `stagger` | 同批卡片的错峰延迟（ms），`0` 为同时入场 | `number` | `60` |
+| `once` | 只在首次进入视口时播放，来回滚动不重放 | `boolean` | `false` |
+
+> 列数 / 布局切换时已有卡片会平滑归位；系统开启「减少动态效果」（`prefers-reduced-motion`）时自动降级为直接显示。
 
 ## 底部与空状态自定义
 
@@ -189,7 +212,7 @@ async function onLoadMore() {
 | `scroller` | 滚动容器：`self` 组件内滚动（父级给高度）/ `window` 跟随页面滚动 | `'self' \| 'window'` | `'self'` |
 | `loading` | 是否加载中（触底后不重复触发） | `boolean` | `false` |
 | `finished` | 是否已全部加载完 | `boolean` | `false` |
-| `animate` | 卡片入场动画（上滑回弹） | `boolean` | `true` |
+| `animate` | 卡片入场动画：`false` 关闭，传对象微调（见[入场动画](#入场动画)） | `boolean \| object` | `true` |
 | `src-key` | 图片地址字段名（默认渲染时用） | `string` | `'src'` |
 | `item-key` | 唯一 key 字段名（虚拟列表节点复用） | `string` | `'id'` |
 | `width-key` / `height-key` | 原始宽/高字段名，存在时按真实比例零抖动布局 | `string` | `'width'` / `'height'` |

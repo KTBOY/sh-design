@@ -26,6 +26,26 @@ export interface WaterfallScrollPayload {
   scrollTop: number
 }
 
+/** 卡片入场动画的调优项（传给 `animate`，缺省项取默认值） */
+export interface WaterfallAnimateOptions {
+  /** 入场位移距离（px），越大动感越强。默认 `80` */
+  distance?: number
+  /** 动画时长（ms）。默认 `460` */
+  duration?: number
+  /** 同一批进入视口的卡片之间的错峰延迟（ms），`0` 为同时入场。默认 `60` */
+  stagger?: number
+  /** 每张卡片只在首次进入视口时播放（来回滚动不重放）。默认 `false` */
+  once?: boolean
+}
+
+/** 入场动画的缺省参数 */
+export const waterfallAnimateDefaults: Required<WaterfallAnimateOptions> = {
+  distance: 80,
+  duration: 460,
+  stagger: 60,
+  once: false
+}
+
 export const waterfallProps = {
   /** 数据列表。分页加载时在 `load-more` 中往数组追加即可（追加会增量布局，不重排已有卡片） */
   items: {
@@ -95,9 +115,15 @@ export const waterfallProps = {
     type: String as PropType<WaterfallScroller>,
     default: 'self'
   },
-  /** 卡片入场动画（上滑 + 回弹），滚动时新进入视口的卡片会重放 */
+  /**
+   * 卡片入场动画：`true` 开启（默认）/ `false` 关闭 / 传对象微调参数
+   * （`{ distance, duration, stagger, once }`，只写需要的字段，其余取默认）。
+   *
+   * 动画在卡片**真正进入视口**时才播放（而非节点创建时），并按滚动方向决定入场方向：
+   * 下滚从下方滑入、上滚从上方滑入；卡片移出渲染范围后再回看会重放（`once` 可改为只播一次）。
+   */
   animate: {
-    type: Boolean,
+    type: [Boolean, Object] as PropType<boolean | WaterfallAnimateOptions>,
     default: true
   },
   /** 视口上下方的额外渲染缓冲（px），越大滚动越不易露白，渲染节点越多 */

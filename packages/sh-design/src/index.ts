@@ -1,6 +1,5 @@
 import type { Plugin } from 'vue'
 import { makeInstaller } from './utils/install'
-import { ShCopyButton } from './components/copy-button'
 import { ShLazyImage } from './components/lazy-image'
 import { ShSeamlessScroll } from './components/seamless-scroll'
 import { ShWaterfall } from './components/waterfall'
@@ -10,7 +9,7 @@ import { version } from './version'
 // additionally import 'sh-design/dist/style.css'.
 import './styles/index.css'
 
-const components: Plugin[] = [ShCopyButton, ShLazyImage, ShSeamlessScroll, ShWaterfall]
+const components: Plugin[] = [ShLazyImage, ShSeamlessScroll, ShWaterfall]
 
 const { install } = makeInstaller(components)
 
@@ -36,6 +35,5 @@ export { install, version }
 
 // On-demand exports
 export * from './components'
-export * from './hooks'
-export { copyText, withInstall, makeInstaller } from './utils'
+export { withInstall, makeInstaller } from './utils'
 export type { SFCWithInstall } from './utils'

@@ -31,26 +31,22 @@ createApp(App).use(ShDesign).mount('#app')
 
 ```vue
 <script setup lang="ts">
-import { ShCopyButton } from 'sh-design'
+import { ShLazyImage } from 'sh-design'
 import 'sh-design/dist/style.css'
 </script>
 
 <template>
-  <ShCopyButton text="Hello sh-design" type="primary" />
+  <ShLazyImage src="https://picsum.photos/400/300" style="width: 200px; height: 140px" />
 </template>
 ```
 
 ## Components
 
-| Component      | Description                                      |
-| -------------- | ------------------------------------------------ |
-| `ShCopyButton` | Click-to-copy button with success feedback.      |
-
-## Composables
-
-| Composable     | Description                                      |
-| -------------- | ------------------------------------------------ |
-| `useClipboard` | Reactive clipboard helper with a `copied` state. |
+| Component          | Description                                                                          |
+| ------------------ | ------------------------------------------------------------------------------------ |
+| `ShLazyImage`      | Lazy-loaded image with skeleton, fade-in, error fallback, custom loader and polling.  |
+| `ShSeamlessScroll` | High-performance seamless marquee: 4 directions, hover pause, wheel and step scroll.  |
+| `ShWaterfall`      | Virtualized waterfall / grid with paged loading and jitter-free reserved card height. |
 
 ## License
 

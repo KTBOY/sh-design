@@ -4,6 +4,25 @@
 
 > 说明：这里只记录**组件库**相关的改动（组件、Composable、公共 API）。纯文档 / 站点 / CI 等工程改动一般不单独收录。
 
+## 未发布 (Unreleased)
+
+### 🔧 修改
+
+- ⚠️ Breaking: 移除 `ShCopyButton` 组件及其文档页。该组件为早期验证工程链路的示例组件，不属于组件库的业务定位。
+- ⚠️ Breaking: 同步移除仅由 `ShCopyButton` 使用的 `useClipboard` 组合式函数与 `copyText` 工具方法（两者原从包根导出）。
+
+> 升级提示：仍需复制能力的项目请直接使用原生 `navigator.clipboard.writeText()`，或锁定 `sh-design@0.0.6`。
+
+### 🐛 修复
+
+- `ShWaterfall` 入场动画几乎看不到：原本动画绑在节点挂载上，而虚拟列表会提前在视口外 `buffer` 处创建节点，卡片滑进视口时动画早已播完。现改为卡片**真正进入视口**时才播放，无论数据是本地已有还是分页请求回来的都一致生效。
+- `ShWaterfall` 上滚时动画方向错误：入场位移方向现在跟随滚动方向（下滚从下方滑入、上滚从上方滑入），不再出现「倒着飞」。
+
+### ✨ 新增
+
+- `ShWaterfall` 的 `animate` 支持传对象微调入场动画：`{ distance, duration, stagger, once }`（只写需要的字段，其余取默认）；同批卡片错峰入场，`once` 可设为只播一次。`:animate="false"` / 默认 `true` 的写法保持不变，无破坏性变更。
+- `ShWaterfall` 适配系统「减少动态效果」偏好（`prefers-reduced-motion`），自动降级为直接显示。
+
 ## 0.0.6
 
 <sub>2026-07-27</sub>

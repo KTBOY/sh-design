@@ -45,7 +45,7 @@ export default defineConfig({
     siteTitle: false,
     nav: [
       { text: '指南', link: '/guide/introduction', activeMatch: '/guide/' },
-      { text: '组件', link: '/components/copy-button', activeMatch: '/components/' },
+      { text: '组件', link: '/components/lazy-image', activeMatch: '/components/' },
       {
         text: '更多产品',
         items: [
@@ -79,7 +79,6 @@ export default defineConfig({
         {
           text: '业务组件',
           items: [
-            { text: 'CopyButton 复制按钮', link: '/components/copy-button' },
             { text: 'LazyImage 懒加载图片', link: '/components/lazy-image' },
             { text: 'SeamlessScroll 无缝滚动', link: '/components/seamless-scroll' },
             { text: 'Waterfall 瀑布流', link: '/components/waterfall' }

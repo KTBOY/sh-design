@@ -3,10 +3,6 @@ import { ref } from 'vue'
 
 const log = ref<string[]>([])
 
-function onSuccess(payload: { text: string }) {
-  log.value.unshift(`✅ 已复制: ${payload.text}`)
-}
-
 // ---------- 瀑布流演示 ----------
 interface Card {
   id: number
@@ -74,13 +70,6 @@ function onItemClick(payload: { item: unknown; index: number }) {
     <h1>sh-design · playground</h1>
     <p class="hint">在这里快速开发与调试组件。修改 packages/sh-design/src 会实时生效。</p>
 
-    <section>
-      <ShCopyButton text="Hello sh-design" type="primary" @success="onSuccess" />
-      <ShCopyButton text="default button" @success="onSuccess" />
-      <ShCopyButton text="text button" type="text" @success="onSuccess" />
-      <ShCopyButton text="disabled" disabled />
-    </section>
-
     <h2>Waterfall 瀑布流</h2>
     <section>
       <button :class="{ on: layout === 'waterfall' }" @click="layout = 'waterfall'">瀑布流</button>
@@ -99,7 +88,7 @@ function onItemClick(payload: { item: unknown; index: number }) {
         :items="items"
         :layout="layout"
         :scroller="scroller"
-        :animate="animate"
+        :animate="animate ? { distance: 90, stagger: 50 } : false"
         :cols="cols"
         :gap="12"
         :loading="loading"

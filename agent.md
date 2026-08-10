@@ -26,14 +26,9 @@
 
 | 组件 | 说明 | 源码目录 |
 | --- | --- | --- |
-| `ShCopyButton` | 一键复制文本，内置成功反馈 | `packages/sh-design/src/components/copy-button/` |
 | `ShLazyImage` | 懒加载图片：骨架屏 + 淡入 + 失败兜底（图 + 文案，可插槽自定义） | `packages/sh-design/src/components/lazy-image/` |
-
-### 已实现 Composable
-
-| Composable | 说明 | 源码 |
-| --- | --- | --- |
-| `useClipboard` | 响应式剪贴板：`copied` 状态自动复位 + `copy()` 能力 | `packages/sh-design/src/hooks/use-clipboard.ts` |
+| `ShSeamlessScroll` | 无缝滚动：四向 / 悬停暂停 / 滚轮手动滚 / 步进滚动 | `packages/sh-design/src/components/seamless-scroll/` |
+| `ShWaterfall` | 虚拟瀑布流：瀑布流/网格双布局 + 虚拟列表 + 触底分页 | `packages/sh-design/src/components/waterfall/` |
 
 ---
 
@@ -61,15 +56,15 @@ sh-ui/
 ├── packages/sh-design/        # 【核心】组件库源码，唯一对外发布的包（npm: sh-design）
 │   ├── src/
 │   │   ├── components/        # 所有组件（每个组件一个子目录）
-│   │   │   ├── copy-button/
+│   │   │   ├── lazy-image/
 │   │   │   │   ├── index.ts           # 用 withInstall 包装并导出 ShXxx
 │   │   │   │   └── src/
-│   │   │   │       ├── copy-button.ts  # props / emits / 类型定义
-│   │   │   │       └── copy-button.vue # 组件实现
-│   │   │   ├── lazy-image/    # 结构同上
+│   │   │   │       ├── lazy-image.ts  # props / emits / 类型定义
+│   │   │   │       └── lazy-image.vue # 组件实现
+│   │   │   ├── seamless-scroll/   # 结构同上
+│   │   │   ├── waterfall/         # 结构同上
 │   │   │   └── index.ts       # 汇总 re-export 所有组件
-│   │   ├── hooks/             # 组合式函数（useClipboard 等）
-│   │   ├── utils/             # 工具：install.ts（withInstall/makeInstaller）、clipboard.ts
+│   │   ├── utils/             # 工具：install.ts（withInstall/makeInstaller）
 │   │   ├── styles/            # 全局样式与设计令牌（var.css = CSS 变量）
 │   │   ├── assets/            # 资源（如 image-error 兜底图，已内联为 data URL）
 │   │   ├── index.ts           # 库入口：默认导出插件 + 按需具名导出
@@ -81,7 +76,7 @@ sh-ui/
 ├── docs/                      # VitePress 文档站（@sh-design/docs，private）
 │   ├── .vitepress/config.ts   # 站点配置：nav / sidebar / alias(sh-design→src)
 │   ├── guide/                 # 指南：introduction/installation/quickstart/changelog
-│   ├── components/            # 每个组件一页文档（copy-button.md / lazy-image.md）
+│   ├── components/            # 每个组件一页文档（lazy-image.md / waterfall.md）
 │   └── public/                # 静态资源（首页视频等）
 ├── play/                      # 本地组件调试场（@sh-design/play，private）
 │   └── src/App.vue            # 调试用页面，改 src 实时生效
@@ -169,44 +164,44 @@ pnpm build
 
 ## 6. 组件开发约定（★ 最重要）
 
-所有组件遵循**统一的目录结构与命名约定**。新增组件时**照抄 `copy-button` 的模式**即可。
+所有组件遵循**统一的目录结构与命名约定**。新增组件时**照抄 `lazy-image` 的模式**即可。
 
 ### 6.1 命名约定
 
-- **组件导出名**：`Sh` + 帕斯卡命名，如 `ShCopyButton`、`ShLazyImage`。
+- **组件导出名**：`Sh` + 帕斯卡命名，如 `ShLazyImage`、`ShWaterfall`。
 - **组件 `name` 选项**：与导出名一致，在 `.vue` 中用 `defineOptions({ name: 'ShXxx' })` 声明（`app.use` 全量注册时以此作为标签名）。
-- **目录名 / 文件名**：kebab-case，如 `copy-button/`、`copy-button.vue`、`copy-button.ts`。
+- **目录名 / 文件名**：kebab-case，如 `lazy-image/`、`lazy-image.vue`、`lazy-image.ts`。
 - **CSS 类名**：`sh-` 前缀 + BEM 风格：
-  - 块：`.sh-copy-button`
-  - 元素：`.sh-copy-button__icon`、`.sh-copy-button__label`
-  - 修饰符（类型/尺寸）：`.sh-copy-button--primary`、`.sh-copy-button--small`
-  - 状态：`.is-copied`、`.is-disabled`（`is-` 前缀）
+  - 块：`.sh-lazy-image`
+  - 元素：`.sh-lazy-image__img`、`.sh-lazy-image__skeleton`
+  - 修饰符：`.sh-waterfall--window`、`.sh-waterfall--animate`
+  - 状态：`.is-loaded`、`.is-disabled`（`is-` 前缀）
 - **CSS 变量（设计令牌）**：`--sh-` 前缀，如 `--sh-color-primary`、`--sh-radius`。
 
 ### 6.2 单组件目录结构
 
-以 `copy-button` 为例：
+以 `lazy-image` 为例：
 
 ```
-components/copy-button/
+components/lazy-image/
 ├── index.ts                 # 出口：withInstall 包装 + re-export 类型
 └── src/
-    ├── copy-button.ts       # props / emits / 相关类型（不含渲染逻辑）
-    └── copy-button.vue      # <script setup> 组件实现 + scoped 样式
+    ├── lazy-image.ts       # props / emits / 相关类型（不含渲染逻辑）
+    └── lazy-image.vue      # <script setup> 组件实现 + scoped 样式
 ```
 
 **`index.ts` 模板**（照抄，替换名字即可）：
 
 ```ts
 import { withInstall } from '../../utils/install'
-import CopyButton from './src/copy-button.vue'
+import LazyImage from './src/lazy-image.vue'
 
-export const ShCopyButton = withInstall(CopyButton)
-export default ShCopyButton
+export const ShLazyImage = withInstall(LazyImage)
+export default ShLazyImage
 
-export * from './src/copy-button'                       // 导出 props/emits/类型
+export * from './src/lazy-image'                        // 导出 props/emits/类型
 
-export type CopyButtonInstance = InstanceType<typeof CopyButton>
+export type LazyImageInstance = InstanceType<typeof LazyImage>
 ```
 
 ### 6.3 Props / Emits 的写法
@@ -216,23 +211,23 @@ Props、Emits、及其派生类型**集中定义在 `xxx.ts`**（与 `.vue` 分�
 ```ts
 import type { ExtractPropTypes, PropType } from 'vue'
 
-export type CopyButtonType = 'primary' | 'default' | 'text'
+export type LazyImageFit = 'fill' | 'contain' | 'cover' | 'none' | 'scale-down'
 
-export const copyButtonProps = {
+export const lazyImageProps = {
   /** 每个 prop 都要写 JSDoc 注释，说明用途 */
-  text: { type: String, default: '' },
+  src: { type: String, default: '' },
   // 联合字面量类型用 `String as PropType<...>`
-  type: { type: String as PropType<CopyButtonType>, default: 'default' },
-  disabled: { type: Boolean, default: false }
+  fit: { type: String as PropType<LazyImageFit>, default: 'cover' },
+  skeleton: { type: Boolean, default: true }
 }
-export type CopyButtonProps = ExtractPropTypes<typeof copyButtonProps>
+export type LazyImageProps = ExtractPropTypes<typeof lazyImageProps>
 
 // Emits 用带校验函数的对象形式（同时承担运行时校验 + 类型来源）
-export const copyButtonEmits = {
-  success: (payload: { text: string }) => typeof payload.text === 'string',
-  error: (payload: { error: Error }) => payload.error instanceof Error
+export const lazyImageEmits = {
+  load: (payload: { url: string }) => typeof payload.url === 'string',
+  error: (payload: { error?: Error }) => !payload.error || payload.error instanceof Error
 }
-export type CopyButtonEmits = typeof copyButtonEmits
+export type LazyImageEmits = typeof lazyImageEmits
 ```
 
 **约定要点**：
@@ -240,25 +235,25 @@ export type CopyButtonEmits = typeof copyButtonEmits
 - 联合字面量类型用 `type: String as PropType<Xxx>`。
 - Emits 用**校验函数对象**（既是类型来源，又做运行时校验）。
 - 尺寸相关的可接受 `string | number`（数字按 px 处理，参考 `lazy-image` 的 `toSize`）。
+- 多个相关的调优参数（≥ 3 个）不要摊成 `xxxA` / `xxxB` 平铺 prop，用 `boolean | 对象` 联合类型收拢，参考 `ShWaterfall` 的 `animate`。
 
 ### 6.4 `.vue` 实现约定
 
 ```vue
 <script setup lang="ts">
 import { computed } from 'vue'
-import { copyButtonProps, copyButtonEmits } from './copy-button'
-import { useClipboard } from '../../../hooks/use-clipboard'
+import { lazyImageProps, lazyImageEmits } from './lazy-image'
 
-defineOptions({ name: 'ShCopyButton' })       // ← 必须，等于组件注册名
+defineOptions({ name: 'ShLazyImage' })        // ← 必须，等于组件注册名
 
-const props = defineProps(copyButtonProps)
-const emit = defineEmits(copyButtonEmits)
+const props = defineProps(lazyImageProps)
+const emit = defineEmits(lazyImageEmits)
 
 // class 用 computed 拼接，块名 + 修饰符 + 状态
 const classes = computed(() => [
-  'sh-copy-button',
-  `sh-copy-button--${props.type}`,
-  { 'is-disabled': props.disabled }
+  'sh-lazy-image',
+  `sh-lazy-image--${props.fit}`,
+  { 'is-loaded': status.value === 'loaded' }
 ])
 </script>
 
@@ -268,10 +263,10 @@ const classes = computed(() => [
 
 <style scoped>
 /* 一律使用设计令牌变量，不要写死颜色/圆角/字号 */
-.sh-copy-button {
+.sh-lazy-image {
   background: var(--sh-color-bg);
   border-radius: var(--sh-radius);
-  transition: background-color var(--sh-transition);
+  transition: opacity var(--sh-transition);
 }
 </style>
 ```
@@ -279,9 +274,9 @@ const classes = computed(() => [
 **约定要点**：
 - `defineOptions({ name: 'ShXxx' })` **必写**。
 - 样式用 `<style scoped>`，**颜色/圆角/字号/过渡一律引用 `--sh-` 设计令牌**（见 `styles/var.css`），不要硬编码。
-- 交互反馈优先复用 hooks（如复制逻辑用 `useClipboard`）。
 - 无障碍：装饰性图标加 `aria-hidden`，图片给 `alt`。
 - 尽量提供插槽（`slot`）与作用域参数，便于使用者自定义（如 `ShLazyImage` 的 `#error`、`#placeholder` 插槽）。
+- 动画默认适配 `prefers-reduced-motion`，系统开启「减少动态效果」时降级为无动画。
 
 ### 6.5 设计令牌（`styles/var.css`）
 
@@ -306,7 +301,7 @@ const classes = computed(() => [
 ### 入口 [`src/index.ts`](packages/sh-design/src/index.ts)
 
 - **默认导出**：`ShDesign` 插件对象（`{ version, install }`），供 `app.use(ShDesign)` 全量注册。
-- **具名导出**：所有组件（`export * from './components'`）、hooks、部分 utils（`copyText`/`withInstall`/`makeInstaller`）、`version`。
+- **具名导出**：所有组件（`export * from './components'`）、组件的 props/类型、utils（`withInstall`/`makeInstaller`）、`version`。
 - 入口顶部 `import './styles/index.css'` 把设计令牌打进产物。
 
 ### 注册机制 [`utils/install.ts`](packages/sh-design/src/utils/install.ts)
@@ -415,13 +410,13 @@ git push --follow-tags
 
 假设新增 `ShExport`（导出按钮）：
 
-1. **建目录**：`packages/sh-design/src/components/export/`，内含 `index.ts` 与 `src/export.ts` + `src/export.vue`（照抄 `copy-button` 结构）。
+1. **建目录**：`packages/sh-design/src/components/export/`，内含 `index.ts` 与 `src/export.ts` + `src/export.vue`（照抄 `lazy-image` 结构）。
 2. **写类型**：在 `src/export.ts` 定义 `exportProps` / `exportEmits` 及派生类型（对象式 props + JSDoc）。
 3. **写实现**：`src/export.vue` 用 `<script setup>`，`defineOptions({ name: 'ShExport' })`，样式用 `--sh-` 令牌 + `sh-export` BEM 类名。
 4. **导出组件**：`index.ts` 用 `withInstall` 包装导出 `ShExport` + re-export 类型。
 5. **登记到组件汇总**：在 [`src/components/index.ts`](packages/sh-design/src/components/index.ts) 加 `export * from './export'`。
 6. **登记到库入口**：在 [`src/index.ts`](packages/sh-design/src/index.ts) `import { ShExport }` 并加入 `components` 数组（保证 `app.use(ShDesign)` 全量注册包含它）。
-7. **加文档页**：新增 `docs/components/export.md`（参考 `copy-button.md`：基础用法 + 各能力演示 + API 表格 Props/Events/Slots），并在 [`docs/.vitepress/config.ts`](docs/.vitepress/config.ts) 的 sidebar 增加入口。
+7. **加文档页**：新增 `docs/components/export.md`（参考 `lazy-image.md`：基础用法 + 各能力演示 + API 表格 Props/Events/Slots），并在 [`docs/.vitepress/config.ts`](docs/.vitepress/config.ts) 的 sidebar 增加入口。
 8. **加调试用例**（可选）：在 `play/src/App.vue` 加一个 demo 便于本地联调。
 9. **更新日志**：按第 11 节在 `changelog.md` 顶部补条目。
 10. **更新 README**：在“组件 Components”表格补一行（对外可见列表）。
@@ -449,4 +444,4 @@ git push --follow-tags
 - 使用者文档：[`README.md`](README.md) / 文档站 `https://ktboy.github.io/sh-design/`
 - 维护者发布指南：[`RELEASING.md`](RELEASING.md)
 - 更新日志：[`docs/guide/changelog.md`](docs/guide/changelog.md)
-- 组件参考实现：`packages/sh-design/src/components/copy-button/`（最简范式）、`lazy-image/`（含插槽/状态机的进阶范式）
+- 组件参考实现：`packages/sh-design/src/components/lazy-image/`（插槽 + 状态机范式）、`waterfall/`（虚拟列表 + 对象式配置 prop 的进阶范式）
