@@ -46,11 +46,13 @@ export default defineConfig({
     nav: [
       { text: '指南', link: '/guide/introduction', activeMatch: '/guide/' },
       { text: '组件', link: '/components/lazy-image', activeMatch: '/components/' },
+      { text: '简历', link: '/components/lazy-image', activeMatch: '/components/' },
       {
         text: '更多产品',
         items: [
           { text: '珊瑚打码小程序', link: 'https://github.com/KTBOY/ydw' },
-          { text: '实验室', link: 'https://github.com/KTBOY/shukelab' }
+          { text: '实验室', link: 'https://github.com/KTBOY/shukelab' },
+          { text: '粤工具', link: 'https://www.ps521.asia/' }
         ]
       },
       {
@@ -77,7 +79,7 @@ export default defineConfig({
       ],
       '/components/': [
         {
-          text: '业务组件',
+          text: 'sh-design业务组件',
           items: [
             { text: 'LazyImage 懒加载图片', link: '/components/lazy-image' },
             { text: 'SeamlessScroll 无缝滚动', link: '/components/seamless-scroll' },
