@@ -50,9 +50,9 @@ export default defineConfig({
       {
         text: '更多产品',
         items: [
-          { text: '珊瑚打码小程序', link: 'https://github.com/KTBOY/ydw' },
-          { text: '实验室', link: 'https://github.com/KTBOY/shukelab' },
-          { text: '粤工具', link: 'https://www.ps521.asia/' }
+          { text: '组件实验室', link: '/lab/sk-linkage-menu' },
+          { text: '粤工具', link: 'https://www.ps521.asia/' },
+          { text: '珊瑚打码小程序', link: '/mini/sk-image-waterfall' },
         ]
       },
       {
@@ -79,17 +79,31 @@ export default defineConfig({
       ],
       '/components/': [
         {
-          text: 'sh-design业务组件',
+          text: 'sh-design组件',
           items: [
             { text: 'LazyImage 懒加载图片', link: '/components/lazy-image' },
             { text: 'SeamlessScroll 无缝滚动', link: '/components/seamless-scroll' },
             { text: 'Waterfall 瀑布流', link: '/components/waterfall' }
           ]
+        }
+      ],
+      '/mini/': [
+        {
+          text: '珊瑚打码小程序',
+          link: '/mini/'
         },
         {
-          text: '小程序组件',
+          text: '组件',
           items: [
-            { text: 'ImageWaterfall 图片瀑布流', link: '/components/sk-image-waterfall' }
+            { text: 'ImageWaterfall 图片瀑布流', link: '/mini/sk-image-waterfall' }
+          ]
+        }
+      ],
+      '/lab/': [
+        {
+          text: 'shukelab 实验室组件（uni-app）',
+          items: [
+            { text: 'sk-linkage-menu 左右联动菜单', link: '/lab/sk-linkage-menu' }
           ]
         }
       ]
