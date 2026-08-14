@@ -50,8 +50,8 @@ export default defineConfig({
       {
         text: '更多产品',
         items: [
-          { text: '组件实验室', link: '/lab/sk-linkage-menu' },
           { text: '粤工具', link: 'https://www.ps521.asia/' },
+          { text: '组件实验室', link: '/lab/sk-linkage-menu' },
           { text: '珊瑚打码小程序', link: '/mini/sk-image-waterfall' },
         ]
       },

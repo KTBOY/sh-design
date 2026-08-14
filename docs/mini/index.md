@@ -11,7 +11,6 @@ description: 珊瑚打码微信小程序说明 —— 扫码体验、功能简�
 <div style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; margin: 16px 0;">
   <div style="flex: 0 1 300px;">
     <img src="/mini-program-demo.gif" alt="珊瑚打码小程序真机演示" style="width: 100%; border-radius: 12px; border: 1px solid var(--vp-c-divider); box-shadow: 0 12px 32px -12px rgba(15,23,42,.25);" />
-    <p style="margin: 8px 0 0; text-align: center; font-size: 13px; color: var(--vp-c-text-2);">真机演示：骨架屏 → 淡入 → 触底加载</p>
   </div>
   <div style="flex: 0 1 240px; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 20px 16px; border: 1px solid var(--vp-c-divider); border-radius: 12px; background: var(--vp-c-bg-soft);">
     <strong style="font-size: 15px;">📱 扫码体验</strong>
