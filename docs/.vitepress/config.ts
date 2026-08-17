@@ -112,7 +112,7 @@ export default defineConfig({
     search: { provider: 'local' },
     footer: {
       message: 'Released under the MIT License.',
-      copyright: 'Copyright © 2026 shukezlc 思涵'
+      copyright: 'Copyright © 2026 shukezlc'
     },
     outline: { label: '本页目录', level: [2, 3] },
     docFooter: { prev: '上一页', next: '下一页' }
