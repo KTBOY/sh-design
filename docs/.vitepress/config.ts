@@ -46,10 +46,11 @@ export default defineConfig({
     nav: [
       { text: '指南', link: '/guide/introduction', activeMatch: '/guide/' },
       { text: '组件', link: '/components/lazy-image', activeMatch: '/components/' },
-      { text: '简历', link: '/components/lazy-image', activeMatch: '/components/' },
+      // { text: '简历', link: '/components/lazy-image', activeMatch: '/components/' },
       {
         text: '更多产品',
         items: [
+          { text: 'sk-faster-ant', link: 'https://github.com/KTBOY/sk-faster-ant' },
           { text: '粤工具', link: 'https://www.ps521.asia/' },
           { text: '组件实验室', link: '/lab/sk-linkage-menu' },
           { text: '珊瑚打码小程序', link: '/mini/sk-image-waterfall' },

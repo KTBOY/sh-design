@@ -3,7 +3,7 @@
 // a small brand mark, a thin slash divider, then the wordmark image.
 import { withBase } from 'vitepress'
 
-const wordmark = withBase('/logo-bark.png')
+const wordmark = withBase('/logo-bark-dark.png')
 </script>
 
 <template>
