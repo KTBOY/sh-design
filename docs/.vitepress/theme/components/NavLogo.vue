@@ -17,7 +17,6 @@ const wordmark = withBase('/logo-bark-dark.png')
       </defs>
       <path d="M14 3.5 L25 23.5 H3 Z" fill="url(#sh-logo-grad)" />
     </svg>
-    <span class="sh-logo__slash">/</span>
     <!-- Wordmark image (transparent bg, black strokes); dark mode inverts. -->
     <img class="sh-logo__img" :src="wordmark" alt="sh-design" draggable="false" />
   </span>
@@ -47,6 +46,7 @@ const wordmark = withBase('/logo-bark-dark.png')
   display: block;
   height: 13px;
   width: auto;
+  filter: invert(1);
 }
 
 .dark .sh-logo__img {
