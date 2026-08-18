@@ -5,7 +5,7 @@ import { fileURLToPath, URL } from 'node:url'
 export default defineConfig({
   title: 'sh-design',
   description:
-    'sh-design — 面向业务场景的 Vue3 组件库：高性能瀑布流（虚拟列表/无限滚动）、图片懒加载、无缝滚动、一键复制等开箱即用组件，TypeScript 友好，支持按需引入',
+    'sh-design — 面向业务场景的 Vue3 组件库：高性能瀑布流（虚拟列表/无限滚动）、图片懒加载、无缝滚动、intersectionObserver分页、数据切片等开箱即用组件，TypeScript 友好，支持按需引入',
   lang: 'zh-CN',
   // GitHub Pages project site: https://ktboy.github.io/sh-design/
   base: '/sh-design/',
@@ -21,7 +21,7 @@ export default defineConfig({
       {
         name: 'keywords',
         content:
-          'Vue3 组件库, 瀑布流组件, 虚拟列表, 虚拟滚动, 图片懒加载, 无缝滚动, 无限滚动, 分页加载, masonry, waterfall, lazyload, sh-design'
+          'Vue3 组件库, 瀑布流组件, 虚拟列表, 虚拟滚动, 图片懒加载, 无缝滚动, 无限滚动, ,分页加载, masonry, waterfall, lazyload,intersectionObserver, sh-design'
       }
     ],
     ['meta', { name: 'author', content: 'shukezlc' }],
@@ -53,14 +53,12 @@ export default defineConfig({
           // { text: 'sk-faster-ant', link: 'https://github.com/KTBOY/sk-faster-ant' },
           { text: '粤工具', link: 'https://www.ps521.asia/' },
           { text: '组件实验室', link: '/lab/sk-linkage-menu' },
-          { text: '珊瑚打码小程序', link: '/mini/sk-image-waterfall' },
+          { text: '珊瑚打码小程序', link: '/mini/sk-image-waterfall' }
         ]
       },
       {
         text: '0.0.7',
-        items: [
-          { text: 'npm', link: 'https://www.npmjs.com/package/sh-design' }
-        ]
+        items: [{ text: 'npm', link: 'https://www.npmjs.com/package/sh-design' }]
       }
     ],
     sidebar: {
@@ -95,17 +93,13 @@ export default defineConfig({
         },
         {
           text: '组件',
-          items: [
-            { text: 'ImageWaterfall 图片瀑布流', link: '/mini/sk-image-waterfall' }
-          ]
+          items: [{ text: 'ImageWaterfall 图片瀑布流', link: '/mini/sk-image-waterfall' }]
         }
       ],
       '/lab/': [
         {
           text: 'shukelab 实验室组件（uni-app）',
-          items: [
-            { text: 'sk-linkage-menu 左右联动菜单', link: '/lab/sk-linkage-menu' }
-          ]
+          items: [{ text: 'sk-linkage-menu 左右联动菜单', link: '/lab/sk-linkage-menu' }]
         }
       ]
     },
