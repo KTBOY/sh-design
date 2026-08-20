@@ -1,0 +1,120 @@
+---
+description: 组件库 API 设计规则——对象式配置 prop 的设计范式（boolean | 对象联合类型）与组件库的角色定位 / 职责边界。新增或重构组件 props 时参照。
+globs:
+  - "packages/sh-design/src/components/**"
+alwaysApply: false
+---
+
+# 组件库 API 设计规则
+
+## 触发条件
+
+当本次改动涉及**组件对外 API 的形态设计**时参照本规则，包括：
+
+- 新增组件、为已有组件新增可调优的能力开关
+- 重构已有组件的 props（拆分 / 合并 / 改默认值）
+- 评估某个能力是否应该进组件库
+
+> 纯样式微调、不改 API 的 bug 修复**不强制**参照。
+
+---
+
+## 1. 对象式配置 prop 设计范式
+
+### 判定阈值
+
+一组**内聚**的调优选项如何对外暴露，按数量决定：
+
+| 子选项数量 | 形态 | 例 |
+| --- | --- | --- |
+| ≤ 2 | 扁平 prop | `distance` / `duration` |
+| ≥ 3 | `boolean \| 对象` 联合类型，单一入口开关 | `animate` |
+
+**坏味道信号**：当发现需要 `animateDistance` / `animateDuration` / `animateStagger` / `animateOnce` 这种「同一前缀 + 多个平铺 prop」时，说明它们本该是一个对象。
+
+### 为什么用 `boolean | 对象`
+
+- 扁平 prop 越多，根级 API 越臃肿，使用者难记、IDE 补全噪音大。
+- 内聚的调优项归到一个命名空间，既减负担又便扩展——**后续加字段不破坏已有用法**。
+- 这是行业标准形态：Ant Design 的 `pagination` / `tooltip`、Element Plus 的 `tooltip-props` 均如此。
+
+### 写法（参照 `ShWaterfall.animate`）
+
+**类型与默认值**（在 `xxx.ts`）：
+
+```ts
+export interface XxxAnimateOptions {
+  /** 入场位移距离（px）。默认 `80` */
+  distance?: number
+  /** 动画时长（ms）。默认 `460` */
+  duration?: number
+  /** 同批错峰延迟（ms）。默认 `60` */
+  stagger?: number
+  /** 只在首次进入视口时播放。默认 `false` */
+  once?: boolean
+}
+
+export const xxxAnimateDefaults: Required<XxxAnimateOptions> = {
+  distance: 80,
+  duration: 460,
+  stagger: 60,
+  once: false
+}
+```
+
+**prop 声明**（在 `xxxProps`）：
+
+```ts
+animate: {
+  // Boolean 在前：保证无值的 `animate` 与 `:animate="false"` 走布尔分支
+  type: [Boolean, Object] as PropType<boolean | XxxAnimateOptions>,
+  default: true
+}
+```
+
+**消费端归一**（在 `xxx.vue`）：
+
+```ts
+const animateOn = computed(() => props.animate !== false)
+const animateOptions = computed(() => {
+  const raw = props.animate
+  return raw && typeof raw === 'object'
+    ? { ...xxxAnimateDefaults, ...raw }
+    : xxxAnimateDefaults
+})
+```
+
+### 关键约束
+
+1. **保留一词开关**：`animate`（布尔）与 `:animate="{ distance: 90 }"`（对象）两种写法都要支持，不破坏已有 `<Xxx animate />` 用法。
+2. **缺省项取默认值**：对象形态只传部分字段时，未传项回落到 `xxxAnimateDefaults`，用 `{ ...defaults, ...raw }` 合并。
+3. **watch 只盯派生开关**：监听 `animateOn`（布尔 computed），**不要**直接监听 `props.animate`——内联对象字面量每次渲染都是新引用，会白白重算。
+4. **无障碍降级**：动画类 prop 默认适配 `prefers-reduced-motion`，系统开启「减少动态效果」时降级为无动画。
+
+> 参考实现：[`waterfall.ts`](/packages/sh-design/src/components/waterfall/src/waterfall.ts)（类型与默认值）、[`waterfall.vue`](/packages/sh-design/src/components/waterfall/src/waterfall.vue)（`animateOn` / `animateOptions` 消费）。
+
+---
+
+## 2. 组件库的角色定位与职责边界
+
+`sh-design` 是**唯一对外发布**的 Vue 3 组件库包（npm: `sh-design`）。明确什么进、什么不进：
+
+### 只做
+
+- **可复用、无业务依赖的 UI 基元**：懒加载图片、无缝滚动、虚拟瀑布流等通用展示能力。
+- **配套的可发现性与稳定性保障**：类型声明（`vite-plugin-dts`）、组件文档页（`docs/components/`）、更新日志（`changelog.md`）、SemVer 版本号。
+
+### 不做
+
+- **业务逻辑**：组件不耦合任何具体业务流程，调用方自行组装。
+- **已有原生能力且无增值的薄封装**：例如已删除的 `copyText` —— 原生 `navigator.clipboard.writeText()` 已足够，包一层只增加依赖与维护面，没有额外价值。
+- **测试 / 验证性质的组件不应发布**：仅用于打通工程链路的示例组件（如已删除的 `ShCopyButton`）不属于组件库的业务定位。
+
+### 测试组件的清理
+
+- 尚未发布的测试组件：**不发布**，留在 `play/` 调试场即可。
+- 已发布的测试组件：**应及时清理**，清理是 breaking change，按 SemVer 至少 `minor`（`0.x` 阶段）或 `major`（`1.x+`）抬版本号，并在 `changelog.md` 写明 `⚠️ Breaking` 与升级提示（指向原生替代方案或锁定旧版本）。
+
+### 一句话
+
+> 你是一个10年开发经验的架构师，你的职责是「把稳定的、可复用的 UI 能力做好并维护好」，不是「把什么功能都包一层发出去」。

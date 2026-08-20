@@ -15,6 +15,7 @@ interface Card {
 const layout = ref<'waterfall' | 'grid'>('waterfall')
 const scroller = ref<'self' | 'window'>('self')
 const animate = ref(true)
+const virtual = ref(true)
 const cols = ref(3)
 const items = ref<Card[]>([])
 const loading = ref(false)
@@ -80,6 +81,7 @@ function onItemClick(payload: { item: unknown; index: number }) {
       <button :class="{ on: scroller === 'self' }" @click="scroller = 'self'">容器滚动</button>
       <button :class="{ on: scroller === 'window' }" @click="scroller = 'window'">页面滚动</button>
       <button :class="{ on: animate }" @click="animate = !animate">动画{{ animate ? '开' : '关' }}</button>
+      <button :class="{ on: virtual }" @click="virtual = !virtual">虚拟{{ virtual ? '开' : '关' }}</button>
       <button @click="resetList">重置</button>
       <span class="hint">已加载 {{ items.length }} 条</span>
     </section>
@@ -89,6 +91,7 @@ function onItemClick(payload: { item: unknown; index: number }) {
         :layout="layout"
         :scroller="scroller"
         :animate="animate ? { distance: 90, stagger: 50 } : false"
+        :virtual="virtual"
         :cols="cols"
         :gap="12"
         :loading="loading"

@@ -136,6 +136,12 @@ function rebuild() {
 /** 虚拟列表：每列二分查找首个可视卡片，向后收集到缓冲区下缘为止 */
 const visibleRects = computed(() => {
   void layoutVersion.value
+  // 关闭虚拟列表：一次性渲染全部卡片（布局/定位机制不变，仅不做视口裁剪）
+  if (!props.virtual) {
+    const all: WaterfallItemRect[] = []
+    for (const bucket of buckets) all.push(...bucket)
+    return all
+  }
   const start = scrollTop.value - props.buffer
   const end = scrollTop.value + viewHeight.value + props.buffer
   const out: WaterfallItemRect[] = []

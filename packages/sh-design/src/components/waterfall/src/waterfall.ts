@@ -116,6 +116,17 @@ export const waterfallProps = {
     default: 'self'
   },
   /**
+   * 是否启用虚拟列表（默认 `true`）：
+   * - `true`  → 仅渲染视口内（含 buffer）卡片，万级数据也流畅，但视口外无 DOM 节点；
+   * - `false` → 一次性渲染全部卡片、不按视口裁剪，适用于数据量小、或需要完整 DOM
+   *            （打印 / 截图 / 爬虫 / 测试快照）的场景。
+   * 布局算法、绝对定位与高度预留机制在两种模式下完全一致，仅「渲染哪些卡片」不同。
+   */
+  virtual: {
+    type: Boolean,
+    default: true
+  },
+  /**
    * 卡片入场动画：`true` 开启（默认）/ `false` 关闭 / 传对象微调参数
    * （`{ distance, duration, stagger, once }`，只写需要的字段，其余取默认）。
    *

@@ -1,0 +1,58 @@
+---
+description: sh-design 组件库项目强先验——技术栈与版本、包名/目录名区分、安装范式、构建产物、发布约定、pnpm v11 差异、组件目录约定、文档站机制。任何涉及项目结构/构建/发布/命名的改动前先读。
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# 项目上下文（sh-design 组件库强先验）
+
+> 这些是规划器无法仅从代码可靠推断的「强先验」，改动前务必先核对，避免踩已知坑。
+
+## 命名区分（极易混淆，务必澄清）
+
+- npm 包名与 GitHub 仓库名均为 **sh-design**，但本地工作区/目录名是 **sh-ui**。
+- GitHub 地址为 `KTBOY/sh-design`，文档站 base 为 `/sh-design/`。
+- **切勿把 sh-ui 当作包名使用。**
+
+## 技术栈与版本
+
+- Vue 3.5、Vite 5（library mode）、TypeScript 5.6、pnpm 11（workspace/monorepo）、VitePress 1.5、vite-plugin-dts 4。
+- 运行环境 **Node >= 22.13**（低于此版本跑 pnpm 11.7+ 会报 `node:sqlite` 错误，已踩坑）；pnpm >= 11.7.0。
+- 注意：根 `package.json` 的 `engines` 仍写 `node>=18`，与实际硬性要求冲突，以 release.bat 强制检查为准。
+
+## 安装范式
+
+- 单组件用 `withInstall` 包裹并暴露 `install` 方法；整库用 `makeInstaller` 聚合所有组件，支持 `app.use(ShDesign)` 全量注册与 `import { ShXxx }` 按需引入两种方式。
+- 组件命名统一使用 **Sh 前缀**（如 `ShLazyImage`、`ShWaterfall`）。
+
+## 构建产物约定
+
+- Vite 库模式输出 `dist/sh-design.js`(ESM)、`dist/sh-design.cjs`(CJS)、`dist/style.css` 及逐文件 `.d.ts`。
+- `vue` 被 external 且声明为 `peerDependency`；消费方需额外引入 `sh-design/dist/style.css`。
+- `package.json` 通过 `exports/main/module/types` 映射产物，`sideEffects` 仅含 CSS。
+
+## 发布约定
+
+- 本机全局 registry 指向淘宝镜像（`registry.npmmirror.com`，只读、不可发布）；发布依赖 `package.json` 的 `publishConfig` 强制指向 `registry.npmjs.org` 且 `access=public`。发布前需在官方源 `npm login`。
+- 打 GitHub Release 会触发 `publish-npm` 工作流（依赖 `NPM_TOKEN` 仓库密钥）；`deploy-docs.yml` 在 main 推送时自动部署 Pages。
+
+## pnpm v11 关键差异
+
+- 构建脚本白名单写在 `pnpm-workspace.yaml` 的 `allowBuilds`（映射式，值为 true/false），旧版 `onlyBuiltDependencies` / `ignoredBuiltDependencies` 已被移除。
+- 本项目设 `esbuild: false`（二进制由 optional dep `@esbuild/<platform>` 提供，postinstall 非必需）、`vue-demi: true`。
+
+## 组件目录约定
+
+- 新增组件：`packages/sh-design/src/components/<name>/` 下含 `index.ts`（`withInstall` 导出）、`src/<name>.vue`（SFC，`defineOptions` 指定 name）、`src/<name>.ts`（props/emits 类型）。
+- 在 `src/components/index.ts` 汇总导出；在 `docs/components/` 新增文档页与实时 Demo。
+
+## 主题与设计令牌
+
+- 视觉风格由 `packages/sh-design/src/styles/var.css` 中以 `--sh-` 开头的 CSS 变量驱动，覆盖这些变量即可换肤。
+- 样式通过 `src/index.ts` 引入 `styles/index.css` 参与打包。
+
+## 文档站运行机制
+
+- `docs` 与 `play` 通过 Vite alias 将 `sh-design` 精确映射到 `packages/sh-design/src/index.ts`（正则 `^sh-design`），因此开发预览无需先构建库。
+- VitePress 主题在 `enhanceApp` 中 `app.use(ShDesign)` 全局注册组件，供 Markdown Demo 直接使用。

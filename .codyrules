@@ -1,0 +1,95 @@
+---
+description: sh-design 组件库协作规则（供 Cody / 类 AI 编程助手读取）。覆盖组件 API 设计范式与更新日志自动维护，镜像 .qoder/rules 下两条规则。
+alwaysApply: true
+---
+
+# sh-design 协作规则（Cody 可读）
+
+> 本文件为 AI 编程助手（Cody 及兼容工具）提供项目级约束，等价于 `.qoder/rules/api-design.md` 与 `.qoder/rules/changelog.md`。
+> 涉及组件对外 API 形态、组件库职责边界、版本与文档同步时，必须先参照本规则。
+
+## 1. 组件 API 设计范式
+
+### 对象式配置 prop（boolean | 对象 联合类型）
+
+一组内聚的调优选项如何对外暴露，按数量决定：
+
+- 子选项数量 **≤ 2** → 扁平 prop（如 `distance` / `duration`）
+- 子选项数量 **≥ 3** → `boolean | 对象` 联合类型，单一入口开关（如 `animate`）
+
+**坏味道**：出现 `animateDistance` / `animateDuration` / `animateStagger` / `animateOnce` 这种「同一前缀 + 多个平铺 prop」时，说明本该是一个对象。
+
+**写法（参照 `ShWaterfall.animate`）**：
+
+```ts
+// xxx.ts
+animate: {
+  type: [Boolean, Object] as PropType<boolean | XxxAnimateOptions>,
+  default: true
+}
+```
+
+```ts
+// 消费端（xxx.vue）：watch 只盯派生开关，不要直接 watch props.animate
+const animateOn = computed(() => props.animate !== false)
+const animateOptions = computed(() => {
+  const raw = props.animate
+  return raw && typeof raw === 'object'
+    ? { ...xxxAnimateDefaults, ...raw }
+    : xxxAnimateDefaults
+})
+```
+
+**关键约束**：
+1. 保留一词开关：`animate`（布尔）与 `:animate="{ distance: 90 }"`（对象）两种写法都要支持，不破坏已有 `<Xxx animate />` 用法。
+2. 缺省项取默认值：对象形态只传部分字段时，未传项回落到 `xxxAnimateDefaults`，用 `{ ...defaults, ...raw }` 合并。
+3. watch 只盯派生开关（computed 布尔），不要直接监听内联对象字面量（每次渲染新引用会白白重算）。
+4. 无障碍降级：动画类 prop 默认适配 `prefers-reduced-motion`。
+
+### 组件库角色定位与职责边界
+
+只做：
+- 可复用、无业务依赖的 UI 基元（懒加载图片、无缝滚动、虚拟瀑布流等）。
+- 配套可发现性与稳定性：类型声明、组件文档页（`docs/components/`）、更新日志（`changelog.md`）、SemVer 版本号。
+
+不做：
+- 业务逻辑（组件不耦合具体业务流程，调用方自行组装）。
+- 已有原生能力且无增值的薄封装。
+- 测试 / 验证性质的组件不应发布（留在 `play/` 调试场即可）。
+
+## 2. 更新日志与信息同步
+
+### 触发条件
+
+改动涉及组件库对外能力时必须执行：新增 / 删除 / 重命名组件、修改 props/emits/slots/默认值/行为、新增或修改组合式函数。
+
+> 纯文档、演示（docs）、样式站点、构建 / CI 等改动**不强制**记录 changelog。
+
+### 必须做什么
+
+在 `docs/guide/changelog.md` 顶部按版本倒序新增/补充条目：
+
+- 版本号：遵循 SemVer（新增能力用 `minor`，修复用 `patch`，破坏性变更用 `major`）。
+- 发布日期：`<sub>YYYY-MM-DD</sub>`。
+- 分类小节：
+  - `### ✨ 新增` —— 新增组件 / 属性 / 事件 / 插槽 / 能力。
+  - `### 🔧 修改` —— 行为 / API / 默认值变更（破坏性前缀 `⚠️ Breaking:`）。
+  - `### 🐛 修复` —— 修复了什么问题。
+
+尚未发布的累积改动，先记在顶部 `## 未发布 (Unreleased)` 小节，发版时替换为「版本号 + 日期」。
+
+### 组件信息同步（新增 / 重命名 / 删除组件时必做）
+
+除 changelog 外，三处必须同步：
+1. `README.md` 组件表（新增一行「组件名 + 能力说明 + 文档链接」）。
+2. `docs/components/<组件目录名>.md` 文档页。
+3. `docs/.vitepress/config.ts` 的 `/components/` 侧边栏。
+
+校验：`node scripts/check-components.mjs`（不同步会中断提交）。
+
+## 3. 性能基线（适用所有组件）
+
+- 动画 / 高频更新绕开深层 Vue 响应式，直接写 `transform`；优先 `translate3d` + `will-change` 走 GPU 合成。
+- 滚动 / Resize 监听用 `requestAnimationFrame` 节流，一帧一算。
+- 大数据量场景默认虚拟化（虚拟列表 / 增量布局），并允许按需关闭（如 `ShWaterfall` 的 `virtual`）。
+- 离开视口自动暂停无关动画 / 轮询（IntersectionObserver）。

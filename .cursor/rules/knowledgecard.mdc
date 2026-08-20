@@ -1,0 +1,48 @@
+---
+description: 仓库模块边界与知识沉淀优先级——区分三大 workspace 模块与组件库内部四层，明确哪些经验值得沉淀、哪些目录不作为知识抽取依据。
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# 仓库知识卡（模块边界与经验沉淀）
+
+## 模块边界
+
+先按 workspace 分为三大模块：
+
+- **组件库** `packages/sh-design`
+- **文档站** `docs`
+- **调试场** `play`
+
+组件库内部再细分四层：
+
+- `components/` —— 业务组件（Sh 前缀）
+- `hooks/` —— 组合式函数
+- `utils/` —— 工具方法（如 `install.ts`、`clipboard.ts`）
+- `styles/` —— 设计令牌（`--sh-*` CSS 变量）
+
+## 知识沉淀优先级
+
+优先沉淀可复用经验：
+
+1. 新增业务组件的端到端流程（目录约定 → SFC/props/emits → 导出 → 样式令牌 → 文档页）
+2. `withInstall` / `makeInstaller` 安装范式
+3. Vite 库模式 + `vite-plugin-dts` 构建与 `exports` 映射
+4. npm 发布（`publishConfig` + 官方源登录）与 GitHub Pages 部署流程
+5. pnpm v11 的 `allowBuilds` 处理 esbuild / vue-demi
+
+## 命名澄清
+
+- 仓库/包名为 **sh-design**，本地目录为 **sh-ui**，二者不可混用。
+- 组件统一 **Sh 前缀**。
+
+## 知识来源过滤
+
+以下目录**不作为**知识抽取依据，忽略它们：
+
+- `node_modules/**`
+- `**/dist/**`
+- `docs/.vitepress/cache/**`
+- `docs/.vitepress/dist/**`
+- `pnpm-lock.yaml`
