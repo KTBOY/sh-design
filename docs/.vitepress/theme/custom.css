@@ -4,6 +4,8 @@
   --vp-c-brand-3: #60a5fa;
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: linear-gradient(120deg, #2563eb 20%, #22d3ee);
+  /* 左侧目录收窄（默认 272px），侧栏文案已同步精简避免折行 */
+  --vp-sidebar-width: 200px;
 }
 
 /* Lift home content above the animated background (see CursorGlow.vue). */
@@ -29,26 +31,32 @@
   filter: invert(1);
 }
 
-/* Glassy, interactive feature cards so the animated background shows through. */
+/* Clean, simple feature cards: solid background with a hairline border and a
+   whisper of brand-blue shadow, sitting calmly over the ambient background. */
 .VPHome .VPFeature {
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--vp-c-divider);
+  border-radius: 16px;
+  background: var(--vp-c-bg);
+  box-shadow: 0 6px 20px -12px rgba(37, 99, 235, 0.15);
   transition:
-    transform 0.25s ease,
-    box-shadow 0.25s ease,
-    border-color 0.25s ease;
+    transform 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
 }
 
 .dark .VPHome .VPFeature {
-  background: rgba(32, 34, 40, 0.5);
+  background: var(--vp-c-bg-soft);
+  box-shadow: 0 6px 20px -12px rgba(2, 6, 23, 0.5);
 }
 
 .VPHome .VPFeature:hover {
-  transform: translateY(-4px);
-  border-color: rgba(37, 99, 235, 0.5);
-  box-shadow: 0 14px 34px -14px rgba(37, 99, 235, 0.4);
+  transform: translateY(-3px);
+  border-color: rgba(37, 99, 235, 0.35);
+  box-shadow: 0 12px 28px -14px rgba(37, 99, 235, 0.3);
+}
+
+.dark .VPHome .VPFeature:hover {
+  border-color: rgba(96, 165, 250, 0.4);
 }
 
 /* Hero action buttons */
@@ -93,4 +101,26 @@
   border: 1px solid var(--vp-c-divider);
   border-radius: 8px;
   background: var(--vp-c-bg-soft);
+}
+
+/* UniDemoDock（右侧停靠手机演示面板，见 components/UniDemoDock.vue）：
+ * VitePress 仅在页面带 aside 时才给正文 688px 限宽，带 dock 的页面需 aside: false，
+ * 因此这里在超宽屏下对含 dock 的正文恢复限宽，给固定在右侧的面板让位，避免文字与面板重叠
+ * （断点与组件内一致取 1792，实测更窄的宽度下限宽后仍会压到面板）。
+ * 选择器双保险：组件挂载时给 .content 挂 has-uni-demo-dock 类（旧内核兜底），
+ * :has() 则覆盖 JS 未执行的极端情况。 */
+@media (min-width: 1792px) {
+  .VPDoc .content.has-uni-demo-dock,
+  .VPDoc .content:has(.uni-demo-dock) {
+    max-width: 688px;
+  }
+}
+
+/* ===== showcase 画廊 / 详情页（/skills/ 与 /css/，见 components/showcase/） ===== */
+/* layout: page 默认在桌面端给内容区加了导航栏高度的 padding-top；去掉它，
+ * 让深色画布顶到导航栏下沿、背景延伸到玻璃导航栏后面（页面自带 nav 高度的内边距）。 */
+@media (min-width: 960px) {
+  .VPContent:has(.showcase-page) {
+    padding-top: 0 !important;
+  }
 }

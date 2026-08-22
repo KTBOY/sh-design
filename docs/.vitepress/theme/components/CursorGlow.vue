@@ -1,27 +1,6 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
-
-// Cursor-following spotlight background (inspired by meituancatpaw.com), tuned
-// to sh-design: a subtle brand-blue glow that follows the cursor, gentle
-// ambient blobs, and slowly floating cat paws. Pure CSS + rAF-throttled move.
-const root = ref<HTMLElement | null>(null)
-let lastX = 0
-let lastY = 0
-let raf = 0
-
-function apply() {
-  raf = 0
-  const el = root.value
-  if (!el) return
-  el.style.setProperty('--mx', `${lastX}px`)
-  el.style.setProperty('--my', `${lastY}px`)
-}
-
-function onMove(e: MouseEvent) {
-  lastX = e.clientX
-  lastY = e.clientY
-  if (!raf) raf = requestAnimationFrame(apply)
-}
+// Ambient background layer (inspired by meituancatpaw.com), tuned to sh-design:
+// gentle brand-blue ambient blobs and slowly floating cat paws. Pure CSS.
 
 // Floating cat paws (subtle, brand-blue). Negative delays pre-distribute them.
 const paws = [
@@ -32,22 +11,10 @@ const paws = [
   { left: '71%', size: 27, delay: -13, duration: 34, rotate: -14 },
   { left: '87%', size: 18, delay: -30, duration: 40, rotate: 10 }
 ]
-
-onMounted(() => {
-  lastX = window.innerWidth / 2
-  lastY = window.innerHeight * 0.4
-  apply()
-  window.addEventListener('mousemove', onMove, { passive: true })
-})
-
-onUnmounted(() => {
-  window.removeEventListener('mousemove', onMove)
-  if (raf) cancelAnimationFrame(raf)
-})
 </script>
 
 <template>
-  <div ref="root" class="cg-root" aria-hidden="true">
+  <div class="cg-root" aria-hidden="true">
     <div class="cg-aurora" />
     <div class="cg-paws">
       <span
@@ -64,7 +31,6 @@ onUnmounted(() => {
         }"
       />
     </div>
-    <div class="cg-spot" />
   </div>
 </template>
 
@@ -75,8 +41,6 @@ onUnmounted(() => {
   z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  --mx: 50vw;
-  --my: 40vh;
 }
 
 /* Subtle ambient brand-blue blobs. */
@@ -137,31 +101,8 @@ onUnmounted(() => {
   }
 }
 
-/* Subtle brand-blue glow following the cursor. */
-.cg-spot {
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    300px 300px at var(--mx) var(--my),
-    rgba(37, 99, 235, 0.12) 0%,
-    rgba(59, 130, 246, 0.08) 30%,
-    rgba(96, 165, 250, 0.03) 60%,
-    transparent 76%
-  );
-}
-
 .dark .cg-paw {
   background-color: rgba(96, 165, 250, 0.45);
-}
-
-.dark .cg-spot {
-  background: radial-gradient(
-    300px 300px at var(--mx) var(--my),
-    rgba(96, 165, 250, 0.16) 0%,
-    rgba(59, 130, 246, 0.1) 30%,
-    rgba(96, 165, 250, 0.04) 60%,
-    transparent 76%
-  );
 }
 
 @media (prefers-reduced-motion: reduce) {

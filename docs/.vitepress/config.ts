@@ -53,6 +53,8 @@ export default defineConfig({
           // { text: 'sk-faster-ant', link: 'https://github.com/KTBOY/sk-faster-ant' },
           { text: '粤工具', link: 'https://www.ps521.asia/' },
           { text: '组件实验室', link: '/lab/sk-linkage-menu' },
+          // { text: 'Skill 技能秀', link: '/skills/' },
+          // { text: 'CSS 特效', link: '/css/' },
           { text: '珊瑚打码小程序', link: '/mini/sk-image-waterfall' }
         ]
       },
@@ -93,13 +95,13 @@ export default defineConfig({
         },
         {
           text: '组件',
-          items: [{ text: 'ImageWaterfall 图片瀑布流', link: '/mini/sk-image-waterfall' }]
+          items: [{ text: 'ImageWaterfall 瀑布流', link: '/mini/sk-image-waterfall' }]
         }
       ],
       '/lab/': [
         {
-          text: 'shukelab 实验室组件（uni-app）',
-          items: [{ text: 'sk-linkage-menu 左右联动菜单', link: '/lab/sk-linkage-menu' }]
+          text: 'shukelab 组件',
+          items: [{ text: 'sk-linkage-menu 联动菜单', link: '/lab/sk-linkage-menu' }]
         }
       ]
     },

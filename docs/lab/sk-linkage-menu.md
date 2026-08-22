@@ -1,5 +1,6 @@
 ---
 description: uni-app 左右联动菜单 sk-linkage-menu：吸顶标题、受控选中、异步加载、分组级虚拟列表，适用于分类导航/电商菜单。
+aside: left
 ---
 
 # sk-linkage-menu 左右联动菜单
@@ -7,7 +8,7 @@ description: uni-app 左右联动菜单 sk-linkage-menu：吸顶标题、受控�
 左右联动菜单（分类导航）：点击左侧分组，右侧内容区平滑滚动联动；右侧滚动时，左侧菜单高亮反向联动。支持**分组吸顶标题**、**受控选中（`v-model:current`）**、**异步加载后自动重新测量**，以及大数据量下的**分组级虚拟渲染**。
 
 > 该组件来自 [shukelab](https://github.com/KTBOY/shukelab)（uni-app 跨端组件库），以 `uni_modules` 形式分发，支持 H5 / 微信小程序。
-> 因依赖 uni-app 运行时，本页为**静态文档**（说明 + API），无法在站内在线实玩；体验请前往插件市场或克隆 shukelab 运行 `npm run dev:h5`。
+> 下方演示实时内嵌 shukelab 的 **H5 在线构建**，可直接交互；本地联调时 shukelab 跑 `npm run dev:h5`、本站跑 `pnpm docs:dev` 即可热更新预览。
 
 <div style="margin: 20px 0 8px;">
   <a
@@ -20,9 +21,18 @@ description: uni-app 左右联动菜单 sk-linkage-menu：吸顶标题、受控�
   </a>
 </div>
 
-## 预览
+## 在线体验
 
-<img src="https://github.com/user-attachments/assets/8fa94ecd-31c7-492e-8cc0-0a6b057f4611" alt="sk-linkage-menu 预览" style="zoom: 33%; border-radius: 12px;" />
+演示通过手机壳 iframe 实时加载 [shukelab H5 版](https://ktboy.github.io/shukelab/)对应页面，可直接操作。宽屏下停靠在**页面右侧**常驻（可切换示例）；窄屏下展示在下方。
+
+<script setup>
+const linkageDemos = [
+  { src: '/pages/virtualMenuGanged/basic', title: '基础用法' },
+  { src: '/pages/virtualMenuGanged/style', title: '自定义样式' }
+]
+</script>
+
+<UniDemoDock :demos="linkageDemos" />
 
 ## 基础用法
 
