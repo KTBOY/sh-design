@@ -59,7 +59,7 @@ export default defineConfig({
         ]
       },
       {
-        text: '0.0.7',
+        text: '0.0.8',
         items: [{ text: 'npm', link: 'https://www.npmjs.com/package/sh-design' }]
       }
     ],
@@ -84,6 +84,7 @@ export default defineConfig({
           items: [
             { text: 'LazyImage 懒加载图片', link: '/components/lazy-image' },
             { text: 'SeamlessScroll 无缝滚动', link: '/components/seamless-scroll' },
+            { text: 'Skeleton 骨架屏', link: '/components/skeleton' },
             { text: 'Waterfall 瀑布流', link: '/components/waterfall' }
           ]
         }
@@ -101,7 +102,10 @@ export default defineConfig({
       '/lab/': [
         {
           text: 'shukelab 组件',
-          items: [{ text: 'sk-linkage-menu 联动菜单', link: '/lab/sk-linkage-menu' }]
+          items: [
+            { text: 'sk-linkage-menu 联动菜单', link: '/lab/sk-linkage-menu' },
+            { text: 'sk-tab-bar 底部导航', link: '/lab/sk-tab-bar' }
+          ]
         }
       ]
     },
@@ -125,6 +129,12 @@ export default defineConfig({
           )
         }
       ]
+    },
+    server: {
+      watch: {
+        // dev 期间跑 docs:build 写入 dist/.temp 时，watcher 会因文件被占用（Windows EBUSY）崩溃
+        ignored: ['**/.vitepress/dist/**', '**/.vitepress/.temp/**']
+      }
     }
   }
 })

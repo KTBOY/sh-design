@@ -28,3 +28,8 @@ pnpm-debug.log*
 .env
 .env.*
 !.env.example
+
+# ZCode 会话产物（规则文件除外）
+.zcode/better-harness/
+.zcode/plans/
+.zcode/repowiki/

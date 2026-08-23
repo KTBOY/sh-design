@@ -28,6 +28,7 @@
 | --- | --- | --- |
 | `ShLazyImage` | 懒加载图片：骨架屏 + 淡入 + 失败兜底（图 + 文案，可插槽自定义） | `packages/sh-design/src/components/lazy-image/` |
 | `ShSeamlessScroll` | 无缝滚动：四向 / 悬停暂停 / 滚轮手动滚 / 步进滚动 | `packages/sh-design/src/components/seamless-scroll/` |
+| `ShSkeleton` | 骨架屏：组件 + `v-skeleton` 指令双用法，微光动画，组合/单形状/插槽自定义 | `packages/sh-design/src/components/skeleton/` |
 | `ShWaterfall` | 虚拟瀑布流：瀑布流/网格双布局 + 虚拟列表 + 触底分页 | `packages/sh-design/src/components/waterfall/` |
 
 ---
@@ -399,7 +400,7 @@ git push --follow-tags
 
 **写法**（在文件**顶部按版本倒序**新增条目）：
 1. 版本号（SemVer）
-2. 发布日期：`<sub>YYYY-MM-DD</sub>`
+2. 发布日期：`YYYY-MM-DD`（纯日期文本，不要加 <sub> 标签或反引号包裹日期）
 3. 分类小节（按需）：`### ✨ 新增`、`### 🔧 修改`（破坏性变更前缀 `⚠️ Breaking:`）、`### 🐛 修复`
 4. 用反引号标注组件名（如 `` `ShLazyImage` ``），一句话说清“改了什么 + 影响/价值”，风格对齐已有条目。
 5. 尚未发布的累积改动可先记在顶部 `## 未发布 (Unreleased)`，发版时替换为正式「版本号 + 日期」。

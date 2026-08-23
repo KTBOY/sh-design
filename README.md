@@ -76,8 +76,9 @@ import 'sh-design/dist/style.css'
 
 | 组件                 | 说明                                                                                                | 文档                                                              |
 | -------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `ShLazyImage`      | 懒加载图片：骶架屏 + 淡入 +**失败兜底** + loader 接口取图 / 视口懒加载 / 轮询刷新             | [查看](https://ktboy.github.io/sh-design/components/lazy-image)      |
+| `ShLazyImage`      | 懒加载图片：骨架屏 + 淡入 +**失败兜底** + loader 接口取图 / 视口懒加载 / 轮询刷新             | [查看](https://ktboy.github.io/sh-design/components/lazy-image)      |
 | `ShSeamlessScroll` | 高性能无缝滚动：四向 / 悬停暂停 / 滚轮手动滚 / 步进滚动，每帧零重渲染                               | [查看](https://ktboy.github.io/sh-design/components/seamless-scroll) |
+| `ShSkeleton`      | 骨架屏：组件 + `v-skeleton` 指令双用法，微光动画，组合/单形状/插槽自定义，`loading` 切换真实内容    | [查看](https://ktboy.github.io/sh-design/components/skeleton)         |
 | `ShWaterfall`      | 高性能虚拟瀑布流：瀑布流/网格双布局 + 虚拟列表 + 触底分页，**零抖动**预留高度，内置懒加载图片 | [查看](https://ktboy.github.io/sh-design/components/waterfall)       |
 
 > 组件持续增加中，欢迎 [提 Issue](https://github.com/KTBOY/sh-design/issues) 提需求或 PR。

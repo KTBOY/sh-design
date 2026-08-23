@@ -5,7 +5,30 @@
   --vp-home-hero-name-color: transparent;
   --vp-home-hero-name-background: linear-gradient(120deg, #2563eb 20%, #22d3ee);
   /* 左侧目录收窄（默认 272px），侧栏文案已同步精简避免折行 */
-  --vp-sidebar-width: 200px;
+  --vp-sidebar-width: 370px;
+  /* VitePress 在 ≥1440px 视口会把超出 vp-layout-max-width 的空白塞进 sidebar 的
+   * padding（1800px 视口下 sidebar 视觉宽达 ~380px 并随屏幕继续变宽）。
+   * 放开为全屏后 sidebar 保持固定 200px，多余空间留给中间内容区（对齐主流组件库文档）。
+   * 该变量同时驱动 VPSidebar/VPNavBar/VPContent 的对齐公式，改一处全局生效。 */
+  --vp-layout-max-width: 100vw;
+  /* 正文内容区宽度（原 VitePress 硬编码 688px，普通文档页与实验室页统一走这个变量）。
+   * 普通页 max-width 天然自适应（窄屏自动收缩）；实验室页另会被
+   * calc(100vw - sidebar - dock 总宽) 动态封顶，见下方 dock 媒体查询。 */
+  --vp-content-width: 868px;
+  /* 右侧停靠面板总占宽：手机 375 + 右边距 24；≥1680px 时加上左侧目录 200 + 间距 12 */
+  --uni-dock-total: 399px;
+}
+
+@media (min-width: 1680px) {
+  :root {
+    --uni-dock-total: 611px;
+  }
+}
+
+/* 正文限宽：VitePress 默认 .VPDoc.has-aside .content-container { max-width: 688px }。
+ * 其样式在 SFC 中注入、晚于本文件，同特异性会被覆盖，这里多加一层 .container 提高特异性 */
+.VPDoc.has-aside .container .content-container {
+  max-width: var(--vp-content-width);
 }
 
 /* Lift home content above the animated background (see CursorGlow.vue). */
@@ -104,15 +127,35 @@
 }
 
 /* UniDemoDock（右侧停靠手机演示面板，见 components/UniDemoDock.vue）：
- * VitePress 仅在页面带 aside 时才给正文 688px 限宽，带 dock 的页面需 aside: false，
- * 因此这里在超宽屏下对含 dock 的正文恢复限宽，给固定在右侧的面板让位，避免文字与面板重叠
- * （断点与组件内一致取 1792，实测更窄的宽度下限宽后仍会压到面板）。
+ * 宽屏（≥1440）下对含 dock 的正文限宽 --vp-content-width，并做两件事给 375px 的固定面板让位：
+ * 1) 隐藏页面 outline（aside）——左侧已有组件 sidebar，两套导航重复，且 outline 占 256px；
+ * 2) 正文取消居中改为靠左——VitePress 会把正文在剩余空间居中，1600px 级视口下右缘
+ *    会压到 fixed 面板（实测 aside:left + 居中时右缘 1365 > 面板左缘 1186）。
+ * 靠左后正文右缘 = sidebar ~200 + 内容宽，1440 视口下距面板左缘(1041)仍有余量。
  * 选择器双保险：组件挂载时给 .content 挂 has-uni-demo-dock 类（旧内核兜底），
  * :has() 则覆盖 JS 未执行的极端情况。 */
-@media (min-width: 1792px) {
+@media (min-width: 1440px) {
   .VPDoc .content.has-uni-demo-dock,
   .VPDoc .content:has(.uni-demo-dock) {
-    max-width: 688px;
+    /* 用 margin-right 而非 max-width 计算让位：不依赖 100vw/自身 padding 的换算
+     * （100vw 含滚动条、.content 是 content-box 会额外加 padding，都算不准），
+     * 直接把右缘顶到面板左侧，间距恒定约 52px，任何变量取值都不会重叠 */
+    max-width: var(--vp-content-width);
+    min-width: 0;
+    margin-left: 0;
+    margin-right: calc(var(--uni-dock-total) + 20px);
+  }
+
+  /* VitePress 的 .container 是 flex 且 justify-content:center，会把正文推向屏幕中央，
+   * 1600px 级视口下右缘会压到固定面板；改为从左侧排布，正文贴住 sidebar 右侧 */
+  .VPDoc:has(.uni-demo-dock) .container,
+  .VPDoc:has(.content.has-uni-demo-dock) .container {
+    justify-content: flex-start;
+  }
+
+  .VPDoc:has(.uni-demo-dock) .aside,
+  .VPDoc:has(.content.has-uni-demo-dock) .aside {
+    display: none;
   }
 }
 

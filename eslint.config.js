@@ -12,7 +12,9 @@ export default ts.config(
       '**/.vitepress/cache/**',
       '**/.vitepress/dist/**',
       // Qoder 工具产物（评审报告等），不参与代码检查
-      '**/.qoder/**'
+      '**/.qoder/**',
+      // ZCode 工具产物（会话工件等），不参与代码检查
+      '**/.zcode/**'
     ]
   },
   js.configs.recommended,

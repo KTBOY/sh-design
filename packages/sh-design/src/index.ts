@@ -1,7 +1,8 @@
-import type { Plugin } from 'vue'
+import type { App, Plugin } from 'vue'
 import { makeInstaller } from './utils/install'
 import { ShLazyImage } from './components/lazy-image'
 import { ShSeamlessScroll } from './components/seamless-scroll'
+import { ShSkeleton, vSkeleton } from './components/skeleton'
 import { ShWaterfall } from './components/waterfall'
 import { version } from './version'
 
@@ -9,9 +10,14 @@ import { version } from './version'
 // additionally import 'sh-design/dist/style.css'.
 import './styles/index.css'
 
-const components: Plugin[] = [ShLazyImage, ShSeamlessScroll, ShWaterfall]
+const components: Plugin[] = [ShLazyImage, ShSeamlessScroll, ShSkeleton, ShWaterfall]
 
-const { install } = makeInstaller(components)
+const { install: installComponents } = makeInstaller(components)
+
+const install = (app: App): void => {
+  installComponents(app)
+  app.directive('Skeleton', vSkeleton)
+}
 
 /**
  * The sh-design library as a Vue plugin.

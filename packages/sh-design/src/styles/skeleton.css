@@ -1,0 +1,108 @@
+/* v-skeleton 指令样式（全局，非 scoped —— 指令可能作用于任意元素）。
+ * 视觉与 ShSkeleton 组件一致：隐藏子内容，原位覆盖微光遮罩。 */
+
+/* ShSkeleton #template 插槽的自定义骨架块（全局：slot 内容属于父作用域，
+ * 组件 scoped 样式选择不到它，必须放全局才能命中） */
+.sh-skeleton__block {
+  border-radius: var(--sh-radius-sm, 4px);
+  background: linear-gradient(
+    90deg,
+    var(--sh-skeleton-bg, #f2f3f5) 25%,
+    var(--sh-skeleton-highlight, #e6e8eb) 37%,
+    var(--sh-skeleton-bg, #f2f3f5) 63%
+  );
+  background-size: 400% 100%;
+  animation: sh-skeleton-shimmer var(--sh-skeleton-duration, 1.4s) ease infinite;
+}
+
+.sh-skeleton.is-static .sh-skeleton__block {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-skeleton__block {
+    animation: none;
+  }
+}
+
+.sh-skeleton-mask > * {
+  visibility: hidden !important;
+}
+
+.sh-skeleton-mask::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  background: linear-gradient(
+    90deg,
+    var(--sh-skeleton-bg, #f2f3f5) 25%,
+    var(--sh-skeleton-highlight, #e6e8eb) 37%,
+    var(--sh-skeleton-bg, #f2f3f5) 63%
+  );
+  background-size: 400% 100%;
+  animation: sh-skeleton-shimmer var(--sh-skeleton-duration, 1.4s) ease infinite;
+}
+
+.sh-skeleton-mask--static::after {
+  animation: none;
+}
+
+/* ===== v-skeleton.deep：逐后代骨架化 =====
+ * 目标是"看得见结构"的骨架：容器型元素（div 包裹层等）不铺底，保留留白；
+ * 只有「文本类标签 + 空元素」按自身形状铺微光块——圆形头像（空的带圆角 div）、
+ * 文字条（p/b/span 按自身行盒）、胶囊标签各自成块。根元素只隐藏自身文字/边框。 */
+
+/* 1) 根与全体后代：内容隐身（文字透明、边框/阴影清除），不改变布局 */
+.sh-skeleton-deep,
+.sh-skeleton-deep * {
+  color: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* 2) 骨架块：常见文本标签 + 空元素（头像圆、占位块、input 等空内容元素）按自身形状铺微光 */
+.sh-skeleton-deep
+  :is(h1, h2, h3, h4, h5, h6, p, li, b, strong, i, em, span, a, small, code, pre, label, button, th, td, dt, dd),
+.sh-skeleton-deep *:empty {
+  background: linear-gradient(
+      90deg,
+      var(--sh-skeleton-bg, #f2f3f5) 25%,
+      var(--sh-skeleton-highlight, #e6e8eb) 37%,
+      var(--sh-skeleton-bg, #f2f3f5) 63%
+    )
+    !important;
+  background-size: 400% 100% !important;
+  animation: sh-skeleton-shimmer var(--sh-skeleton-duration, 1.4s) ease infinite !important;
+}
+
+/* 3) 媒体内容无法透明化（像素独立于 color/background），仅保留占位空间；
+ *    fill="currentColor" 的 svg 图标已被规则 1 的 color: transparent 隐身。 */
+.sh-skeleton-deep :is(img, video, canvas, iframe) {
+  visibility: hidden !important;
+}
+
+/* 关闭动画 */
+.sh-skeleton-deep--static,
+.sh-skeleton-deep--static * {
+  animation: none !important;
+}
+
+@keyframes sh-skeleton-shimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-skeleton-mask::after,
+  .sh-skeleton-deep,
+  .sh-skeleton-deep * {
+    animation: none;
+  }
+}

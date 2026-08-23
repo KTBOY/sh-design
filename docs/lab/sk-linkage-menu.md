@@ -23,12 +23,12 @@ aside: left
 
 ## 在线体验
 
-演示通过手机壳 iframe 实时加载 [shukelab H5 版](https://ktboy.github.io/shukelab/)对应页面，可直接操作。宽屏下停靠在**页面右侧**常驻（可切换示例）；窄屏下展示在下方。
+演示通过手机壳 iframe 实时加载 [shukelab H5 版](https://ktboy.github.io/shukelab/)对应页面，可直接操作。宽屏下停靠在**页面右侧**常驻，随正文滚动自动切换对应示例，也可点击面板内 Tab 手动切换；更宽的屏幕下面板左侧会显示本页目录，点击二维码图标可扫码在手机上打开。窄屏下展示在下方。
 
 <script setup>
 const linkageDemos = [
-  { src: '/pages/virtualMenuGanged/basic', title: '基础用法' },
-  { src: '/pages/virtualMenuGanged/style', title: '自定义样式' }
+  { src: '/pages/virtualMenuGanged/basic', title: '基础用法', anchor: '基础用法' },
+  { src: '/pages/virtualMenuGanged/style', title: '自定义样式', anchor: '自定义左侧菜单项' }
 ]
 </script>
 
