@@ -88,6 +88,6 @@ const wordmark = withBase('/logo-bark-dark.png')
 }
 
 .dark .sh-logo__img {
-  filter: invert(1);
+  filter: none;
 }
 </style>

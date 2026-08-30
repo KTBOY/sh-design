@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
+import { showCopyToast } from '../../showcase/copyToast'
 
 /**
  * 深色代码窗（macOS 风格）：轻量高亮 + 一键复制。
@@ -14,9 +15,10 @@ async function copy() {
   try {
     await navigator.clipboard.writeText(props.code)
     copied.value = true
+    showCopyToast('代码已复制到剪贴板')
     setTimeout(() => (copied.value = false), 1600)
   } catch {
-    /* 剪贴板不可用（如非安全上下文）时静默失败 */
+    showCopyToast('复制失败，请手动选择复制')
   }
 }
 

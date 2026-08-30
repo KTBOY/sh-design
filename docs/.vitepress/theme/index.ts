@@ -5,6 +5,7 @@ import UniDemo from './components/UniDemo.vue'
 import UniDemoDock from './components/UniDemoDock.vue'
 import ShowcaseGallery from './components/showcase/ShowcaseGallery.vue'
 import ShowcaseDetail from './components/showcase/ShowcaseDetail.vue'
+import AboutShowcase from './components/about/AboutShowcase.vue'
 import Layout from './Layout.vue'
 import './custom.css'
 
@@ -21,5 +22,7 @@ export default {
     // /skills/ 与 /css/ 特效画廊页及动态路由详情页，在 markdown 中直接使用。
     app.component('ShowcaseGallery', ShowcaseGallery)
     app.component('ShowcaseDetail', ShowcaseDetail)
+    // /guide/about 个人项目 + 简历展示页（京都风视频背景）。
+    app.component('AboutShowcase', AboutShowcase)
   }
 } satisfies Theme

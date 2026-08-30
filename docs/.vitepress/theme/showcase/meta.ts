@@ -15,6 +15,10 @@ export interface ShowcaseMeta {
   title: string
   desc: string
   tags: string[]
+  /** 技能对应的 GitHub 仓库（详情页展示源码链接） */
+  repo?: string
+  /** 安装命令（详情页展示在完整源码上方） */
+  install?: string
 }
 
 export interface KindConfig {
@@ -31,8 +35,8 @@ export const KIND_CONFIG: Record<ShowcaseKind, KindConfig> = {
   skills: {
     kind: 'skills',
     dir: 'skills',
-    eyebrow: 'sh-design · CSS Skill Cards',
-    name: 'Skill 技能秀',
+    eyebrow: 'KTBOY · Personal Skills',
+    name: 'Skill',
     slogan: '每一张卡片，都是一次纯 CSS 的炫技',
     desc: '纯 CSS 技能卡片：零 JS、零依赖，点击卡片即可查看完整效果与可复制的源码。',
   },
@@ -48,10 +52,12 @@ export const KIND_CONFIG: Record<ShowcaseKind, KindConfig> = {
 
 export const SKILLS: ShowcaseMeta[] = [
   {
-    id: 'neon-button',
-    title: '霓虹发光按钮',
-    desc: '多层 box-shadow 叠加出霓虹光晕，呼吸灯常亮，hover 时瞬间点亮。',
-    tags: ['box-shadow', 'animation', 'hover']
+    id: 'resonance-hud',
+    title: '共鸣 HUD · 深色金调设计语言',
+    desc: '一套深色金调游戏 HUD 设计语言：角标括号、菱形标记、发丝分隔线全由 CSS 与内联 SVG 绘制，零图片素材、零 Web 字体，任意 DPI 下都锐利。',
+    tags: ['css-tokens', 'inline-svg', 'zero-asset'],
+    repo: 'https://github.com/KTBOY/resonance-hud',
+    install: 'npx skills add https://github.com/KTBOY/resonance-hud --skill resonance-hud'
   }
 ]
 

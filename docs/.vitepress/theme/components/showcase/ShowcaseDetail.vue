@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { withBase } from 'vitepress'
 import { EFFECTS, KIND_CONFIG, SKILLS } from '../../showcase/meta'
 import type { ShowcaseKind } from '../../showcase/meta'
 import { getDemoMap } from '../../showcase/demos'
 import CodeBlock from './CodeBlock.vue'
+import CopyToast from './CopyToast.vue'
+import { showCopyToast } from '../../showcase/copyToast'
 
 /**
  * showcase 详情页：完整尺寸的实时演示 + 可复制的完整源码。
@@ -30,12 +32,24 @@ const next = computed(() => (index.value >= 0 && index.value < list.value.length
 function href(id: string) {
   return withBase(`/${config.value.dir}/${id}`)
 }
+
+const installCopied = ref(false)
+async function copyInstall() {
+  try {
+    await navigator.clipboard.writeText(item.value?.install ?? '')
+    installCopied.value = true
+    showCopyToast('安装命令已复制到剪贴板')
+    setTimeout(() => (installCopied.value = false), 1600)
+  } catch {
+    showCopyToast('复制失败，请手动选择复制')
+  }
+}
 </script>
 
 <template>
   <div class="showcase-page showcase-detail" :data-kind="kind">
-    <!-- 背景：沿用画廊页的深色画布，但更收敛，保证代码区可读 -->
-    <div class="showcase-bg" aria-hidden="true">
+    <!-- 背景：仅 effects 沿用深色极光画布；skills 为浅色页，无背景层 -->
+    <div v-if="kind === 'effects'" class="showcase-bg" aria-hidden="true">
       <div class="bg-blob bg-blob--a"></div>
       <div class="bg-blob bg-blob--b"></div>
       <div class="bg-grid"></div>
@@ -60,6 +74,15 @@ function href(id: string) {
         <p class="detail-desc">{{ item.desc }}</p>
         <div class="detail-tags">
           <span v-for="t in item.tags" :key="t">{{ t }}</span>
+          <a v-if="item.repo" class="detail-repo" :href="item.repo" target="_blank" rel="noreferrer">
+            <svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+              />
+            </svg>
+            GitHub 源码 ↗
+          </a>
         </div>
       </header>
 
@@ -71,6 +94,20 @@ function href(id: string) {
         <p class="detail-stage-note">
           <i></i>上方为实时渲染效果（非截图），hover 可交互
         </p>
+      </section>
+
+      <!-- ===== 安装命令 ===== -->
+      <section v-if="item.install" class="detail-install">
+        <h2 class="detail-code__title">
+          <span class="detail-code__bar"></span>安装命令
+        </h2>
+        <div class="detail-install__box">
+          <span class="detail-install__prompt" aria-hidden="true">$</span>
+          <code class="detail-install__cmd">{{ item.install }}</code>
+          <button class="detail-install__copy" type="button" @click="copyInstall">
+            {{ installCopied ? '已复制 ✓' : '复制命令' }}
+          </button>
+        </div>
       </section>
 
       <!-- ===== 完整源码 ===== -->
@@ -102,6 +139,8 @@ function href(id: string) {
       <p>未找到该演示，可能已被移除或改名。</p>
       <a :href="withBase(`/${config.dir}/`)">← 返回{{ config.name }}</a>
     </div>
+
+    <CopyToast />
   </div>
 </template>
 
@@ -225,6 +264,24 @@ function href(id: string) {
   font-size: 11.5px;
 }
 
+.detail-repo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border: 1px solid rgba(34, 211, 238, 0.45);
+  border-radius: 7px;
+  color: #67e8f9;
+  font-size: 11.5px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+.detail-repo:hover {
+  border-color: rgba(34, 211, 238, 0.8);
+  transform: translateY(-1px);
+}
+
 /* ================= 演示舞台：旋转流光描边 ================= */
 .detail-stage-wrap {
   position: relative;
@@ -321,6 +378,60 @@ function href(id: string) {
   box-shadow: 0 0 12px rgba(34, 211, 238, 0.5);
 }
 
+/* ================= 安装命令 ================= */
+.detail-install {
+  position: relative;
+  z-index: 1;
+  max-width: 920px;
+  margin: 40px auto 0;
+  padding: 0 24px;
+}
+.detail-install__box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 12px;
+  background: #0b0d14;
+  box-shadow: 0 12px 32px -16px rgba(10, 10, 11, 0.12);
+}
+.detail-install__prompt {
+  color: #6ee7a0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  font-weight: 700;
+}
+.detail-install__cmd {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  color: #e2e8f0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12.5px;
+  scrollbar-width: none;
+}
+.detail-install__cmd::-webkit-scrollbar {
+  display: none;
+}
+.detail-install__copy {
+  flex: none;
+  padding: 4px 12px;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 8px;
+  background: transparent;
+  color: rgba(203, 213, 225, 0.9);
+  font-size: 12px;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.detail-install__copy:hover {
+  border-color: rgba(34, 211, 238, 0.6);
+  color: #67e8f9;
+}
+
 /* ================= 上一篇 / 下一篇 ================= */
 .detail-pn {
   position: relative;
@@ -379,6 +490,99 @@ function href(id: string) {
 }
 .detail-missing a {
   color: #67e8f9;
+}
+
+/* ================= skills：浅色极简覆写 ================= */
+.showcase-detail[data-kind='skills'] {
+  background: #fafafa;
+  color: #111214;
+  -webkit-font-smoothing: antialiased;
+}
+
+.showcase-detail[data-kind='skills'] .detail-back {
+  border-color: #e7e7ea;
+  background: #fff;
+  color: #6b7280;
+}
+.showcase-detail[data-kind='skills'] .detail-back:hover {
+  border-color: #d4d4d8;
+  color: #111214;
+}
+
+.showcase-detail[data-kind='skills'] .detail-eyebrow {
+  color: #6b7280;
+}
+
+.showcase-detail[data-kind='skills'] .detail-title {
+  background: none;
+  color: #0a0a0b;
+  letter-spacing: -0.02em;
+}
+
+.showcase-detail[data-kind='skills'] .detail-desc {
+  color: #6b7280;
+}
+
+.showcase-detail[data-kind='skills'] .detail-tags span {
+  border: 1px solid #ececef;
+  border-radius: 999px;
+  background: #fff;
+  color: #6b7280;
+}
+
+.showcase-detail[data-kind='skills'] .detail-repo {
+  border: 1px solid rgba(37, 99, 235, 0.35);
+  border-radius: 999px;
+  color: #2563eb;
+}
+.showcase-detail[data-kind='skills'] .detail-repo:hover {
+  border-color: rgba(37, 99, 235, 0.7);
+}
+
+/* 舞台：去掉流光外圈，改为白卡内嵌深色圆角面板（与画廊卡片同款语言） */
+.showcase-detail[data-kind='skills'] .detail-stage-wrap {
+  padding: 10px;
+  border: 1px solid #e7e7ea;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 12px 32px -16px rgba(10, 10, 11, 0.1);
+}
+.showcase-detail[data-kind='skills'] .detail-stage-wrap::before {
+  display: none;
+}
+.showcase-detail[data-kind='skills'] .detail-stage {
+  border-radius: 12px;
+  background: #0b0d14;
+}
+
+.showcase-detail[data-kind='skills'] .detail-stage-note {
+  color: #9ca3af;
+}
+
+.showcase-detail[data-kind='skills'] .detail-code__title {
+  color: #0a0a0b;
+}
+
+.showcase-detail[data-kind='skills'] .detail-pn__item {
+  border-color: #e7e7ea;
+  background: #fff;
+}
+.showcase-detail[data-kind='skills'] .detail-pn__item:hover {
+  border-color: #d4d4d8;
+  box-shadow: 0 12px 32px -16px rgba(10, 10, 11, 0.14);
+}
+.showcase-detail[data-kind='skills'] .detail-pn__label {
+  color: #9ca3af;
+}
+.showcase-detail[data-kind='skills'] .detail-pn__name {
+  color: #0a0a0b;
+}
+
+.showcase-detail[data-kind='skills'] .detail-missing {
+  color: #6b7280;
+}
+.showcase-detail[data-kind='skills'] .detail-missing a {
+  color: #2563eb;
 }
 
 @media (max-width: 640px) {

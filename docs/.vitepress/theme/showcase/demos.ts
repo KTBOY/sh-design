@@ -6,8 +6,8 @@
  */
 import type { Component } from 'vue'
 
-import SkillNeonButton from './demos/skill-neon-button.vue'
-import SkillNeonButtonSource from './demos/skill-neon-button.vue?raw'
+import SkillResonanceHud from './demos/skill-resonance-hud.vue'
+import SkillResonanceHudSource from './demos/skill-resonance-hud.vue?raw'
 
 import FxCube3d from './demos/fx-cube-3d.vue'
 import FxCube3dSource from './demos/fx-cube-3d.vue?raw'
@@ -21,7 +21,7 @@ export interface ShowcaseDemo {
 }
 
 export const SKILL_DEMOS: Record<string, ShowcaseDemo> = {
-  'neon-button': { component: SkillNeonButton, source: SkillNeonButtonSource }
+  'resonance-hud': { component: SkillResonanceHud, source: SkillResonanceHudSource }
 }
 
 export const EFFECT_DEMOS: Record<string, ShowcaseDemo> = {

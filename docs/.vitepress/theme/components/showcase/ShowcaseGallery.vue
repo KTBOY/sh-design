@@ -6,8 +6,8 @@ import type { ShowcaseKind, ShowcaseMeta } from '../../showcase/meta'
 import { getDemoMap } from '../../showcase/demos'
 
 /**
- * showcase 画廊页（/skills/ 与 /css/ 共用）：
- *  - skills：极光色斑 + 网格 + 上升粒子，玻璃卡片墙；
+ * showcase 画廊页（/skills/ 与 /css/ 共用），两套视觉体系：
+ *  - skills：浅色极简——白底细边框、左对齐 Hero、Bento 卡片墙、内嵌深色舞台；
  *  - effects：魔法星核（复刻 components_remix_scene.mp4）——深空底 + 呼吸的
  *    白光核 / 多层彩晕 / 旋转星云 + 线框星轨球 + 漫天星尘。
  * 卡片内嵌真实演示组件（非截图），点击进入动态路由详情页看完整源码。
@@ -23,7 +23,7 @@ function detailHref(id: string) {
   return withBase(`/${config.value.dir}/${id}`)
 }
 
-/* 悬浮高光：把鼠标在卡片内的坐标写入 CSS 变量，径向光斑跟随 */
+/* effects 悬浮高光：把鼠标在卡片内的坐标写入 CSS 变量，径向光斑跟随 */
 const gridRef = ref<HTMLElement>()
 function onCardMove(e: MouseEvent) {
   const card = (e.target as HTMLElement).closest?.('.showcase-card')
@@ -40,13 +40,12 @@ const rand = (i: number, salt: number) => {
   const v = Math.sin(i * 127.1 + salt * 311.7) * 43758.5453
   return v - Math.floor(v)
 }
-/* 粒子：skills 页 20 个上升粒子；effects 页 46 颗星尘（闪烁 + 缓慢漂移） */
-const particles = Array.from({ length: props.kind === 'effects' ? 46 : 20 }, (_, i) => ({
+/* effects 星尘：46 颗（闪烁 + 缓慢漂移） */
+const particles = Array.from({ length: 46 }, (_, i) => ({
   left: (rand(i, 1) * 100).toFixed(2) + '%',
   top: (rand(i, 6) * 72).toFixed(2) + '%',
   size: 2 + Math.round(rand(i, 2) * 3),
   delay: (rand(i, 3) * 9).toFixed(2) + 's',
-  duration: (7 + rand(i, 4) * 9).toFixed(2) + 's',
   dim: (0.3 + rand(i, 5) * 0.55).toFixed(2),
   dx: (rand(i, 7) * 64 - 32).toFixed(1) + 'px',
   dy: (-8 - rand(i, 8) * 44).toFixed(1) + 'px',
@@ -56,51 +55,50 @@ const particles = Array.from({ length: props.kind === 'effects' ? 46 : 20 }, (_,
 
 <template>
   <div class="showcase-page" :data-kind="kind">
-    <!-- ===== 背景 ===== -->
-    <div class="showcase-bg" aria-hidden="true">
-      <template v-if="kind === 'effects'">
-        <!-- 魔法星核：白光核 + 多层彩晕呼吸 + 双层反向旋转星云 -->
-        <div class="bg-nebula">
-          <div class="bg-aura bg-aura--cyan"></div>
-          <div class="bg-aura bg-aura--violet"></div>
-          <div class="bg-aura bg-aura--blue"></div>
-          <div class="bg-cloud"></div>
-          <div class="bg-cloud bg-cloud--late"></div>
-          <div class="bg-core"></div>
+    <!-- ===== effects 背景：魔法星核 ===== -->
+    <div v-if="kind === 'effects'" class="showcase-bg" aria-hidden="true">
+      <!-- 白光核 + 多层彩晕呼吸 + 双层反向旋转星云 -->
+      <div class="bg-nebula">
+        <div class="bg-aura bg-aura--cyan"></div>
+        <div class="bg-aura bg-aura--violet"></div>
+        <div class="bg-aura bg-aura--blue"></div>
+        <div class="bg-cloud"></div>
+        <div class="bg-cloud bg-cloud--late"></div>
+        <div class="bg-core"></div>
+      </div>
+      <!-- 线框星轨球：经纬圆环组成的星笼 + 一颗沿倾斜光环运行的星点 -->
+      <div class="bg-orb">
+        <div class="bg-orb__cage">
+          <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+          <div class="bg-orb__halo"></div>
         </div>
-        <!-- 线框星轨球：经纬圆环组成的星笼 + 一颗沿倾斜光环运行的星点 -->
-        <div class="bg-orb">
-          <div class="bg-orb__cage">
-            <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-            <div class="bg-orb__halo"></div>
-          </div>
-        </div>
-        <div class="bg-particles">
-          <span
-            v-for="(p, i) in particles"
-            :key="i"
-            :style="{ left: p.left, top: p.top, width: p.size + 'px', height: p.size + 'px', '--dim': p.dim, '--delay': p.delay, '--dx': p.dx, '--dy': p.dy, '--tw': p.twinkle }"
-          ></span>
-        </div>
-      </template>
-      <template v-else>
-        <div class="bg-blob bg-blob--a"></div>
-        <div class="bg-blob bg-blob--b"></div>
-        <div class="bg-blob bg-blob--c"></div>
-        <div class="bg-grid"></div>
-        <div class="bg-particles">
-          <span
-            v-for="(p, i) in particles"
-            :key="i"
-            :style="{ left: p.left, width: p.size + 'px', height: p.size + 'px', '--dim': p.dim, '--delay': p.delay, animationDuration: p.duration }"
-          ></span>
-        </div>
-      </template>
+      </div>
+      <div class="bg-particles">
+        <span
+          v-for="(p, i) in particles"
+          :key="i"
+          :style="{ left: p.left, top: p.top, width: p.size + 'px', height: p.size + 'px', '--dim': p.dim, '--delay': p.delay, '--dx': p.dx, '--dy': p.dy, '--tw': p.twinkle }"
+        ></span>
+      </div>
       <div class="bg-vignette"></div>
     </div>
 
-    <!-- ===== 头部 ===== -->
-    <header class="showcase-hero">
+    <!-- ===== skills 头部：浅色极简 ===== -->
+    <header v-if="kind === 'skills'" class="light-hero">
+      <span class="light-eyebrow"><i></i>{{ config.eyebrow }}</span>
+      <h1 class="light-title">{{ config.name }}</h1>
+      <p class="light-slogan">{{ config.slogan }}</p>
+      <p class="light-desc">{{ config.desc }}</p>
+      <div class="light-meta">
+        <span>{{ items.length }} 个技能卡</span><i></i>
+        <span>100% 纯 CSS</span><i></i>
+        <span>零 JS 依赖</span><i></i>
+        <span class="light-meta__hl">点击卡片查看完整源码 ↘</span>
+      </div>
+    </header>
+
+    <!-- ===== effects 头部 ===== -->
+    <header v-else class="showcase-hero">
       <span class="showcase-eyebrow">
         <i class="showcase-eyebrow__dot"></i>{{ config.eyebrow }}
       </span>
@@ -108,15 +106,51 @@ const particles = Array.from({ length: props.kind === 'effects' ? 46 : 20 }, (_,
       <p class="showcase-slogan">{{ config.slogan }}</p>
       <p class="showcase-desc">{{ config.desc }}</p>
       <div class="showcase-stats">
-        <span class="showcase-stats__chip">{{ items.length }} 个{{ kind === 'skills' ? '技能卡' : '特效' }}</span>
+        <span class="showcase-stats__chip">{{ items.length }} 个特效</span>
         <span class="showcase-stats__chip">100% 纯 CSS</span>
         <span class="showcase-stats__chip">零 JS 依赖</span>
         <span class="showcase-stats__chip showcase-stats__chip--hl">点击卡片查看完整源码 ↘</span>
       </div>
     </header>
 
-    <!-- ===== 卡片墙 ===== -->
-    <div ref="gridRef" class="showcase-grid">
+    <!-- ===== skills 卡片墙：Bento ===== -->
+    <div v-if="kind === 'skills'" class="light-grid">
+      <a
+        v-for="(item, i) in items"
+        :key="item.id"
+        class="light-card"
+        :class="{ 'light-card--feat': i === 0 && items.length > 1, 'light-card--solo': items.length === 1 }"
+        :href="detailHref(item.id)"
+      >
+        <span class="light-card__no">
+          {{ String(i + 1).padStart(2, '0') }}<template v-if="i === 0 && items.length > 1"> · FEATURED</template>
+        </span>
+        <div class="light-card__stage">
+          <component :is="demoOf(item.id)" />
+        </div>
+        <div class="light-card__body">
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.desc }}</p>
+          <div class="light-card__row">
+            <div class="light-card__tags">
+              <span v-for="t in item.tags" :key="t">{{ t }}</span>
+            </div>
+            <span class="light-card__cta">
+              查看完整 CSS
+              <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                <path
+                  fill="currentColor"
+                  d="M13.22 5.47a.75.75 0 0 1 1.06 0l5.25 5.25a.75.75 0 0 1 0 1.06l-5.25 5.25a.75.75 0 1 1-1.06-1.06l3.97-3.97H4.75a.75.75 0 0 1 0-1.5h12.44l-3.97-3.97a.75.75 0 0 1 0-1.06Z"
+                />
+              </svg>
+            </span>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <!-- ===== effects 卡片墙 ===== -->
+    <div v-else ref="gridRef" class="showcase-grid">
       <a
         v-for="(item, i) in items"
         :key="item.id"
@@ -150,20 +184,25 @@ const particles = Array.from({ length: props.kind === 'effects' ? 46 : 20 }, (_,
       </a>
     </div>
 
-    <footer class="showcase-foot">
+    <footer :class="kind === 'skills' ? 'light-foot' : 'showcase-foot'">
       <p>持续更新中 · 所有效果均可复制源码直接用于你的项目</p>
     </footer>
   </div>
 </template>
 
 <style scoped>
-/* ================= 页面画布（深色，不随站点明暗主题变化） ================= */
+/* ================= 页面画布 ================= */
 .showcase-page {
   position: relative;
   min-height: 100vh;
   background: #070b18;
   color: #e2e8f0;
   overflow: clip;
+}
+.showcase-page[data-kind='skills'] {
+  background: #fafafa;
+  color: #111214;
+  -webkit-font-smoothing: antialiased;
 }
 
 .showcase-bg {
@@ -180,67 +219,225 @@ const particles = Array.from({ length: props.kind === 'effects' ? 46 : 20 }, (_,
     linear-gradient(to bottom, transparent 82%, rgba(4, 7, 15, 0.85) 100%);
 }
 
-/* ================= skills 背景：极光色斑 + 网格 + 上升粒子 ================= */
-.bg-blob {
-  position: absolute;
-  width: 46vw;
-  height: 46vw;
-  min-width: 420px;
-  min-height: 420px;
+/* ================= skills：浅色极简头部 ================= */
+.light-hero {
+  position: relative;
+  z-index: 1;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: calc(var(--vp-nav-height, 56px) + 52px) 32px 64px;
+}
+
+.light-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #6b7280;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.light-eyebrow i {
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.34;
-}
-.bg-blob--a {
-  left: -12%;
-  top: -16%;
-  background: radial-gradient(circle, #2563eb, transparent 68%);
-  animation: blob-drift-a 16s ease-in-out infinite;
-}
-.bg-blob--b {
-  right: -14%;
-  top: -6%;
-  background: radial-gradient(circle, #22d3ee, transparent 68%);
-  animation: blob-drift-b 19s ease-in-out infinite;
-}
-.bg-blob--c {
-  left: 22%;
-  top: 30%;
-  background: radial-gradient(circle, #7c3aed, transparent 66%);
-  opacity: 0.24;
-  animation: blob-drift-c 14s ease-in-out infinite;
+  background: #2563eb;
 }
 
-.bg-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(148, 163, 184, 0.09) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.09) 1px, transparent 1px);
-  background-size: 54px 54px;
-  -webkit-mask-image: radial-gradient(80% 62% at 50% 12%, #000 0%, transparent 78%);
-  mask-image: radial-gradient(80% 62% at 50% 12%, #000 0%, transparent 78%);
+.light-title {
+  margin: 18px 0 16px;
+  font-size: clamp(36px, 6vw, 52px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.12;
+  color: #0a0a0b;
 }
 
-.bg-particles span {
-  position: absolute;
-  bottom: -12px;
+.light-slogan {
+  margin: 0 0 10px;
+  font-size: 19px;
+  font-weight: 500;
+  color: #111214;
+}
+
+.light-desc {
+  max-width: 560px;
+  font-size: 15px;
+  line-height: 1.8;
+  color: #6b7280;
+}
+
+.light-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 30px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  color: #6b7280;
+}
+.light-meta i {
+  width: 3px;
+  height: 3px;
   border-radius: 50%;
-  background: rgba(125, 211, 252, 0.85);
-  box-shadow: 0 0 8px rgba(56, 189, 248, 0.7);
-  opacity: var(--dim, 0.5);
-  animation: particle-rise 9s linear infinite;
-  animation-delay: var(--delay, 0s);
+  background: #d1d5db;
 }
-@keyframes particle-rise {
-  to {
-    transform: translateY(-108vh) translateX(14px);
-    opacity: 0;
-  }
+.light-meta__hl {
+  color: #2563eb;
+  font-weight: 500;
 }
 
-/* ================= effects 背景：魔法星核（复刻 components_remix_scene.mp4） ================= */
-/* 深空底色：比 skills 页更黑，衬托星核 */
+/* ================= skills：Bento 卡片墙 ================= */
+.light-grid {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 20px;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 32px 56px;
+}
+
+.light-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  grid-column: span 2;
+  border: 1px solid #e7e7ea;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #fff;
+  text-decoration: none;
+  color: inherit;
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.light-card:hover {
+  transform: translateY(-3px);
+  border-color: #d4d4d8;
+  box-shadow:
+    0 12px 32px -16px rgba(10, 10, 11, 0.14),
+    0 2px 8px rgba(10, 10, 11, 0.05);
+}
+.light-card--feat {
+  grid-column: span 4;
+  grid-row: span 2;
+}
+.light-card--solo {
+  grid-column: 1 / -1;
+}
+
+.light-card__no {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  z-index: 3;
+  color: rgba(226, 232, 240, 0.55);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+}
+
+/* 内嵌深色舞台：演示组件自带深色底，这里只负责圆角裁切与留白 */
+.light-card__stage {
+  position: relative;
+  height: 200px;
+  margin: 10px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0b0d14;
+}
+.light-card--feat .light-card__stage,
+.light-card--solo .light-card__stage {
+  flex: 1;
+  height: auto;
+  min-height: 320px;
+}
+
+.light-card__body {
+  padding: 8px 20px 20px;
+}
+.light-card__body h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #0a0a0b;
+}
+.light-card--feat .light-card__body h3,
+.light-card--solo .light-card__body h3 {
+  font-size: 19px;
+}
+.light-card__body p {
+  margin: 6px 0 12px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: #6b7280;
+}
+
+.light-card__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.light-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.light-card__tags span {
+  padding: 3px 9px;
+  border: 1px solid #ececef;
+  border-radius: 999px;
+  background: #fafafa;
+  color: #6b7280;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11px;
+}
+
+.light-card__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  color: #111214;
+  font-size: 13px;
+  font-weight: 500;
+}
+.light-card__cta svg {
+  color: #2563eb;
+  transition: transform 0.25s ease;
+}
+.light-card:hover .light-card__cta svg {
+  transform: translateX(4px);
+}
+
+/* skills 页脚 */
+.light-foot {
+  position: relative;
+  z-index: 1;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 32px 52px;
+  border-top: 1px solid #ececef;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 12.5px;
+  letter-spacing: 0.04em;
+}
+.light-foot p {
+  margin: 0;
+}
+
+/* ================= effects 背景：魔法星核 ================= */
 .showcase-page[data-kind='effects'] {
   background: radial-gradient(120% 100% at 50% 30%, #0a1024 0%, #05070f 62%);
 }
@@ -441,8 +638,9 @@ const particles = Array.from({ length: props.kind === 'effects' ? 46 : 20 }, (_,
 }
 
 /* 漫天星尘：明暗闪烁（opacity）+ 缓慢漂移（transform），两组动画互不冲突 */
-.showcase-page[data-kind='effects'] .bg-particles span {
-  bottom: auto;
+.bg-particles span {
+  position: absolute;
+  border-radius: 50%;
   background: #e0f2fe;
   box-shadow: 0 0 8px rgba(224, 242, 254, 0.95);
   animation:
@@ -467,7 +665,7 @@ const particles = Array.from({ length: props.kind === 'effects' ? 46 : 20 }, (_,
   }
 }
 
-/* ================= 头部 ================= */
+/* ================= effects 头部 ================= */
 .showcase-hero {
   position: relative;
   z-index: 1;
@@ -558,7 +756,7 @@ const particles = Array.from({ length: props.kind === 'effects' ? 46 : 20 }, (_,
   color: #67e8f9;
 }
 
-/* ================= 卡片墙 ================= */
+/* ================= effects 卡片墙 ================= */
 .showcase-grid {
   position: relative;
   z-index: 1;
@@ -693,7 +891,7 @@ const particles = Array.from({ length: props.kind === 'effects' ? 46 : 20 }, (_,
   transform: translateX(5px);
 }
 
-/* ================= 页脚 ================= */
+/* ================= effects 页脚 ================= */
 .showcase-foot {
   position: relative;
   z-index: 1;
@@ -705,7 +903,34 @@ const particles = Array.from({ length: props.kind === 'effects' ? 46 : 20 }, (_,
 }
 
 /* ================= 响应式 & 动效降级 ================= */
+@media (max-width: 960px) {
+  .light-card {
+    grid-column: span 3;
+  }
+  .light-card--feat {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+  .light-card--feat .light-card__stage {
+    min-height: 260px;
+  }
+}
+
 @media (max-width: 640px) {
+  .light-hero {
+    padding-top: calc(var(--vp-nav-height, 56px) + 40px);
+    padding-bottom: 44px;
+  }
+  .light-grid {
+    grid-template-columns: 1fr;
+    padding: 0 18px 40px;
+  }
+  .light-card,
+  .light-card--feat,
+  .light-card--solo {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
   .showcase-hero {
     padding-top: calc(var(--vp-nav-height, 56px) + 44px);
     padding-bottom: 40px;
@@ -713,10 +938,6 @@ const particles = Array.from({ length: props.kind === 'effects' ? 46 : 20 }, (_,
   .showcase-grid {
     grid-template-columns: 1fr;
     padding: 0 18px 24px;
-  }
-  .bg-blob {
-    min-width: 300px;
-    min-height: 300px;
   }
 }
 

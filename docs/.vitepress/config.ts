@@ -53,7 +53,7 @@ export default defineConfig({
           // { text: 'sk-faster-ant', link: 'https://github.com/KTBOY/sk-faster-ant' },
           { text: '粤工具', link: 'https://www.ps521.asia/' },
           { text: '组件实验室', link: '/lab/sk-linkage-menu' },
-          // { text: 'Skill 技能秀', link: '/skills/' },
+          { text: 'Skill', link: '/skills/' },
           // { text: 'CSS 特效', link: '/css/' },
           { text: '珊瑚打码小程序', link: '/mini/sk-image-waterfall' }
         ]
@@ -76,6 +76,10 @@ export default defineConfig({
         {
           text: '更多',
           items: [{ text: '更新日志', link: '/guide/changelog' }]
+        },
+        {
+          text: '关于',
+          items: [{ text: '个人主页 · Portfolio', link: '/guide/about' }]
         }
       ],
       '/components/': [

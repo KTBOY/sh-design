@@ -163,7 +163,13 @@
 /* layout: page 默认在桌面端给内容区加了导航栏高度的 padding-top；去掉它，
  * 让深色画布顶到导航栏下沿、背景延伸到玻璃导航栏后面（页面自带 nav 高度的内边距）。 */
 @media (min-width: 960px) {
-  .VPContent:has(.showcase-page) {
+  .VPContent:has(.showcase-page),
+  .VPContent:has(.about-page) {
     padding-top: 0 !important;
   }
+}
+
+/* about 页：滚动条槽 / 过度滚动区域与页面暖暗画布同色，避免浅色缝 */
+body:has(.about-page) {
+  background-color: #1a110c;
 }
