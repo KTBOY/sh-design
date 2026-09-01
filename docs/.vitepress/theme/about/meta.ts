@@ -31,7 +31,7 @@ export interface SkillGroup {
 }
 
 export const PROFILE = {
-  overline: 'Portfolio · Kyoto Remix',
+  overline: 'Portfolio · Selected Works',
   name: 'KTBOY',
   role: 'Frontend Engineer · Vue Ecosystem',
   roleZh: '前端工程师 / 组件库作者',

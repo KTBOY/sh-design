@@ -47,17 +47,8 @@ export default defineConfig({
       { text: '指南', link: '/guide/introduction', activeMatch: '/guide/' },
       { text: '组件', link: '/components/lazy-image', activeMatch: '/components/' },
       // { text: '简历', link: '/components/lazy-image', activeMatch: '/components/' },
-      {
-        text: '更多产品',
-        items: [
-          // { text: 'sk-faster-ant', link: 'https://github.com/KTBOY/sk-faster-ant' },
-          { text: '粤工具', link: 'https://www.ps521.asia/' },
-          { text: '组件实验室', link: '/lab/sk-linkage-menu' },
-          { text: 'Skill', link: '/skills/' },
-          // { text: 'CSS 特效', link: '/css/' },
-          { text: '珊瑚打码小程序', link: '/mini/sk-image-waterfall' }
-        ]
-      },
+      // 「更多产品」入口收敛为独立聚合页 /products/，避免导航下拉过长
+      { text: '更多产品', link: '/products/', activeMatch: '/products/' },
       {
         text: '0.0.8',
         items: [{ text: 'npm', link: 'https://www.npmjs.com/package/sh-design' }]
@@ -79,7 +70,10 @@ export default defineConfig({
         },
         {
           text: '关于',
-          items: [{ text: '个人主页 · Portfolio', link: '/guide/about' }]
+          items: [
+            { text: '个人主页 · Portfolio', link: '/guide/about' },
+            { text: '更多工具 · Products', link: '/products/' }
+          ]
         }
       ],
       '/components/': [
