@@ -5,6 +5,7 @@ import { computed } from 'vue'
 import CursorGlow from './components/CursorGlow.vue'
 import HeroBg from './components/HeroBg.vue'
 import NavLogo from './components/NavLogo.vue'
+import HomeProducts from './components/products/HomeProducts.vue'
 
 const { Layout } = DefaultTheme
 const { frontmatter } = useData()
@@ -21,6 +22,10 @@ const isHome = computed(() => frontmatter.value.layout === 'home')
   <Layout>
     <template #nav-bar-title-before>
       <NavLogo />
+    </template>
+    <!-- 主页「更多产品」区块：与 /products/ 聚合页共用 ProductCard 与数据源。 -->
+    <template #home-features-after>
+      <HomeProducts />
     </template>
   </Layout>
 </template>

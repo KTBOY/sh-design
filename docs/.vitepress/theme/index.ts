@@ -6,6 +6,8 @@ import UniDemoDock from './components/UniDemoDock.vue'
 import ShowcaseGallery from './components/showcase/ShowcaseGallery.vue'
 import ShowcaseDetail from './components/showcase/ShowcaseDetail.vue'
 import ProductsGallery from './components/products/ProductsGallery.vue'
+import ProductCard from './components/products/ProductCard.vue'
+import HomeProducts from './components/products/HomeProducts.vue'
 import AboutShowcase from './components/about/AboutShowcase.vue'
 import Layout from './Layout.vue'
 import './custom.css'
@@ -25,6 +27,9 @@ export default {
     app.component('ShowcaseDetail', ShowcaseDetail)
     // /products/ 更多工具聚合页：在线产品 + 开源项目卡片墙。
     app.component('ProductsGallery', ProductsGallery)
+    // 共享产品卡片单元与主页「更多产品」区块（数据同源 theme/products/meta.ts）。
+    app.component('ProductCard', ProductCard)
+    app.component('HomeProducts', HomeProducts)
     // /guide/about 个人项目 + 简历展示页（京都风视频背景）。
     app.component('AboutShowcase', AboutShowcase)
   }
