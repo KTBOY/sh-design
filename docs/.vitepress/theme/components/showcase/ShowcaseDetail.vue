@@ -4,7 +4,6 @@ import { withBase } from 'vitepress'
 import { EFFECTS, KIND_CONFIG, SKILLS } from '../../showcase/meta'
 import type { ShowcaseKind } from '../../showcase/meta'
 import { getDemoMap } from '../../showcase/demos'
-import CodeBlock from './CodeBlock.vue'
 import CopyToast from './CopyToast.vue'
 import { showCopyToast } from '../../showcase/copyToast'
 
@@ -20,11 +19,6 @@ const list = computed(() => (props.kind === 'skills' ? SKILLS : EFFECTS))
 const index = computed(() => list.value.findIndex((i) => i.id === props.id))
 const item = computed(() => list.value[index.value])
 const demo = computed(() => (props.id ? getDemoMap(props.kind)[props.id] : undefined))
-
-const htmlCode = computed(
-  () => demo.value?.source.match(/<template>\n?([\s\S]*?)\n<\/template>/)?.[1]?.trim() ?? ''
-)
-const cssCode = computed(() => demo.value?.source.match(/<style[^>]*>\n?([\s\S]*?)<\/style>/)?.[1]?.trim() ?? '')
 
 const prev = computed(() => (index.value > 0 ? list.value[index.value - 1] : null))
 const next = computed(() => (index.value >= 0 && index.value < list.value.length - 1 ? list.value[index.value + 1] : null))
@@ -110,13 +104,63 @@ async function copyInstall() {
         </div>
       </section>
 
-      <!-- ===== 完整源码 ===== -->
-      <section class="detail-code">
+      <!-- ===== 已使用的项目画廊 ===== -->
+      <section v-if="item.usedIn?.length" class="detail-used">
         <h2 class="detail-code__title">
-          <span class="detail-code__bar"></span>完整源码
+          <span class="detail-code__bar"></span>已使用的项目
+          <span class="detail-used__count">{{ String(item.usedIn.length).padStart(2, '0') }}</span>
         </h2>
-        <CodeBlock lang="html" title="template · HTML 结构" :code="htmlCode" />
-        <CodeBlock lang="css" title="style · CSS 完整源码" :code="cssCode" />
+        <ul class="detail-used__grid">
+          <li v-for="p in item.usedIn" :key="p.name" class="detail-used__cell">
+            <component
+              :is="p.link ? 'a' : 'div'"
+              class="detail-used__card"
+              :class="{ 'detail-used__card--link': !!p.link }"
+              :href="p.link"
+              :target="p.link ? '_blank' : undefined"
+              :rel="p.link ? 'noreferrer' : undefined"
+            >
+              <figure class="detail-used__figure">
+                <video
+                  v-if="p.media.endsWith('.mp4')"
+                  class="detail-used__gif"
+                  :src="withBase(p.media)"
+                  :aria-label="p.alt || `${p.name} 效果演示`"
+                  autoplay
+                  muted
+                  loop
+                  playsinline
+                  preload="metadata"
+                ></video>
+                <img
+                  v-else
+                  class="detail-used__gif"
+                  :src="withBase(p.media)"
+                  :alt="p.alt || `${p.name} 效果演示`"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <span v-if="p.link" class="detail-used__visit" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="11" height="11">
+                    <path
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      d="M7 17 17 7M9 7h8v8"
+                    />
+                  </svg>
+                  查看
+                </span>
+              </figure>
+              <div class="detail-used__info">
+                <p class="detail-used__name">{{ p.name }}</p>
+                <p v-if="p.desc" class="detail-used__desc">{{ p.desc }}</p>
+              </div>
+            </component>
+          </li>
+        </ul>
       </section>
 
       <!-- ===== 上一篇 / 下一篇 ===== -->
@@ -492,6 +536,102 @@ async function copyInstall() {
   color: #67e8f9;
 }
 
+/* ================= 已使用的项目画廊 ================= */
+.detail-used {
+  position: relative;
+  z-index: 1;
+  max-width: 920px;
+  margin: 40px auto 0;
+  padding: 0 24px;
+}
+.detail-used__count {
+  margin-left: auto;
+  color: rgba(94, 234, 212, 0.75);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+}
+.detail-used__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 16px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.detail-used__cell {
+  display: flex;
+}
+.detail-used__card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  border-radius: 14px;
+  background: rgba(13, 20, 40, 0.72);
+  overflow: hidden;
+  color: inherit;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+.detail-used__card--link {
+  cursor: pointer;
+}
+.detail-used__card:hover {
+  border-color: rgba(34, 211, 238, 0.5);
+  box-shadow: 0 16px 40px -20px rgba(34, 211, 238, 0.4);
+}
+.detail-used__figure {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 16 / 10;
+  background: #0b0d14;
+}
+.detail-used__gif {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.detail-used__gif video,
+video.detail-used__gif {
+  object-fit: cover;
+}
+.detail-used__visit {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: 1px solid rgba(34, 211, 238, 0.4);
+  border-radius: 999px;
+  background: rgba(7, 11, 24, 0.78);
+  color: #67e8f9;
+  font-size: 11px;
+  opacity: 0;
+  backdrop-filter: blur(4px);
+  transition: opacity 0.2s ease;
+}
+.detail-used__card:hover .detail-used__visit {
+  opacity: 1;
+}
+.detail-used__info {
+  padding: 12px 14px 14px;
+}
+.detail-used__name {
+  margin: 0;
+  color: #f1f5f9;
+  font-size: 14px;
+  font-weight: 700;
+}
+.detail-used__desc {
+  margin: 4px 0 0;
+  color: rgba(100, 116, 139, 0.95);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
 /* ================= skills：浅色极简覆写 ================= */
 .showcase-detail[data-kind='skills'] {
   background: #fafafa;
@@ -561,6 +701,25 @@ async function copyInstall() {
 
 .showcase-detail[data-kind='skills'] .detail-code__title {
   color: #0a0a0b;
+}
+
+.showcase-detail[data-kind='skills'] .detail-used__count {
+  color: #9ca3af;
+}
+.showcase-detail[data-kind='skills'] .detail-used__card {
+  border-color: #e7e7ea;
+  background: #fff;
+  box-shadow: 0 12px 32px -16px rgba(10, 10, 11, 0.1);
+}
+.showcase-detail[data-kind='skills'] .detail-used__card:hover {
+  border-color: #d4d4d8;
+  box-shadow: 0 12px 32px -16px rgba(10, 10, 11, 0.18);
+}
+.showcase-detail[data-kind='skills'] .detail-used__name {
+  color: #0a0a0b;
+}
+.showcase-detail[data-kind='skills'] .detail-used__desc {
+  color: #6b7280;
 }
 
 .showcase-detail[data-kind='skills'] .detail-pn__item {

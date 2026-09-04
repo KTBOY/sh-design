@@ -31,12 +31,12 @@ export const TOOL_GROUPS: ToolGroup[] = [
   {
     id: 'web',
     title: 'Products & Sites',
-    zh: '在线产品',
+    zh: '精选项目',
     items: [
       {
         name: 'Yue Tools',
-        nameZh: '粤工具',
-        desc: '面向粤语地区用户的在线工具箱站点，覆盖日常高频小工具场景，独立完成设计、开发与部署。',
+        nameZh: '粤电玩',
+        desc: '在线工具箱站点，覆盖日常高频小工具场景。',
         tags: ['Web App', '独立开发'],
         links: [{ label: 'Visit', href: 'https://www.ps521.asia/' }]
       },
@@ -54,30 +54,23 @@ export const TOOL_GROUPS: ToolGroup[] = [
       {
         name: 'Coral Coder',
         nameZh: '珊瑚打码小程序',
-        desc: '微信小程序：图片瀑布流浏览与打码工具，基于 uni-app 与自研瀑布流组件，兼顾性能与体验。',
+        desc: 'NASA壁纸+工具，累计用户2000+',
         tags: ['WeChat Mini Program', 'uni-app'],
-        links: [{ label: '组件文档', href: '/mini/sk-image-waterfall', internal: true }]
+        links: [{ label: '在线演示', href: '/mini', internal: true }]
       },
       {
         name: 'shukelab',
         nameZh: '组件实验室',
-        desc: 'uni-app H5 实验组件收容所：联动菜单、底部导航等业务向小组件的在线演示场。',
+        desc: 'uni-app 多端实验组件收容所：联动菜单、底部导航等业务向小组件的在线演示场。',
         tags: ['uni-app', 'H5'],
         links: [{ label: '在线演示', href: '/lab/sk-linkage-menu', internal: true }]
-      },
-      {
-        name: 'Skill Cards',
-        nameZh: '纯 CSS 技能卡',
-        desc: '共鸣 HUD 深色金调设计语言的纯 CSS 技能卡片画廊，点击卡片即可查看完整效果与可复制源码。',
-        tags: ['CSS', '零 JS 依赖'],
-        links: [{ label: '画廊', href: '/skills/', internal: true }]
       }
     ]
   },
   {
     id: 'oss',
     title: 'Open Source & Desktop',
-    zh: '开源项目',
+    zh: '其他项目',
     items: [
       {
         name: '闪电Flash',
@@ -97,7 +90,7 @@ export const TOOL_GROUPS: ToolGroup[] = [
         name: 'NovelAtlas',
         nameZh: '墨枢 · AI 小说一致性工作台',
         desc: '把小说设定沉淀为知识图谱，在写作的每一步校验一致性，并把「恰好够用」的设定喂给 AI——让任何模型写长篇都不崩人设。纯前端，数据 100% 存本地。',
-        tags: ['React 18', 'D3 力导向图', 'Zustand', '纯前端'],
+        tags: ['React 18', 'D3 力导向图', 'Zustand'],
         links: [
           { label: 'GitHub', href: 'https://github.com/KTBOY/sk-ms' },
           {
@@ -105,6 +98,16 @@ export const TOOL_GROUPS: ToolGroup[] = [
             href: 'https://github.com/KTBOY/sk-ms/releases/latest/download/NovelAtlas-Portable-v1.0.0-win64.zip',
             primary: true
           }
+        ]
+      },
+      {
+        name: 'Resonance HUD-ui skill',
+        nameZh: '共鸣 HUD 设计语言',
+        desc: '深色金调的游戏 HUD 设计语言，打包为 Agent Skill：零图片素材、零 Web 字体，全部装饰由 CSS / 内联 SVG 绘制，任意 DPI 下都锐利。',
+        tags: ['CSS 设计语言', 'Agent Skill', 'npx skills add'],
+        links: [
+          { label: 'GitHub', href: 'https://github.com/KTBOY/resonance-hud' },
+          { label: '画廊', href: '/skills/', internal: true }
         ]
       },
       {
@@ -120,13 +123,6 @@ export const TOOL_GROUPS: ToolGroup[] = [
             primary: true
           }
         ]
-      },
-      {
-        name: 'Resonance HUD',
-        nameZh: '共鸣 HUD 设计语言',
-        desc: '深色金调的游戏 HUD 设计语言，打包为 Agent Skill：零图片素材、零 Web 字体，全部装饰由 CSS / 内联 SVG 绘制，任意 DPI 下都锐利。',
-        tags: ['CSS 设计语言', 'Agent Skill', 'npx skills add'],
-        links: [{ label: 'GitHub', href: 'https://github.com/KTBOY/resonance-hud' }]
       }
     ]
   }

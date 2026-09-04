@@ -40,7 +40,7 @@ export const PROFILE = {
   links: [
     { label: 'GitHub', href: 'https://github.com/KTBOY' },
     { label: 'npm', href: 'https://www.npmjs.com/package/sh-design' },
-    { label: '粤工具', href: 'https://www.ps521.asia/' }
+    { label: '粤电玩', href: 'https://www.ps521.asia/' }
   ] as ProfileLink[]
 }
 
@@ -57,14 +57,7 @@ export const PROJECTS: Project[] = [
       { label: 'Docs', href: 'https://ktboy.github.io/sh-design/' }
     ]
   },
-  {
-    no: '02',
-    name: 'Yue Tools',
-    nameZh: '粤工具',
-    desc: '面向粤语地区用户的在线工具箱站点，覆盖日常高频小工具场景，独立完成设计、开发与部署。',
-    tags: ['Web App', '独立开发'],
-    links: [{ label: 'Visit', href: 'https://www.ps521.asia/' }]
-  },
+
   {
     no: '03',
     name: 'Coral Coder',
@@ -80,6 +73,14 @@ export const PROJECTS: Project[] = [
     desc: '针对 Ant Design Vue 的效率增强工具集，沉淀业务表格 / 表单的高频封装，减少重复代码。',
     tags: ['Ant Design Vue', '效率工具'],
     links: [{ label: 'GitHub', href: 'https://github.com/KTBOY/sk-faster-ant' }]
+  },
+  {
+    no: '02',
+    name: 'Yue Tools',
+    nameZh: '粤电玩',
+    desc: '在线工具箱站点。',
+    tags: ['Web App', '独立开发'],
+    links: [{ label: 'Visit', href: 'https://www.ps521.asia/' }]
   }
 ]
 
@@ -109,7 +110,7 @@ export const SKILLS: SkillGroup[] = [
   {
     title: 'Core',
     titleZh: '核心',
-    items: ['Vue 3', 'TypeScript', 'JavaScript ESNext', 'HTML5', 'CSS3 / Sass']
+    items: ['Vue 3', 'React18', 'TypeScript', 'JavaScript ESNext', 'HTML5', 'CSS3 / Sass','java','node','Flash动画']
   },
   {
     title: 'Engineering',

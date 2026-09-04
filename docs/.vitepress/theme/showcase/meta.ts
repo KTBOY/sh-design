@@ -19,6 +19,21 @@ export interface ShowcaseMeta {
   repo?: string
   /** 安装命令（详情页展示在完整源码上方） */
   install?: string
+  /** 「已使用的项目」画廊条目（详情页展示 gif 演示） */
+  usedIn?: UsedProject[]
+}
+
+export interface UsedProject {
+  /** 项目名称 */
+  name: string
+  /** 一句话说明 */
+  desc?: string
+  /** 演示媒体：gif 或 mp4，路径相对于站点根（如 /img/xxx.gif），组件内自动 withBase */
+  media: string
+  /** 图片加载失败/读屏时的替代描述，默认使用「{name} 效果演示」 */
+  alt?: string
+  /** 可选的项目链接（有链接时卡片可点击，右上角悬浮「查看」角标） */
+  link?: string
 }
 
 export interface KindConfig {
@@ -57,7 +72,24 @@ export const SKILLS: ShowcaseMeta[] = [
     desc: '一套深色金调游戏 HUD 设计语言：角标括号、菱形标记、发丝分隔线全由 CSS 与内联 SVG 绘制，零图片素材、零 Web 字体，任意 DPI 下都锐利。',
     tags: ['css-tokens', 'inline-svg', 'zero-asset'],
     repo: 'https://github.com/KTBOY/resonance-hud',
-    install: 'npx skills add https://github.com/KTBOY/resonance-hud --skill resonance-hud'
+    install: 'npx skills add https://github.com/KTBOY/resonance-hud --skill resonance-hud',
+    usedIn: [
+      {
+        name: '桌面精灵',
+        desc: '深色金调桌面宠物，呼吸明灭的 HUD 质感',
+        media: '/img/desktop-pet.mp4'
+      },
+      {
+        name: '墨枢 NovelAtlas',
+        desc: 'AI 小说创作一致性工作台，把设定沉淀为知识图谱',
+        media: '/img/moshu-demo.gif'
+      },
+      {
+        name: '闪电Flash 游戏修改器',
+        desc: '通用 Flash 游戏修改器：Ruffle 内存扫描 · 变速齿轮',
+        media: '/img/flash-trainer.png'
+      }
+    ]
   }
 ]
 
