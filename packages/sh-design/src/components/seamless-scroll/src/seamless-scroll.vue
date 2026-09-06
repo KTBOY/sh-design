@@ -203,6 +203,19 @@ watch(
   }
 )
 
+// `speed` is read live inside the rAF loop, but a change from 0 → >0 while
+// stopped needs a kick to restart the loop (schedule() no-ops if it shouldn't run).
+watch(
+  () => props.speed,
+  () => schedule()
+)
+
+// `force` feeds into `canScroll` / `copies`, so re-measure when it flips.
+watch(
+  () => props.force,
+  () => measure()
+)
+
 /** 回到起点并清零轮数 */
 function reset() {
   progress = 0

@@ -4,6 +4,23 @@
 
 > 说明：这里只记录**组件库**相关的改动（组件、Composable、公共 API）。纯文档 / 站点 / CI 等工程改动一般不单独收录。
 
+## 0.0.9
+
+2026-09-06
+
+### ✨ 新增
+
+- `ShLazyImage` 新增**全屏图片预览**能力（对标 Element Plus / Ant Design，默认关闭）：
+  - `preview` 开启后，图片加载完成悬浮显示预览遮罩（内置眼睛图标 + 「预览」文案，`#preview-mask` 插槽可自定义），点击打开全屏查看器。
+  - 查看器支持：滚轮/按钮/↑↓ 键缩放（乘法步进 `preview-zoom-rate`，范围 `preview-min-scale` ~ `preview-max-scale`）、按住拖拽平移、左右 90° 旋转、「1:1 / 适应窗口」切换（空格键）、`ESC` / 点击遮罩 / × 关闭、打开期间锁定页面滚动。
+  - `preview-src-list` 传入多张图时可在查看器内左右切换（按钮 / ← → 键，循环）并显示页码，`preview-initial-index` 指定初始位置。
+  - 新增 `switch` / `close` 事件（载荷 `{ index, url }`）；查看器层级可经 CSS 变量 `--sh-image-viewer-z-index`（默认 `2000`）调整。
+
+### 🔧 修改
+
+- `ShLazyImage` 的 `error-text` 支持传空值（`:error-text="false"` / `:error-text="null"` / `error-text=""`）：文案为空时**不渲染文案节点**，仅展示兜底图；此前空文案也会渲染一个空 `<span>`，在兜底图下方多占一处位置（行高 + 8px 间距）。传 `true` 使用默认文案 `'加载失败'`（不传时默认行为不变），`#error` 插槽作用域 `text` 恒为 `string`。
+- `ShSeamlessScroll` 修复两处属性变更不生效：`speed` 在停止状态下从 `0` 改为大于 `0` 时，滚动动画现在会自动重启；`force` 切换时会重新测量容器与内容尺寸，避免布局结果滞后。
+
 ## 0.0.8
 
 2026-08-23

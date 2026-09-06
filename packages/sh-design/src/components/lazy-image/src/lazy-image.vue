@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { lazyImageProps, lazyImageEmits } from './lazy-image'
+import { lazyImageProps, lazyImageEmits, LAZY_IMAGE_DEFAULT_ERROR_TEXT } from './lazy-image'
 import type { LazyImageStatus } from './lazy-image'
 import { imageErrorDataUrl } from '../../../assets/image-error'
+import { eyeIconDataUrl } from '../../../assets/eye-icon'
+import ImageViewer from './image-viewer.vue'
 
 defineOptions({ name: 'ShLazyImage' })
 
@@ -21,6 +23,37 @@ let io: IntersectionObserver | null = null
 
 const errorImage = computed(() => props.errorSrc || imageErrorDataUrl)
 const nativeLoading = computed<'lazy' | 'eager'>(() => (props.lazy === true ? 'lazy' : 'eager'))
+
+// `error-text` accepts `false` / `null` / `''` to omit the text node entirely
+// (fallback image only); `true` falls back to the default text.
+const normalizedErrorText = computed(() => {
+  const t = props.errorText
+  if (typeof t === 'string') return t
+  return t === true ? LAZY_IMAGE_DEFAULT_ERROR_TEXT : ''
+})
+
+// Preview: an explicit list enables navigation; otherwise preview the loaded image.
+const previewList = computed(() => {
+  if (props.previewSrcList.length) return props.previewSrcList
+  return displaySrc.value ? [displaySrc.value] : []
+})
+const previewable = computed(() => props.preview && previewList.value.length > 0)
+const showPreviewMask = computed(() => previewable.value && status.value === 'loaded')
+const viewerOpen = ref(false)
+
+function openPreview() {
+  if (!showPreviewMask.value) return
+  viewerOpen.value = true
+}
+
+function onViewerSwitch(payload: { index: number; url: string }) {
+  emit('switch', payload)
+}
+
+function onViewerClose(payload: { index: number; url: string }) {
+  viewerOpen.value = false
+  emit('close', payload)
+}
 
 function toSize(v: string | number): string | undefined {
   if (v === '' || v === undefined || v === null) return undefined
@@ -144,15 +177,15 @@ watch(
 
     <!-- Error fallback: image + text, fully overridable via the `error` slot -->
     <div v-if="status === 'error'" class="sh-lazy-image__error">
-      <slot name="error" :src="errorImage" :text="errorText">
+      <slot name="error" :src="errorImage" :text="normalizedErrorText">
         <img
           v-if="showErrorImage"
           class="sh-lazy-image__error-img"
           :src="errorImage"
-          :alt="errorText"
+          :alt="normalizedErrorText"
           draggable="false"
         />
-        <span class="sh-lazy-image__error-text">{{ errorText }}</span>
+        <span v-if="normalizedErrorText" class="sh-lazy-image__error-text">{{ normalizedErrorText }}</span>
       </slot>
     </div>
 
@@ -172,6 +205,33 @@ watch(
 
     <!-- Overlay content (e.g. captions, badges) -->
     <slot />
+
+    <!-- Preview hover mask: eye icon + text, opens the fullscreen viewer -->
+    <div
+      v-if="showPreviewMask"
+      class="sh-lazy-image__preview-mask"
+      @click="openPreview"
+    >
+      <slot name="preview-mask">
+        <img class="sh-lazy-image__preview-eye" :src="eyeIconDataUrl" alt="" draggable="false" />
+        <span class="sh-lazy-image__preview-text">预览</span>
+      </slot>
+    </div>
+
+    <!-- Fullscreen preview viewer (teleported to body by itself) -->
+    <ImageViewer
+      v-if="viewerOpen"
+      :url-list="previewList"
+      :initial-index="previewInitialIndex"
+      :zoom-rate="previewZoomRate"
+      :min-scale="previewMinScale"
+      :max-scale="previewMaxScale"
+      :close-on-press-escape="previewCloseOnPressEscape"
+      :hide-on-click-modal="previewHideOnClickModal"
+      :alt="alt"
+      @switch="onViewerSwitch"
+      @close="onViewerClose"
+    />
   </div>
 </template>
 
@@ -238,6 +298,42 @@ watch(
 .sh-lazy-image__error-text {
   font-size: var(--sh-font-size-sm);
   color: var(--sh-color-text-secondary);
+}
+
+.sh-lazy-image__preview-mask {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: var(--sh-font-size-sm);
+  cursor: zoom-in;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.sh-lazy-image:hover .sh-lazy-image__preview-mask {
+  opacity: 1;
+}
+
+.sh-lazy-image__preview-eye {
+  width: 20px;
+  height: 20px;
+}
+
+.sh-lazy-image__preview-text {
+  line-height: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sh-lazy-image__preview-mask {
+    transition: none;
+  }
 }
 
 @keyframes sh-lazy-image-shimmer {

@@ -52,7 +52,7 @@ export const KIND_CONFIG: Record<ShowcaseKind, KindConfig> = {
     dir: 'skills',
     eyebrow: 'KTBOY · Personal Skills',
     name: 'Skill',
-    slogan: '每一张卡片，都是一次纯 CSS 的炫技',
+    slogan: '一些用纯 CSS 完成的小练习',
     desc: '纯 CSS 技能卡片：零 JS、零依赖，点击卡片即可查看完整效果与可复制的源码。',
   },
   effects: {
