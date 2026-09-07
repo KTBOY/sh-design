@@ -10,7 +10,7 @@
 
 ### ✨ 新增
 
-- `ShLazyImage` 新增**全屏图片预览**能力（对标 Element Plus / Ant Design，默认关闭）：
+- `ShLazyImage` 新增**全屏图片预览**能力（默认关闭）：
   - `preview` 开启后，图片加载完成悬浮显示预览遮罩（内置眼睛图标 + 「预览」文案，`#preview-mask` 插槽可自定义），点击打开全屏查看器。
   - 查看器支持：滚轮/按钮/↑↓ 键缩放（乘法步进 `preview-zoom-rate`，范围 `preview-min-scale` ~ `preview-max-scale`）、按住拖拽平移、左右 90° 旋转、「1:1 / 适应窗口」切换（空格键）、`ESC` / 点击遮罩 / × 关闭、打开期间锁定页面滚动。
   - `preview-src-list` 传入多张图时可在查看器内左右切换（按钮 / ← → 键，循环）并显示页码，`preview-initial-index` 指定初始位置。
