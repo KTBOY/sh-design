@@ -138,7 +138,7 @@ onBeforeUnmount(() => observer?.disconnect())
       </section>
 
       <!-- ===== Experience ===== -->
-      <section id="experience" class="sec">
+      <!-- <section id="experience" class="sec">
         <div class="sec-head reveal">
           <span class="sec-no">03</span>
           <h2 class="sec-title">Experience</h2>
@@ -152,7 +152,7 @@ onBeforeUnmount(() => observer?.disconnect())
             <p class="timeline__desc">{{ e.desc }}</p>
           </li>
         </ol>
-      </section>
+      </section> -->
 
       <!-- ===== Skills ===== -->
       <section id="skills" class="sec">

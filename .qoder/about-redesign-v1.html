@@ -1,0 +1,747 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>KTBOY · Portfolio — 3D Hero Concept</title>
+<style>
+  :root {
+    --blue: #2563eb;
+    --cyan: #22d3ee;
+    --ink: #0a0a0b;
+    --muted: #6b7280;
+    --faint: #9ca3af;
+    --line: #e7e7ea;
+    --bg: #fafafa;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC',
+      'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { text-decoration: none; color: inherit; }
+
+  /* ===== 3D 粒子画布：固定在最底层 ===== */
+  #gl {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  /* ===== 导航（模拟 VitePress 顶栏） ===== */
+  .nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    height: 60px;
+    border-bottom: 1px solid rgba(231, 231, 234, 0.7);
+    background: rgba(250, 250, 250, 0.72);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+  .nav__logo {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+  }
+  .nav__logo i {
+    width: 10px; height: 10px;
+    border-radius: 3px;
+    background: linear-gradient(135deg, var(--blue), var(--cyan));
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+  }
+  .nav__links { display: flex; gap: 26px; font-size: 13.5px; color: var(--muted); }
+  .nav__links a { transition: color 0.2s ease; }
+  .nav__links a:hover { color: var(--blue); }
+
+  main { position: relative; z-index: 1; }
+
+  /* ===== Hero ===== */
+  .hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 120px 32px 80px;
+  }
+  .overline {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+  .overline i {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--blue);
+    animation: blink 2.4s ease-in-out infinite;
+  }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+  .hero__name {
+    margin-top: 20px;
+    font-size: clamp(64px, 11vw, 128px);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.02;
+  }
+  .hero__dot {
+    background: linear-gradient(135deg, var(--blue), var(--cyan));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero__role {
+    margin-top: 24px;
+    font-size: clamp(16px, 2vw, 20px);
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .hero__role-zh {
+    margin-top: 8px;
+    font-size: 15px;
+    letter-spacing: 0.32em;
+    color: var(--muted);
+  }
+  .hero__tagline {
+    margin-top: 32px;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-left: 2px solid var(--blue);
+    padding-left: 18px;
+  }
+  .hero__tagline em { font-style: normal; font-size: 17px; font-weight: 500; }
+  .hero__tagline span { font-size: 14px; color: var(--muted); }
+
+  .hero__cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 40px; }
+  .btn {
+    padding: 10px 26px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(6px);
+    transition: border-color 0.25s ease, color 0.25s ease,
+      background 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .btn:hover {
+    border-color: var(--blue);
+    color: var(--blue);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -10px rgba(37, 99, 235, 0.35);
+  }
+  .btn--primary {
+    border-color: var(--blue);
+    background: linear-gradient(135deg, var(--blue), #3b82f6);
+    color: #fff;
+  }
+  .btn--primary:hover { color: #fff; box-shadow: 0 10px 28px -8px rgba(37, 99, 235, 0.5); }
+
+  .hero__scroll {
+    position: absolute;
+    right: 32px;
+    bottom: 42px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    color: var(--faint);
+  }
+  .hero__scroll i {
+    width: 56px; height: 1px;
+    background: linear-gradient(to right, var(--blue), transparent);
+    animation: scroll-pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes scroll-pulse {
+    0%, 100% { transform: scaleX(0.4); opacity: 0.5; }
+    50% { transform: scaleX(1); opacity: 1; }
+  }
+
+  /* ===== Section 通用 ===== */
+  .sec { max-width: 1120px; margin: 0 auto; padding: 88px 32px; }
+  .sec-head { display: flex; align-items: baseline; gap: 16px; margin-bottom: 42px; }
+  .sec-no {
+    color: var(--blue);
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.1em;
+  }
+  .sec-title { font-size: clamp(26px, 3.6vw, 36px); font-weight: 700; letter-spacing: -0.01em; }
+  .sec-zh { font-size: 13px; letter-spacing: 0.28em; color: var(--faint); }
+  .sec-head::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--line);
+    align-self: center;
+  }
+
+  /* ===== 项目卡片 ===== */
+  .proj-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .proj-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 28px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.86);
+    backdrop-filter: blur(8px);
+    overflow: hidden;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  /* hover 时顶部蓝青渐变光条 */
+  .proj-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(to right, var(--blue), var(--cyan));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.35s ease;
+  }
+  .proj-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(37, 99, 235, 0.35);
+    box-shadow: 0 16px 40px -18px rgba(10, 10, 11, 0.18),
+      0 2px 8px rgba(10, 10, 11, 0.05);
+  }
+  .proj-card:hover::before { transform: scaleX(1); }
+  .proj-card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+  .proj-card__no { color: var(--blue); font-family: var(--mono); font-size: 13px; }
+  .proj-card__links { display: flex; gap: 14px; }
+  .proj-card__links a {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  .proj-card__links a:hover { color: var(--blue); border-color: var(--blue); }
+  .proj-card__name { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+  .proj-card__zh { margin: 5px 0 12px; font-size: 13px; letter-spacing: 0.16em; color: var(--muted); }
+  .proj-card__desc { font-size: 14px; line-height: 1.8; color: var(--muted); margin-bottom: 18px; }
+  .proj-card__tags { margin-top: auto; display: flex; flex-wrap: wrap; gap: 7px; list-style: none; }
+  .proj-card__tags li {
+    padding: 3px 10px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--bg);
+    color: var(--muted);
+    font-family: var(--mono);
+    font-size: 11px;
+  }
+
+  /* ===== 技能 ===== */
+  .skill-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .skill-group {
+    padding: 26px 28px;
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.86);
+    backdrop-filter: blur(8px);
+  }
+  .skill-group__title {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .skill-group__title span { font-weight: 400; font-size: 12px; letter-spacing: 0.24em; color: var(--muted); }
+  .skill-group__items { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; }
+  .skill-group__items li {
+    padding: 5px 14px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: var(--bg);
+    font-size: 13px;
+    color: #374151;
+    transition: border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  }
+  .skill-group__items li:hover { border-color: var(--blue); color: var(--blue); transform: translateY(-1px); }
+
+  /* ===== Contact ===== */
+  .contact { padding: 110px 32px 60px; text-align: center; }
+  .contact__hi { font-size: clamp(30px, 4.6vw, 46px); font-weight: 700; letter-spacing: -0.01em; }
+  .contact__zh { margin-top: 12px; font-size: 14px; letter-spacing: 0.3em; color: var(--muted); }
+  .contact .hero__cta { justify-content: center; }
+  .contact__copy {
+    margin: 60px auto 0;
+    padding-top: 24px;
+    border-top: 1px solid var(--line);
+    max-width: 1120px;
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    color: var(--faint);
+  }
+
+  /* ===== 滚动浮现 ===== */
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
+  @media (max-width: 820px) {
+    .proj-grid, .skill-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    .nav { padding: 0 18px; }
+    .nav__links { gap: 16px; font-size: 12.5px; }
+    .hero, .sec { padding-left: 20px; padding-right: 20px; }
+    .hero__scroll { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .hero__scroll i, .overline i { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<nav class="nav">
+  <a class="nav__logo" href="#"><i></i>sh-design</a>
+  <div class="nav__links">
+    <a href="#">指南</a>
+    <a href="#">组件</a>
+    <a href="#">更多产品</a>
+    <a href="#">GitHub</a>
+  </div>
+</nav>
+
+<main>
+  <!-- ===== Hero ===== -->
+  <header class="hero">
+    <p class="overline"><i></i>Portfolio · Selected Works</p>
+    <h1 class="hero__name">KTBOY<span class="hero__dot">.</span></h1>
+    <p class="hero__role">Frontend Engineer · Vue Ecosystem</p>
+    <p class="hero__role-zh">前端工程师 / 组件库作者</p>
+    <p class="hero__tagline">
+      <em>Crafting warm, performant interfaces with code.</em>
+      <span>用代码构建有温度、高性能的界面。</span>
+    </p>
+    <div class="hero__cta">
+      <a class="btn btn--primary" href="#">GitHub</a>
+      <a class="btn" href="#">npm</a>
+      <a class="btn" href="#">粤电玩</a>
+    </div>
+    <div class="hero__scroll" aria-hidden="true"><span>Scroll</span><i></i></div>
+  </header>
+
+  <!-- ===== 01 Selected Projects ===== -->
+  <section id="projects" class="sec">
+    <div class="sec-head reveal">
+      <span class="sec-no">01</span>
+      <h2 class="sec-title">Selected Projects</h2>
+      <span class="sec-zh">精选项目</span>
+    </div>
+    <div class="proj-grid">
+      <article class="proj-card reveal">
+        <div class="proj-card__top">
+          <span class="proj-card__no">01</span>
+          <div class="proj-card__links"><a href="#">GitHub</a><a href="#">npm</a><a href="#">Docs</a></div>
+        </div>
+        <h3 class="proj-card__name">sh-design</h3>
+        <p class="proj-card__zh">Vue3 业务组件库</p>
+        <p class="proj-card__desc">面向业务场景的 Vue 3 组件库：高性能瀑布流（虚拟列表 / 无限滚动）、图片懒加载、无缝滚动、骨架屏，TypeScript 友好，支持按需引入，已发布 npm。</p>
+        <ul class="proj-card__tags"><li>Vue 3</li><li>TypeScript</li><li>Vite</li><li>pnpm Monorepo</li></ul>
+      </article>
+      <article class="proj-card reveal">
+        <div class="proj-card__top">
+          <span class="proj-card__no">02</span>
+          <div class="proj-card__links"><a href="#">Visit</a></div>
+        </div>
+        <h3 class="proj-card__name">Yue Tools</h3>
+        <p class="proj-card__zh">粤电玩</p>
+        <p class="proj-card__desc">在线工具箱站点。</p>
+        <ul class="proj-card__tags"><li>Web App</li><li>独立开发</li></ul>
+      </article>
+      <article class="proj-card reveal">
+        <div class="proj-card__top">
+          <span class="proj-card__no">03</span>
+          <div class="proj-card__links"><a href="#">Docs</a></div>
+        </div>
+        <h3 class="proj-card__name">Coral Coder</h3>
+        <p class="proj-card__zh">珊瑚打码小程序</p>
+        <p class="proj-card__desc">微信小程序：图片瀑布流浏览与打码工具，基于 uni-app 与自研瀑布流组件，兼顾性能与体验。</p>
+        <ul class="proj-card__tags"><li>WeChat Mini Program</li><li>uni-app</li></ul>
+      </article>
+      <article class="proj-card reveal">
+        <div class="proj-card__top">
+          <span class="proj-card__no">04</span>
+          <div class="proj-card__links"><a href="#">GitHub</a></div>
+        </div>
+        <h3 class="proj-card__name">sk-faster-ant</h3>
+        <p class="proj-card__zh">Ant Design Vue 增强</p>
+        <p class="proj-card__desc">针对 Ant Design Vue 的效率增强工具集，沉淀业务表格 / 表单的高频封装，减少重复代码。</p>
+        <ul class="proj-card__tags"><li>Ant Design Vue</li><li>效率工具</li></ul>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===== 02 Toolbox ===== -->
+  <section id="skills" class="sec">
+    <div class="sec-head reveal">
+      <span class="sec-no">02</span>
+      <h2 class="sec-title">Toolbox</h2>
+      <span class="sec-zh">技能</span>
+    </div>
+    <div class="skill-grid">
+      <div class="skill-group reveal">
+        <h3 class="skill-group__title">Core<span>核心</span></h3>
+        <ul class="skill-group__items">
+          <li>Vue 3</li><li>React18</li><li>TypeScript</li><li>JavaScript ESNext</li><li>HTML5</li><li>CSS3 / Sass</li>
+        </ul>
+      </div>
+      <div class="skill-group reveal">
+        <h3 class="skill-group__title">Engineering<span>工程化</span></h3>
+        <ul class="skill-group__items">
+          <li>Vite</li><li>VitePress</li><li>pnpm Monorepo</li><li>ESLint / Prettier</li><li>Git / CI</li>
+        </ul>
+      </div>
+      <div class="skill-group reveal">
+        <h3 class="skill-group__title">Ecosystem<span>生态</span></h3>
+        <ul class="skill-group__items">
+          <li>uni-app</li><li>WeChat Mini Program</li><li>Ant Design Vue</li><li>Node.js</li>
+        </ul>
+      </div>
+      <div class="skill-group reveal">
+        <h3 class="skill-group__title">Design<span>设计</span></h3>
+        <ul class="skill-group__items">
+          <li>Design System</li><li>Responsive Layout</li><li>Motion &amp; Micro-interaction</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Contact ===== -->
+  <footer class="contact reveal">
+    <p class="contact__hi">Let's build something warm.</p>
+    <p class="contact__zh">一起做点有温度的东西。</p>
+    <div class="hero__cta">
+      <a class="btn btn--primary" href="#">GitHub</a>
+      <a class="btn" href="#">npm</a>
+      <a class="btn" href="#">粤电玩</a>
+    </div>
+    <p class="contact__copy">© 2026 KTBOY</p>
+  </footer>
+</main>
+
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js'
+
+/* ============================================================
+ * 品牌蓝 3D 粒子场
+ * - 浅色底上的深蓝天蓝粒子，缓慢漂移
+ * - 鼠标靠近产生排斥扰动，离开后弹性归位
+ * - 邻近粒子绘制细连线（空间网格加速）
+ * - 相机随鼠标轻微视差，营造纵深
+ * ============================================================ */
+const canvas = document.getElementById('gl')
+const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true })
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+renderer.setClearColor(0x000000, 0)
+
+const scene = new THREE.Scene()
+const FOV = 60
+const DIST = 110
+const camera = new THREE.PerspectiveCamera(FOV, 1, 1, 400)
+camera.position.z = DIST
+
+// 可视区域尺寸（z = 0 平面）
+let viewH = 2 * Math.tan(THREE.MathUtils.degToRad(FOV / 2)) * DIST
+let viewW = viewH * (window.innerWidth / window.innerHeight)
+
+const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+// 按屏幕面积自适应粒子数量
+const COUNT = reduceMotion
+  ? 320
+  : Math.min(950, Math.max(380, Math.floor((window.innerWidth * window.innerHeight) / 2600)))
+
+const homes = new Float32Array(COUNT * 3)
+const positions = new Float32Array(COUNT * 3)
+const velocities = new Float32Array(COUNT * 3)
+const colors = new Float32Array(COUNT * 3)
+const sizes = new Float32Array(COUNT)
+
+// 品牌色板：品牌蓝 → 浅蓝 → 青
+const PALETTE = ['#2563eb', '#3b82f6', '#60a5fa', '#22d3ee', '#1e40af'].map(
+  (c) => new THREE.Color(c)
+)
+
+function seed() {
+  for (let i = 0; i < COUNT; i++) {
+    const i3 = i * 3
+    // 粒子在全屏范围均匀分布，z 方向分层制造纵深
+    homes[i3] = (Math.random() - 0.5) * viewW * 1.1
+    homes[i3 + 1] = (Math.random() - 0.5) * viewH * 1.1
+    homes[i3 + 2] = (Math.random() - 0.5) * 40
+    positions[i3] = homes[i3]
+    positions[i3 + 1] = homes[i3 + 1]
+    positions[i3 + 2] = homes[i3 + 2]
+    const c = PALETTE[(Math.random() * PALETTE.length) | 0]
+    colors[i3] = c.r
+    colors[i3 + 1] = c.g
+    colors[i3 + 2] = c.b
+    sizes[i] = 1.4 + Math.random() * 2.6
+  }
+}
+
+// 圆形柔边粒子贴图
+function makeDotTexture() {
+  const s = 64
+  const cv = document.createElement('canvas')
+  cv.width = cv.height = s
+  const ctx = cv.getContext('2d')
+  const g = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2)
+  g.addColorStop(0, 'rgba(255,255,255,1)')
+  g.addColorStop(0.4, 'rgba(255,255,255,0.9)')
+  g.addColorStop(1, 'rgba(255,255,255,0)')
+  ctx.fillStyle = g
+  ctx.fillRect(0, 0, s, s)
+  const tex = new THREE.CanvasTexture(cv)
+  tex.colorSpace = THREE.SRGBColorSpace
+  return tex
+}
+
+const geo = new THREE.BufferGeometry()
+geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+geo.setAttribute('color', new THREE.BufferAttribute(colors, 3))
+geo.setAttribute('size', new THREE.BufferAttribute(sizes, 1))
+
+const pointsMat = new THREE.PointsMaterial({
+  size: 2.6,
+  map: makeDotTexture(),
+  vertexColors: true,
+  transparent: true,
+  opacity: 0.85,
+  depthWrite: false,
+  sizeAttenuation: true
+})
+const points = new THREE.Points(geo, pointsMat)
+scene.add(points)
+
+// ===== 邻近连线（星座网） =====
+const MAX_LINKS = COUNT * 4
+const linkPos = new Float32Array(MAX_LINKS * 6)
+const linkGeo = new THREE.BufferGeometry()
+linkGeo.setAttribute('position', new THREE.BufferAttribute(linkPos, 3))
+const linkMat = new THREE.LineBasicMaterial({
+  color: 0x2563eb,
+  transparent: true,
+  opacity: 0.1,
+  depthWrite: false
+})
+const links = new THREE.LineSegments(linkGeo, linkMat)
+scene.add(links)
+
+const LINK_DIST = 16
+const LINK_DIST_SQ = LINK_DIST * LINK_DIST
+const grid = new Map()
+
+function rebuildLinks() {
+  grid.clear()
+  const cell = LINK_DIST
+  for (let i = 0; i < COUNT; i++) {
+    const i3 = i * 3
+    const key = `${Math.floor(positions[i3] / cell)},${Math.floor(positions[i3 + 1] / cell)}`
+    let bucket = grid.get(key)
+    if (!bucket) grid.set(key, (bucket = []))
+    bucket.push(i)
+  }
+  let n = 0
+  for (let i = 0; i < COUNT && n < MAX_LINKS; i++) {
+    const i3 = i * 3
+    const cx = Math.floor(positions[i3] / cell)
+    const cy = Math.floor(positions[i3 + 1] / cell)
+    for (let gx = cx - 1; gx <= cx + 1; gx++) {
+      for (let gy = cy - 1; gy <= cy + 1; gy++) {
+        const bucket = grid.get(`${gx},${gy}`)
+        if (!bucket) continue
+        for (const j of bucket) {
+          if (j <= i || n >= MAX_LINKS) continue
+          const j3 = j * 3
+          const dx = positions[i3] - positions[j3]
+          const dy = positions[i3 + 1] - positions[j3 + 1]
+          const dz = positions[i3 + 2] - positions[j3 + 2]
+          if (dx * dx + dy * dy + dz * dz > LINK_DIST_SQ) continue
+          const o = n * 6
+          linkPos[o] = positions[i3]
+          linkPos[o + 1] = positions[i3 + 1]
+          linkPos[o + 2] = positions[i3 + 2]
+          linkPos[o + 3] = positions[j3]
+          linkPos[o + 4] = positions[j3 + 1]
+          linkPos[o + 5] = positions[j3 + 2]
+          n++
+        }
+      }
+    }
+  }
+  linkGeo.setDrawRange(0, n * 2)
+  linkGeo.attributes.position.needsUpdate = true
+}
+
+// ===== 鼠标交互 =====
+const mouse = { x: 9999, y: 9999, nx: 0, ny: 0, active: false }
+window.addEventListener('pointermove', (e) => {
+  mouse.nx = (e.clientX / window.innerWidth) * 2 - 1
+  mouse.ny = -((e.clientY / window.innerHeight) * 2 - 1)
+  // 转换到 z=0 平面的世界坐标（含相机视差偏移的逆运算，近似即可）
+  mouse.x = (mouse.nx * viewW) / 2 + camera.position.x
+  mouse.y = (mouse.ny * viewH) / 2 + camera.position.y
+  mouse.active = true
+})
+window.addEventListener('pointerleave', () => { mouse.active = false; mouse.x = 9999; mouse.y = 9999 })
+
+// ===== 物理参数 =====
+const SPRING = 0.012      // 归位弹簧强度
+const DAMPING = 0.9       // 速度阻尼
+const REPEL_R = 26        // 鼠标排斥半径
+const REPEL_R_SQ = REPEL_R * REPEL_R
+const REPEL_F = 0.9       // 排斥力强度
+const DRIFT = 0.06        // 漂游幅度
+
+let time = 0
+function tick() {
+  time += 0.008
+  for (let i = 0; i < COUNT; i++) {
+    const i3 = i * 3
+    // 漂游：围绕 home 的缓慢正弦偏移
+    const hx = homes[i3] + Math.sin(time + i * 0.7) * DRIFT * 14
+    const hy = homes[i3 + 1] + Math.cos(time * 0.8 + i * 1.3) * DRIFT * 14
+    // 弹簧归位
+    velocities[i3] += (hx - positions[i3]) * SPRING
+    velocities[i3 + 1] += (hy - positions[i3 + 1]) * SPRING
+    velocities[i3 + 2] += (homes[i3 + 2] - positions[i3 + 2]) * SPRING
+    // 鼠标排斥
+    if (mouse.active) {
+      const dx = positions[i3] - mouse.x
+      const dy = positions[i3 + 1] - mouse.y
+      const dSq = dx * dx + dy * dy
+      if (dSq < REPEL_R_SQ && dSq > 0.0001) {
+        const d = Math.sqrt(dSq)
+        const f = ((REPEL_R - d) / REPEL_R) * REPEL_F
+        velocities[i3] += (dx / d) * f
+        velocities[i3 + 1] += (dy / d) * f
+      }
+    }
+    velocities[i3] *= DAMPING
+    velocities[i3 + 1] *= DAMPING
+    velocities[i3 + 2] *= DAMPING
+    positions[i3] += velocities[i3]
+    positions[i3 + 1] += velocities[i3 + 1]
+    positions[i3 + 2] += velocities[i3 + 2]
+  }
+  geo.attributes.position.needsUpdate = true
+  rebuildLinks()
+
+  // 相机视差：缓动跟随鼠标
+  camera.position.x += (mouse.nx * 6 - camera.position.x) * 0.04
+  camera.position.y += (mouse.ny * 4 - camera.position.y) * 0.04
+  camera.lookAt(0, 0, 0)
+
+  renderer.render(scene, camera)
+}
+
+function resize() {
+  const w = window.innerWidth
+  const h = window.innerHeight
+  renderer.setSize(w, h)
+  camera.aspect = w / h
+  camera.updateProjectionMatrix()
+  viewH = 2 * Math.tan(THREE.MathUtils.degToRad(FOV / 2)) * DIST
+  viewW = viewH * camera.aspect
+  seed()
+}
+window.addEventListener('resize', resize)
+resize()
+
+// 页面不可见时暂停渲染，省电
+let rafId = 0
+let running = true
+function loop() {
+  tick()
+  rafId = requestAnimationFrame(loop)
+}
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    running = false
+    cancelAnimationFrame(rafId)
+  } else if (!running && !reduceMotion) {
+    running = true
+    loop()
+  }
+})
+
+if (reduceMotion) {
+  tick() // 静态渲染一帧
+} else {
+  loop()
+}
+
+// ===== Hero 滚动视差（内容轻微上移淡出） =====
+const heroEl = document.querySelector('.hero')
+if (!reduceMotion) {
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY
+    const p = Math.min(y / window.innerHeight, 1)
+    heroEl.style.transform = `translateY(${y * 0.18}px)`
+    heroEl.style.opacity = String(1 - p * 0.85)
+  }, { passive: true })
+}
+
+// ===== 滚动浮现 =====
+const io = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in')
+        io.unobserve(entry.target)
+      }
+    })
+  },
+  { threshold: 0.12 }
+)
+document.querySelectorAll('.reveal').forEach((el) => io.observe(el))
+</script>
+</body>
+</html>
