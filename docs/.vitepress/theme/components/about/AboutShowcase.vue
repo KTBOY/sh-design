@@ -3,11 +3,13 @@ import { onBeforeUnmount, onMounted } from 'vue'
 import { withBase } from 'vitepress'
 import { EXPERIENCE, PROFILE, PROJECTS, SKILLS } from '../../about/meta'
 import { TOOL_GROUPS } from '../../products/meta'
+import MaskBackground from '../MaskBackground.vue'
 
 /**
  * /guide/about 个人主页：浅色极简风格，与 /skills/ /products/ 同一套视觉
- * 语言（#fafafa 底、细边框白卡、蓝色强调、等宽字体编号）。
+ * 语言（细边框白卡、蓝色强调、等宽字体编号）。
  * 「更多工具」区块展示开源项目，全部作品跳转 /products/ 聚合页。
+ * 背景为共享组件 MaskBackground（与 /products/ 同款鼠标探照效果）。
  */
 const OSS_TOOLS = TOOL_GROUPS.find((g) => g.id === 'oss')?.items ?? []
 const productsHref = withBase('/products/')
@@ -40,6 +42,8 @@ onBeforeUnmount(() => observer?.disconnect())
 
 <template>
   <div class="about-page">
+    <!-- ===== 跟随鼠标的探照背景（共享组件，与 /products/ 同款） ===== -->
+    <MaskBackground />
     <main class="about-content">
       <!-- ===== Hero ===== -->
       <header class="hero reveal">
@@ -191,7 +195,6 @@ onBeforeUnmount(() => observer?.disconnect())
 <style scoped>
 .about-page {
   min-height: 100vh;
-  background: #fafafa;
   color: #111214;
   -webkit-font-smoothing: antialiased;
   --blue: #2563eb;

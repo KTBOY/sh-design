@@ -2,12 +2,14 @@
 import { onBeforeUnmount, onMounted } from 'vue'
 import { ALL_TOOLS, TOOL_GROUPS } from '../../products/meta'
 import ProductCard from './ProductCard.vue'
+import MaskBackground from '../MaskBackground.vue'
 
 /**
  * /products/ 更多工具页：浅色极简风格与 /skills/ 画廊页同一套视觉语言
- * （#fafafa 底、细边框白卡、蓝色强调、等宽字体编号），按「在线产品 /
+ * （细边框白卡、蓝色强调、等宽字体编号），按「在线产品 /
  * 开源项目」两组收纳全部作品，卡片外链直达 GitHub / 站点。
  * 卡片单元为共享组件 ProductCard（个人主页「更多产品」区块复用同一模块）。
+ * 背景为共享组件 MaskBackground（鼠标探照露出橙色代码点阵）。
  */
 const total = ALL_TOOLS.length
 
@@ -39,6 +41,9 @@ onBeforeUnmount(() => observer?.disconnect())
 
 <template>
   <div class="products-page">
+    <!-- ===== 跟随鼠标的探照背景（共享组件） ===== -->
+    <MaskBackground />
+
     <!-- ===== 头部：与 /skills/ 同款浅色 Hero ===== -->
     <header class="p-hero reveal">
       <span class="p-eyebrow"><i></i>More Products · 全部作品</span>
@@ -83,7 +88,6 @@ onBeforeUnmount(() => observer?.disconnect())
 <style scoped>
 .products-page {
   min-height: 100vh;
-  background: #fafafa;
   color: #111214;
   -webkit-font-smoothing: antialiased;
 }
