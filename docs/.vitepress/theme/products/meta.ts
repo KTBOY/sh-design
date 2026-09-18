@@ -94,8 +94,8 @@ export const TOOL_GROUPS: ToolGroup[] = [
         links: [
           { label: 'GitHub', href: 'https://github.com/KTBOY/sk-ms' },
           {
-            label: '下载 ZIP',
-            href: 'https://github.com/KTBOY/sk-ms/releases/latest/download/NovelAtlas-Portable-v1.0.0-win64.zip',
+            label: '官网',
+            href: 'https://ktboy.github.io/sk-ms/#/dashboard',
             primary: true
           }
         ]
