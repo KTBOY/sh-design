@@ -8,8 +8,8 @@ import { withBase } from 'vitepress'
  * 固定铺满全屏、垫在所有内容底下（z-index: -1），纯装饰、不拦截指针。
  * /products/ 与 /guide/about 个人主页共用同一份实现。
  */
-const bgImg = withBase('/6235cc15-c95a-40b3-aee6-d6f4b6bb1b98.png') // 底图：蓝色爪印（常驻）
-const fgImg = withBase('/layer2_small_2.png') // 上层：橙色代码点阵，鼠标探照露出
+const bgImg = withBase('/6235cc15-c95a-40b3-aee6-d6f4b6bb1b98.webp') // 底图：蓝色爪印（常驻）
+const fgImg = withBase('/layer2_small_2.webp') // 上层：橙色代码点阵，鼠标探照露出
 
 const fgRef = ref<HTMLElement | null>(null)
 const maskRef = ref<HTMLElement | null>(null)

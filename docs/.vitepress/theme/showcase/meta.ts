@@ -82,12 +82,12 @@ export const SKILLS: ShowcaseMeta[] = [
       {
         name: '墨枢 NovelAtlas',
         desc: 'AI 小说创作一致性工作台，把设定沉淀为知识图谱',
-        media: '/img/moshu-demo.gif'
+        media: '/img/moshu-demo.webp'
       },
       {
         name: '闪电Flash 游戏修改器',
         desc: '通用 Flash 游戏修改器：Ruffle 内存扫描 · 变速齿轮',
-        media: '/img/flash-trainer.png'
+        media: '/img/flash-trainer.webp'
       }
     ]
   }
