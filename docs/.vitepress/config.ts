@@ -43,6 +43,8 @@ export default defineConfig({
   ],
   themeConfig: {
     siteTitle: false,
+    // 关闭明暗切换按钮（导航栏不再显示太阳/月亮开关，站点固定浅色）
+    appearance: false,
     nav: [
       { text: '指南', link: '/guide/introduction', activeMatch: '/guide/' },
       { text: '组件', link: '/components/lazy-image', activeMatch: '/components/' },
