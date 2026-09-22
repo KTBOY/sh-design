@@ -474,12 +474,7 @@ defineExpose({
   >
     <!-- 空状态 / 首次加载 -->
     <div v-if="!items.length" class="sh-waterfall__empty">
-      <template v-if="loading">
-        <slot name="loading">
-          <span class="sh-waterfall__spinner" />
-          <span>{{ loadingText }}</span>
-        </slot>
-      </template>
+      <span v-if="loading" class="sh-waterfall__spinner" />
       <slot v-else name="empty">{{ emptyText }}</slot>
     </div>
 
@@ -522,15 +517,9 @@ defineExpose({
         </div>
       </div>
 
-      <!-- 底部状态：位于内容区之后，随内容自然滚动 -->
-      <div v-if="loading || finished" class="sh-waterfall__footer">
-        <template v-if="loading">
-          <slot name="loading">
-            <span class="sh-waterfall__spinner" />
-            <span>{{ loadingText }}</span>
-          </slot>
-        </template>
-        <slot v-else name="finished">{{ finishedText }}</slot>
+      <!-- 底部状态：业务提供 #footer 即常驻渲染，loading/finished 透传给业务自行展示 -->
+      <div v-if="$slots.footer" class="sh-waterfall__footer">
+        <slot name="footer" :loading="loading" :finished="finished" />
       </div>
     </template>
 

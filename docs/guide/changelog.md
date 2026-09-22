@@ -4,6 +4,17 @@
 
 > 说明：这里只记录**组件库**相关的改动（组件、Composable、公共 API）。纯文档 / 站点 / CI 等工程改动一般不单独收录。
 
+## 0.1.0
+
+2026-09-21
+
+### 🔧 修改
+
+- ⚠️ Breaking: `ShWaterfall` 移除 `#loading` / `#finished` 插槽与 `loading-text` / `finished-text` props，改为常驻 `#footer` 作用域插槽（提供即渲染，透传 `{ loading, finished }`）。原设计按状态在两插槽间二选一，业务方使用自带三态的底部提示组件时「有更多但空闲」的中间态无处展示。
+- `ShWaterfall` 空态区（`items` 为空）的加载态简化为一律渲染内置 spinner，不再走插槽与文案。
+
+> 升级提示：原 `#loading` / `#finished` 两插槽的内容合并进单个 `#footer`，用作用域参数 `loading` / `finished` 自行分支；仅改文案的场景改在 `#footer` 内写死即可。暂不升级可锁定 `sh-design@0.0.9`。
+
 ## 0.0.9
 
 2026-09-06

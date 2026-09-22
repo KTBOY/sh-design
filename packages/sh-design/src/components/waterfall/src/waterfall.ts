@@ -152,7 +152,7 @@ export const waterfallProps = {
     type: Boolean,
     default: false
   },
-  /** 是否已全部加载完（为 true 时不再触发 `load-more`，展示 finished 文案） */
+  /** 是否已全部加载完（为 true 时不再触发 `load-more`） */
   finished: {
     type: Boolean,
     default: false
@@ -161,16 +161,6 @@ export const waterfallProps = {
   radius: {
     type: [String, Number],
     default: 8
-  },
-  /** 底部加载中文案 */
-  loadingText: {
-    type: String,
-    default: '加载中…'
-  },
-  /** 底部加载完成文案 */
-  finishedText: {
-    type: String,
-    default: '没有更多了'
   },
   /** 空数据文案 */
   emptyText: {

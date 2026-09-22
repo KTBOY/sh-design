@@ -56,10 +56,21 @@ const scrollerDemo = ref('self')
 // ===== 入场动画演示状态 =====
 const animateDemo = ref(true)
 
-// ===== 底部与空状态演示状态（独立、静态，不接分页） =====
+// ===== 底部状态演示：空态 + 独立分页数据（footer 常驻，随滚动呈现三态）=====
 const emptyItems = ref([])
-const bottomLoading = ref(true)
-const bottomFinished = ref(true)
+const FEED_TOTAL = 40
+const feedItems = ref([])
+const feedLoading = ref(false)
+const feedFinished = ref(false)
+let feedPage = 0
+
+async function onFeedLoadMore() {
+  feedLoading.value = true
+  const list = await fetchPage(feedPage++)
+  feedItems.value.push(...list)
+  feedLoading.value = false
+  if (feedItems.value.length >= FEED_TOTAL) feedFinished.value = true
+}
 </script>
 
 ## 基础用法
@@ -300,27 +311,40 @@ async function onLoadMore() {
 
 ## 底部与空状态自定义
 
-文案用属性改：`loading-text` / `finished-text` / `empty-text`；结构用插槽换。下方示例分别演示三种状态（左侧空数据、中间加载中、右侧加载完成）：
+空状态文案用 `empty-text` 或 `#empty` 插槽；底部状态由 `#footer` 插槽整体接管——**提供即常驻渲染**（不再按 loading/finished 二选一），组件透传作用域参数 `{ loading, finished }`，三态文案完全由业务决定。右侧示例带真实分页数据：向下滚动到底，footer 随内容滚动依次呈现「已显示统计 → 加载中 → 加载完成」：
 
 <div class="sh-demo" style="display:block">
-  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
-    <div style="height: 320px; border: 1px solid var(--vp-c-divider); border-radius: 8px; overflow: hidden;">
+  <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+    <div style="height: 480px; border: 1px solid var(--vp-c-divider); border-radius: 8px; overflow: hidden;">
       <ShWaterfall :items="emptyItems" :cols="2" />
     </div>
-    <div style="height: 320px; border: 1px solid var(--vp-c-divider); border-radius: 8px; overflow: hidden;">
-      <ShWaterfall :items="emptyItems" :cols="2" :loading="bottomLoading" />
-    </div>
-    <div style="height: 320px; border: 1px solid var(--vp-c-divider); border-radius: 8px; overflow: hidden;">
-      <ShWaterfall :items="emptyItems" :cols="2" :finished="bottomFinished" />
+    <div style="height: 480px; border: 1px solid var(--vp-c-divider); border-radius: 8px; overflow: hidden;">
+      <ShWaterfall
+        :items="feedItems"
+        :cols="2"
+        :gap="12"
+        :loading="feedLoading"
+        :finished="feedFinished"
+        @load-more="onFeedLoadMore"
+      >
+        <template #footer="{ loading, finished }">
+          <span v-if="loading">加载中…</span>
+          <span v-else-if="finished">—— 我也是有底线的 ——</span>
+          <span v-else>向下滚动加载更多（已显示 {{ feedItems.length }} / {{ FEED_TOTAL }}）</span>
+        </template>
+      </ShWaterfall>
     </div>
   </div>
-  <p style="color: var(--vp-c-text-2); font-size: 13px; margin-top: 8px;">左：空状态 ｜ 中：加载中（含默认 spinner）｜ 右：加载完成文案</p>
+  <p style="color: var(--vp-c-text-2); font-size: 13px; margin-top: 8px;">左：空状态（空态分支）｜ 右：常驻 footer，三态随滚动轮换</p>
 </div>
 
 ```vue
 <ShWaterfall :items="items" :loading="loading" :finished="finished" @load-more="onLoadMore">
-  <template #loading><MySpinner /> 拼命加载中</template>
-  <template #finished>—— 我也是有底线的 ——</template>
+  <template #footer="{ loading, finished }">
+    <span v-if="loading">加载中…</span>
+    <span v-else-if="finished">—— 我也是有底线的 ——</span>
+    <span v-else>共 {{ total }} 条，已显示 {{ items.length }} 条，向下滚动加载更多</span>
+  </template>
   <template #empty><MyEmpty description="什么都没有" /></template>
 </ShWaterfall>
 ```
@@ -358,7 +382,7 @@ async function onLoadMore() {
 | `buffer` | 视口外额外渲染缓冲（px），`virtual=false` 时不生效 | `number` | `300` |
 | `threshold` | 哨兵提前量（px），距底部多远触发加载 | `number` | `200` |
 | `radius` | 默认渲染 ShLazyImage 的圆角 | `string \| number` | `8` |
-| `loading-text` / `finished-text` / `empty-text` | 底部/空状态文案 | `string` | — |
+| `empty-text` | 空状态文案 | `string` | `'暂无数据'` |
 
 ### Events
 
@@ -373,8 +397,7 @@ async function onLoadMore() {
 | 插槽 | 说明 | 作用域参数 |
 | --- | --- | --- |
 | `item` | 自定义卡片内容，缺省渲染 `ShLazyImage` | `{ item, index, width, height }` |
-| `loading` | 底部加载中内容 | — |
-| `finished` | 底部加载完成内容 | — |
+| `footer` | 底部状态（提供即常驻渲染，替代原 `loading` / `finished` 插槽） | `{ loading, finished }` |
 | `empty` | 空数据内容 | — |
 
 ### Expose
