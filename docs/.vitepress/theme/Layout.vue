@@ -23,7 +23,7 @@ const isHome = computed(() => frontmatter.value.layout === 'home')
     <template #nav-bar-title-before>
       <NavLogo />
     </template>
-    <!-- 主页「更多产品」区块：与 /products/ 聚合页共用 ProductCard 与数据源。 -->
+    <!-- 主页「更多工具」区块：与 /products/ 聚合页共用 ProductCard 与数据源。 -->
     <template #home-features-after>
       <HomeProducts />
     </template>

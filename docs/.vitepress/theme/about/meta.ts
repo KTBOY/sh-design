@@ -40,7 +40,6 @@ export const PROFILE = {
   links: [
     { label: 'GitHub', href: 'https://github.com/KTBOY' },
     { label: 'npm', href: 'https://www.npmjs.com/package/sh-design' },
-    { label: '粤电玩', href: 'https://www.ps521.asia/' }
   ] as ProfileLink[]
 }
 

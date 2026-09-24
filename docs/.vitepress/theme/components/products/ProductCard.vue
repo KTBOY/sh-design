@@ -3,7 +3,7 @@ import { withBase } from 'vitepress'
 import type { Tool, ToolLink } from '../../products/meta'
 
 /**
- * 产品卡片 —— /products/ 聚合页与个人主页「更多产品」区块共用的最小卡片单元。
+ * 产品卡片 —— /products/ 聚合页与个人主页「更多工具」区块共用的最小卡片单元。
  * 数据来自 theme/products/meta.ts；纯展示组件，含完整 hover / 暗色适配。
  */
 defineProps<{ tool: Tool; no?: string }>()

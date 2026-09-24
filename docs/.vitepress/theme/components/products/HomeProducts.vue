@@ -4,7 +4,7 @@ import { ALL_TOOLS } from '../../products/meta'
 import ProductCard from './ProductCard.vue'
 
 /**
- * 个人主页「更多产品」区块：与 /products/ 聚合页共用
+ * 个人主页「更多工具」区块：与 /products/ 聚合页共用
  * theme/products/meta.ts 数据源和 ProductCard 卡片单元，
  * 经 Layout 的 home-features-after 插槽插入主页 features 之后。
  * 主页跟随站点明暗主题，暗色样式在此用 :deep 适配（/products/ 页自身锁定浅色）。
@@ -15,7 +15,7 @@ import ProductCard from './ProductCard.vue'
   <section class="home-products">
     <div class="hp-head">
       <span class="hp-eyebrow"><i></i>More Products</span>
-      <h2 class="hp-title">更多产品<span class="hp-title__dot">.</span></h2>
+      <h2 class="hp-title">更多工具<span class="hp-title__dot">.</span></h2>
       <p class="hp-desc">独立开发的产品、组件与开源项目，一站式全部收纳。</p>
     </div>
 
