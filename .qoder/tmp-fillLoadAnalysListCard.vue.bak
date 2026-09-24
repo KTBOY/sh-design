@@ -1,0 +1,300 @@
+<!--
+ * @Author: zlc
+ * @Date: 2026-05-08 16:21:21
+ * @LastEditTime: 2026-09-22 10:00:00
+ * @LastEditors: zlc
+ * @Description: 教室排课利用分析-new 卡片视图（ShWaterfall 虚拟滚动卡片流 + 排课率档位筛选）
+ * @FilePath: \headcount-front\src\views\order\fullLoadAnalysisGw\module\fillLoadAnalysListCard.vue
+-->
+<template>
+  <div class="y-c-s gw-card-root">
+    <div class="container-fill" ref="containerRef">
+      <!-- 卡片区顶部：左=公式提示条，右=排课率档位筛选（点击 on/off 筛选该档位教室） -->
+      <div class="card-filter-line">
+        <div class="board__tip">
+          <span class="mi mi--sm"
+            ><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M9.6 9a2.5 2.5 0 1 1 3.4 2.4c-.8.3-1 .9-1 1.6v.2" />
+              <path d="M12 16.5h.01" />
+            </svg>
+          </span>
+          排课率=排课课节数÷可排课总节数
+          <span class="tip-hint">单击卡片=排课详情</span>
+        </div>
+        <div class="caps-wrap">
+          <ListAaction :search-info="searchInfo" :list="alarmTypeList" @change="handleLevelChange" />
+        </div>
+      </div>
+
+      <div class="card-waterfall" ref="scrollRef">
+        <ShWaterfall
+          scroller="window"
+          layout="grid"
+          item-key="id"
+          :items="items"
+          :cols="column"
+          :gap="CARD_GAP"
+          :grid-ratio="0"
+          :extra-height="CARD_HEIGHT"
+          :buffer="WATERFALL_BUFFER"
+          :threshold="WATERFALL_THRESHOLD"
+          :loading="loading"
+          :finished="!hasMore"
+          :animate="true"
+          @load-more="loadPage"
+        >
+          <template #item="{ item }">
+            <GwCourseCard :item="item" @click="handleCardClick" />
+          </template>
+          <template #loading>
+            <LoadMore :loading="loading" :has-more="hasMore" :length="items.length" :page="pageInfo" :min-length="0" />
+          </template>
+          <template #finished>
+            <LoadMore :loading="loading" :has-more="hasMore" :length="items.length" :page="pageInfo" :min-length="0" />
+          </template>
+
+          <template #empty>
+            <a-empty v-if="isEmpty" />
+          </template>
+        </ShWaterfall>
+      </div>
+    </div>
+  </div>
+
+  <CourseTableModal @register="registerCourseTable" />
+</template>
+
+<script lang="ts" setup name="order-gwFillLoadAnalysListCard">
+  import { useResizeObserver } from '@vueuse/core';
+  import { ShWaterfall } from 'sh-design';
+  import GwCourseCard from '/@/views/order/fullLoadAnalysisGw/components/GwCourseCard.vue';
+  import LoadMore from '/@/views/components/Base/src/FsVirtualWaterfall/LoadMore.vue';
+  import ListAaction, { AlarmTypeItem } from '/@/views/order/components/ListAaction.vue';
+  import CourseTableModal from '/@/views/order/fullLoadAnalysisGw/components/FullLoadModal/CourseTable/CourseTableModal.vue';
+  import { useCardWaterfall, WATERFALL_BUFFER, WATERFALL_THRESHOLD } from '/@/views/order/fullLoadAnalysisGw/hook/useCardWaterfall';
+  import { listVersionOne } from '/@/api/idds/coursestatus/ClassroomUseAnalysis.api';
+  import { filterEmptyFields } from '/@/shsrc/utils/common';
+  import { useModal } from '/@/components/Modal';
+  import { useFullLoadAnalysisGwStore } from '/@/views/order/fullLoadAnalysisGw/store';
+
+  const props = defineProps({
+    /** 父级查询条件：校区 / 楼栋 / 课室范围 / 日期 / 课节 / 排课率档位 */
+    searchInfo: { type: Object as PropType<Recordable>, default: () => ({}) },
+  });
+
+  /** 档位筛选变化上抛，由父级统一写入查询条件并刷新视图 */
+  const emit = defineEmits(['levelChange']);
+
+  /** 卡片间距与固定高度：虚拟列表据此算列宽与行高 */
+  const CARD_GAP = 10;
+  const CARD_HEIGHT = 170;
+  /** 容器宽度断点（下界, 列数）：降序取首个「宽度大于下界」的档位 */
+  const COLUMN_BREAKPOINTS: [number, number][] = [
+    [960, 4],
+    [720, 3],
+    [500, 2],
+    [0, 1],
+  ];
+
+  const fullLoadAnalysisGwStore = useFullLoadAnalysisGwStore();
+  const [registerCourseTable, { openModal: openModalCourseTable }] = useModal();
+
+  const containerRef = ref<HTMLElement>();
+  const scrollRef = ref<HTMLElement>();
+  const column = ref(4);
+
+  const tableStatParams = reactive({
+    pageNo: 1,
+    pageSize: 40,
+    total: 0,
+  });
+
+  /** 排课率档位统计（父级 store 统一维护，供顶部胶囊展示计数与选中态） */
+  const alarmTypeList = computed<AlarmTypeItem[]>(() => fullLoadAnalysisGwStore.alarmTypeList as AlarmTypeItem[]);
+
+  /**
+   * @description: 分页请求排课利用分析卡片数据
+   * @param {number} pageNo 页码，从 1 开始
+   * @param {number} pageSize 每页条数
+   * @return {Promise<Recordable[]>} 当页卡片数据，异常时返回空数组
+   */
+  const getData = async (pageNo: number, pageSize: number): Promise<Recordable[]> => {
+    try {
+      // 透传父级 searchInfo 查询条件，过滤空值防止被 null 覆盖
+      const res = await listVersionOne({ pageNo, pageSize, ...filterEmptyFields(props.searchInfo) });
+      tableStatParams.pageSize = res.size;
+      tableStatParams.pageNo = pageNo;
+      tableStatParams.total = res.total;
+      return (res.records || []).map((i) => ({ ...i, seatRate: Number(i.seatRate), seatRateString: i.seatRate }));
+    } catch {
+      return [];
+    }
+  };
+
+  /** 卡片流分页状态机：滚到底自动拉下一页，底部提示交给 LoadMore */
+  const { items, loading, hasMore, isEmpty, pageInfo, loadPage, resetAndLoad } = useCardWaterfall({
+    request: getData,
+    getTotal: () => tableStatParams.total,
+    getPageSize: () => tableStatParams.pageSize,
+    scrollEl: scrollRef,
+  });
+
+  /**
+   * @description: 胶囊 active 状态与父级查询条件同步（store 拉数后默认全选，需按已选档位回填）
+   * @return {*}
+   */
+  const syncLevelActive = () => {
+    const levels = String(props.searchInfo?.classroomUseAnalysisLevel || '')
+      .split(',')
+      .filter(Boolean);
+    alarmTypeList.value.forEach((item) => {
+      item.active = levels.length ? levels.includes(String(item.levelCode)) : true;
+    });
+  };
+
+  /**
+   * @description: 拉取排课率档位统计并回填胶囊选中态
+   * @return {*}
+   */
+  const getCountData = async () => {
+    await fullLoadAnalysisGwStore.getCountData({ ...props.searchInfo });
+    syncLevelActive();
+  };
+
+  /**
+   * @description: 单击卡片打开排课详情弹窗（合并查询条件供弹窗二次查询）
+   * @param {Recordable} item 卡片数据
+   * @return {*}
+   */
+  const handleCardClick = (item: Recordable) => {
+    openModalCourseTable({ record: { ...props.searchInfo, ...item } });
+  };
+
+  /**
+   * @description: 档位胶囊 on/off 变化，上抛父级统一刷新（本视图不重复请求）
+   * @param {string} level 逗号分隔的档位编码
+   * @return {*}
+   */
+  const handleLevelChange = (level: string) => {
+    emit('levelChange', level);
+    syncLevelActive();
+  };
+
+  /**
+   * @description: 将页面滚动复位到顶部
+   * ShWaterfall 以 scroller="window" 做视口虚拟化，真实滚动挂在窗口/文档（.card-waterfall 由内容撑开不产生内部滚动），
+   * 仅复位 scrollRef 无法回到顶部，这里一并复位 window/documentElement/body
+   */
+  const scrollToTop = () => {
+    if (scrollRef.value) scrollRef.value.scrollTop = 0;
+    window.scrollTo(0, 0);
+    if (document.documentElement.scrollTop) document.documentElement.scrollTop = 0;
+    if (document.body.scrollTop) document.body.scrollTop = 0;
+  };
+
+  /**
+   * @description: 重新加载卡片流第一页并刷新档位统计（父级通过 ref 调用）
+   * @return {*}
+   */
+  const reload = async () => {
+    scrollToTop(); // 清空/重载前先把窗口滚回顶部，避免沿用上一次滚动位置
+    resetAndLoad();
+    await getCountData();
+    nextTick(() => scrollToTop()); // 首屏回填后再次复位，抵消内容重排时的滚动锚定甩动
+  };
+
+  /** 容器宽度变化即换算列数（useResizeObserver 随组件卸载自动解绑） */
+  useResizeObserver(containerRef, ([entry]) => {
+    const width = (entry?.target as HTMLElement)?.clientWidth ?? 0;
+    column.value = COLUMN_BREAKPOINTS.find(([min]) => width > min)?.[1] ?? 1;
+  });
+
+  onMounted(getCountData);
+
+  defineExpose({
+    reload,
+  });
+</script>
+
+<style lang="less" scoped>
+  .gw-card-root {
+    flex: 1;
+    min-height: 0;
+    padding: 0;
+  }
+
+  .container-fill {
+    display: flex;
+    width: 100%;
+    min-height: 0;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 14px 16px;
+    background-color: #eef6fc;
+    border-radius: 10px;
+
+    html.dark & {
+      background-color: #141414;
+    }
+  }
+
+  .card-filter-line {
+    display: flex;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  // 卡片流滚动容器：占满筛选行以下的剩余高度
+  .card-waterfall {
+    min-height: 0;
+    flex: 1;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  // 胶囊筛选居右对齐
+  .caps-wrap {
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
+  .board__tip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #02a7f0;
+    font-size: 14px;
+
+    .mi {
+      display: inline-flex;
+      flex-shrink: 0;
+      align-items: center;
+      justify-content: center;
+      width: 15px;
+      height: 15px;
+      color: #9aa3b2;
+
+      svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+    }
+
+    .tip-hint {
+      margin-left: auto;
+      color: #9aa3b2;
+      font-size: 11px;
+    }
+  }
+
+  // ===== 黑暗模式适配（html.dark）=====
+  html.dark .tip-hint {
+    color: rgb(255 255 255 / 45%);
+  }
+</style>
