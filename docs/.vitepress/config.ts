@@ -13,6 +13,9 @@ export default defineConfig({
   cleanUrls: true,
   // SEO: 生成 sitemap.xml，供 Google/百度站长平台提交收录
   sitemap: { hostname: 'https://ktboy.github.io/sh-design/' },
+  // 关闭明暗模式切换按钮：VitePress 1.5 中 appearance 是「顶层」站点配置，
+  // 放在 themeConfig 下不生效；置 false 后导航栏不再显示太阳/月亮开关，站点固定浅色。
+  appearance: false,
   head: [
     ['meta', { name: 'theme-color', content: '#2563eb' }],
     // SEO: 关键词与作者
@@ -43,14 +46,12 @@ export default defineConfig({
   ],
   themeConfig: {
     siteTitle: false,
-    // 关闭明暗切换按钮（导航栏不再显示太阳/月亮开关，站点固定浅色）
-    appearance: false,
     nav: [
       { text: '指南', link: '/guide/introduction', activeMatch: '/guide/' },
       { text: '组件', link: '/components/lazy-image', activeMatch: '/components/' },
       // { text: '简历', link: '/components/lazy-image', activeMatch: '/components/' },
-      // 「更多产品」入口收敛为独立聚合页 /products/，避免导航下拉过长
-      { text: '更多产品', link: '/products/', activeMatch: '/products/' },
+      // 「更多工具」入口收敛为独立聚合页 /products/，避免导航下拉过长
+      { text: '更多工具', link: '/products/', activeMatch: '/products/' },
       {
         text: '0.0.9',
         items: [{ text: 'npm', link: 'https://www.npmjs.com/package/sh-design' }]
@@ -86,6 +87,15 @@ export default defineConfig({
             { text: 'SeamlessScroll 无缝滚动', link: '/components/seamless-scroll' },
             { text: 'Skeleton 骨架屏', link: '/components/skeleton' },
             { text: 'Waterfall 瀑布流', link: '/components/waterfall' }
+          ]
+        }
+      ],
+      '/chart/': [
+        {
+          text: 'sk-chart 图表库',
+          items: [
+            { text: 'FoldBarChart 折纸漏斗柱', link: '/chart/' },
+            { text: '返回更多工具', link: '/products/' }
           ]
         }
       ],

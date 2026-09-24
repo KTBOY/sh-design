@@ -173,3 +173,16 @@
 body:has(.about-page) {
   background-color: #1a110c;
 }
+
+/* ===== /chart/ sk-chart 图表库文档 =====
+ * 该页是全站唯一内嵌 .fold-demo（实时图表组件）的文档页，用 :has(.fold-demo)
+ * 精确锁定此作用域（沿用本文件 :has() 定位页面的既有写法，无需改路由/加 JS）。
+ * API 参数表格里的行内 code 默认是「蓝字 + 灰底」，视觉噪音大；改为朴素黑字、
+ * 去掉背景与内边距。特异性（0,2,2）高于 VitePress 默认的 .vp-doc :not(pre) > code
+ * 与 :not(pre):not(a) > code（均为 class 层 1），稳定覆盖；只作用于表格，正文中的行内 code 不受影响。 */
+.vp-doc:has(.fold-demo) table code {
+  padding: 0;
+  border-radius: 0;
+  color: var(--vp-c-text-1);
+  background-color: transparent;
+}

@@ -9,6 +9,8 @@ import ProductsGallery from './components/products/ProductsGallery.vue'
 import ProductCard from './components/products/ProductCard.vue'
 import HomeProducts from './components/products/HomeProducts.vue'
 import AboutShowcase from './components/about/AboutShowcase.vue'
+import FoldBarDemo from './components/chart/FoldBarDemo.vue'
+import ChartPreview from './components/chart/ChartPreview.vue'
 import Layout from './Layout.vue'
 import './custom.css'
 
@@ -27,10 +29,14 @@ export default {
     app.component('ShowcaseDetail', ShowcaseDetail)
     // /products/ 更多工具聚合页：在线产品 + 开源项目卡片墙。
     app.component('ProductsGallery', ProductsGallery)
-    // 共享产品卡片单元与主页「更多产品」区块（数据同源 theme/products/meta.ts）。
+    // 共享产品卡片单元与主页「更多工具」区块（数据同源 theme/products/meta.ts）。
     app.component('ProductCard', ProductCard)
     app.component('HomeProducts', HomeProducts)
     // /guide/about 个人项目 + 简历展示页（京都风视频背景）。
     app.component('AboutShowcase', AboutShowcase)
+    // /chart/ sk-chart 图表库实时演示（挂载真实 FoldBarChart）。
+    app.component('FoldBarDemo', FoldBarDemo)
+    // /chart/ 各案例复用的通用预览单元（传入不同 config 渲染不同图表）。
+    app.component('ChartPreview', ChartPreview)
   }
 } satisfies Theme

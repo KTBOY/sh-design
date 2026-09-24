@@ -50,6 +50,9 @@ importers:
       sh-design:
         specifier: workspace:*
         version: link:../packages/sh-design
+      sk-chart-duo:
+        specifier: ^0.1.0
+        version: 0.1.0
     devDependencies:
       vitepress:
         specifier: ^1.5.0
@@ -1060,6 +1063,7 @@ packages:
   eslint@9.39.5:
     resolution: {integrity: sha512-DgZS62aPLXKlnxILS/AYCoRvHaZeXceIzlXPkkGGzJWSow1aEk0lbTlxUSlyjC8jcaKxAdOnTDz+o1JFSBsyjw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+    deprecated: This version is no longer supported. Please see https://eslint.org/version-support for other options.
     hasBin: true
     peerDependencies:
       jiti: '*'
@@ -1520,6 +1524,10 @@ packages:
   signal-exit@4.1.0:
     resolution: {integrity: sha512-bzyZ1e88w9O1iNJbKnOlvYTrWPDl46O1bG0D3XInv+9tkPrxrN8jUUTiFlDkkmKWgn1M6CfIA13SuGqOa9Korw==}
     engines: {node: '>=14'}
+
+  sk-chart-duo@0.1.0:
+    resolution: {integrity: sha512-Ub0+KkycBNAYsdIPPJ8PVIui8v4XOi4T7EUDNnwCnR9ofaBgzw5mr4c0AEV0RlYU6owES7c5g5NS+tfjbKqqfg==}
+    engines: {node: '>=18.0.0'}
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -3245,6 +3253,8 @@ snapshots:
       '@types/hast': 3.0.5
 
   signal-exit@4.1.0: {}
+
+  sk-chart-duo@0.1.0: {}
 
   source-map-js@1.2.1: {}
 
