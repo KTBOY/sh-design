@@ -8,7 +8,7 @@ import MaskBackground from '../MaskBackground.vue'
  * /products/ 更多工具页：浅色极简风格与 /skills/ 画廊页同一套视觉语言
  * （细边框白卡、蓝色强调、等宽字体编号），按「在线产品 /
  * 开源项目」两组收纳全部作品，卡片外链直达 GitHub / 站点。
- * 卡片单元为共享组件 ProductCard（个人主页「更多产品」区块复用同一模块）。
+ * 卡片单元为共享组件 ProductCard（个人主页「更多工具」区块复用同一模块）。
  * 背景为共享组件 MaskBackground（鼠标探照露出橙色代码点阵）。
  */
 const total = ALL_TOOLS.length
@@ -50,15 +50,9 @@ onBeforeUnmount(() => observer?.disconnect())
       <h1 class="p-title">更多工具<span class="p-title__dot">.</span></h1>
       <p class="p-slogan">独立开发的产品、组件与开源项目，一站式全部收纳。</p>
       <p class="p-desc">
-        从 Vue3 组件库到桌面工具、AI 工作台与 Agent Skill——每一个都从想法走到可用的成品，
         开源仓库与在线站点在这里直达。
       </p>
-      <div class="p-meta">
-        <span>{{ total }} 个项目</span><i></i>
-        <span>开源 + 在线产品</span><i></i>
-        <span>持续增加中</span><i></i>
-        <span class="p-meta__hl">点击卡片直达 ↗</span>
-      </div>
+
     </header>
 
     <!-- ===== 分组卡片墙 ===== -->
@@ -146,21 +140,31 @@ onBeforeUnmount(() => observer?.disconnect())
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 10px;
   margin-top: 30px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: 13px;
-  color: #6b7280;
 }
-.p-meta i {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: #d1d5db;
-}
-.p-meta__hl {
-  color: #2563eb;
+/* 同样压在蓝色点阵探照背景上：把每项做成半透明磨砂胶囊，与页脚同一套表面
+   语言，保证在花背景上清晰可读；末尾「点击卡片直达」用蓝色强调胶囊做 CTA */
+.p-meta span {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+  color: #4b5563;
   font-weight: 500;
+  letter-spacing: 0.02em;
+}
+.p-meta .p-meta__hl {
+  color: #2563eb;
+  border-color: rgba(37, 99, 235, 0.22);
+  background: rgba(219, 234, 254, 0.72);
 }
 
 /* ===== 分组 ===== */
@@ -220,12 +224,24 @@ onBeforeUnmount(() => observer?.disconnect())
   padding: 28px 32px 52px;
   border-top: 1px solid #ececef;
   text-align: center;
-  color: #9ca3af;
-  font-size: 12.5px;
-  letter-spacing: 0.04em;
 }
+/* 文字压在蓝色点阵探照背景上：背景保持不动，改给文字一块半透明磨砂底板 +
+   高对比字色来保证可读性（用圆角矩形而非胶囊，小屏换行时也不会变形） */
 .p-foot p {
+  display: inline-block;
   margin: 0;
+  padding: 9px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
+  color: #4b5563;
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
 }
 
 /* ===== 滚动浮现 ===== */
@@ -250,6 +266,12 @@ onBeforeUnmount(() => observer?.disconnect())
   }
   .p-grid {
     grid-template-columns: 1fr;
+  }
+  .p-foot {
+    padding: 24px 18px 40px;
+  }
+  .p-foot p {
+    padding: 8px 14px;
   }
 }
 

@@ -291,26 +291,33 @@ onBeforeUnmount(() => observer?.disconnect())
   margin-top: 38px;
 }
 
+/* 探照背景上的 CTA 按钮：套用文档站规范的磨砂玻璃表面（与 Hero meta 胶囊同一套
+   token），背景保持不动；靠投影定义边缘，hover 切到规范里的蓝色强调变体 */
 .btn {
   padding: 9px 24px;
-  border: 1px solid var(--line);
+  border: 1px solid rgba(255, 255, 255, 0.6);
   border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.06);
   font-size: 14px;
   font-weight: 500;
   color: var(--ink);
-  background: #fff;
   text-decoration: none;
   transition:
     border-color 0.25s ease,
     color 0.25s ease,
     background 0.25s ease,
+    box-shadow 0.25s ease,
     transform 0.25s ease;
 }
 
 .btn:hover {
-  border-color: var(--blue);
+  border-color: rgba(37, 99, 235, 0.35);
   color: var(--blue);
-  background: rgba(37, 99, 235, 0.05);
+  background: rgba(219, 234, 254, 0.85);
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.16);
   transform: translateY(-2px);
 }
 
