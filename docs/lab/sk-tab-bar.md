@@ -7,8 +7,8 @@ aside: left
 
 组件形式的凹陷弧形 tabBar：选中项自动上浮进入圆形按钮，凹槽随切换平滑移动。不依赖 `pages.json` 原生 tabBar 配置。支持 **`v-model:current` 受控选中**、**item 级角标（数字 / 红点 / 99+ 上限）**、**`beforeChange` 切换守卫（可做登录拦截）**、**`autoRoute` 路由联动 + `useTabBar` 多页面选中态同步**，以及字体图标与插槽完全自定义。
 
-> 该组件来自 [shukelab](https://github.com/KTBOY/shukelab)（uni-app 跨端组件库），以 `uni_modules` 形式分发，支持 H5 / 微信小程序。
-> 下方演示实时内嵌 shukelab 的 **H5 在线构建**，可直接交互；本地联调时 shukelab 跑 `npm run dev:h5`、本站跑 `pnpm docs:dev` 即可热更新预览。
+> 该组件来自 [shukelab](https://github.com/KTBOY/shukelab)（uni-app 跨端组件库），以 `uni_modules` 目录形式分发、不发布 npm，支持 H5 / 微信小程序。安装方式见[快速上手](/lab/quickstart)，全部组件见[总览](/lab/)。
+> 下方演示实时内嵌 shukelab 的 **H5 在线构建**，可直接交互；本地联调时 shukelab 跑 `pnpm dev:h5`、本站跑 `pnpm docs:dev` 即可热更新预览（需临时把 iframe 地址指向本地，见[快速上手](/lab/quickstart)末节）。
 
 ## 在线体验
 

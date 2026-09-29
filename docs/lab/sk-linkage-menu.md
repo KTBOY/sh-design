@@ -7,8 +7,8 @@ aside: left
 
 左右联动菜单（分类导航）：点击左侧分组，右侧内容区平滑滚动联动；右侧滚动时，左侧菜单高亮反向联动。支持**分组吸顶标题**、**受控选中（`v-model:current`）**、**异步加载后自动重新测量**，以及大数据量下的**分组级虚拟渲染**。
 
-> 该组件来自 [shukelab](https://github.com/KTBOY/shukelab)（uni-app 跨端组件库），以 `uni_modules` 形式分发，支持 H5 / 微信小程序。
-> 下方演示实时内嵌 shukelab 的 **H5 在线构建**，可直接交互；本地联调时 shukelab 跑 `npm run dev:h5`、本站跑 `pnpm docs:dev` 即可热更新预览。
+> 该组件来自 [shukelab](https://github.com/KTBOY/shukelab)（uni-app 跨端组件库），以 `uni_modules` 目录形式分发、不发布 npm，支持 H5 / 微信小程序。安装方式见[快速上手](/lab/quickstart)，全部组件见[总览](/lab/)。
+> 下方演示实时内嵌 shukelab 的 **H5 在线构建**，可直接交互；本地联调时 shukelab 跑 `pnpm dev:h5`、本站跑 `pnpm docs:dev` 即可热更新预览（需临时把 iframe 地址指向本地，见[快速上手](/lab/quickstart)末节）。
 
 <div style="margin: 20px 0 8px;">
   <a

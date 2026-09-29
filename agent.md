@@ -75,9 +75,15 @@ sh-ui/
 │   ├── tsconfig.json
 │   └── package.json           # 发布配置（exports / files / publishConfig）
 ├── docs/                      # VitePress 文档站（@sh-design/docs，private）
-│   ├── .vitepress/config.ts   # 站点配置：nav / sidebar / alias(sh-design→src)
-│   ├── guide/                 # 指南：introduction/installation/quickstart/changelog
-│   ├── components/            # 每个组件一页文档（lazy-image.md / waterfall.md）
+│   ├── .vitepress/config.ts   # 站点配置：nav / sidebar（按路径前缀分组）/ alias(sh-design→src)
+│   ├── .vitepress/theme/      # 自定义主题：Layout.vue、全局注册的演示组件、custom.css
+│   ├── guide/                 # 指南：introduction/installation/quickstart/changelog/about
+│   ├── components/            # sh-design 组件文档，每组件一页（lazy-image.md / waterfall.md …）
+│   ├── chart/                 # sk-chart 图表库文档（index.md，实时挂载 FoldBarDemo/ChartPreview）
+│   ├── lab/                   # shukelab（uni-app 组件）：index 总览 / introduction 指南 / quickstart 快速上手 / 组件页
+│   ├── mini/                  # 珊瑚打码小程序：index.md + sk-image-waterfall.md
+│   ├── products/              # 「更多工具」聚合页（数据源 .vitepress/theme/products/meta.ts）
+│   ├── skills/ 与 css/        # 画廊 + 动态路由详情页（[id].md + [id].paths.ts，数据源 theme/showcase/meta.ts）
 │   └── public/                # 静态资源（首页视频等）
 ├── play/                      # 本地组件调试场（@sh-design/play，private）
 │   └── src/App.vue            # 调试用页面，改 src 实时生效
@@ -85,7 +91,8 @@ sh-ui/
 ├── eslint.config.js           # ESLint Flat Config（根级统一）
 ├── .prettierrc.json           # Prettier 规则（根级统一）
 ├── tsconfig.json              # 根 tsconfig（含 sh-design 路径别名）
-├── RELEASING.md               # 发布指南（维护者必读）
+├── 发布npm指南.md             # 维护者：npm 发布（手动 / 自动、2FA、镜像源）
+├── 组件发布流程.md            # 维护者：组件 → 文档 → 日志 → 版本 → 验证 → 发布 全流程
 └── package.json               # 根脚本（dev/build/docs/lint/format/typecheck）
 ```
 
@@ -333,7 +340,7 @@ const classes = computed(() => [
 
 ---
 
-## 9. 发布流程（维护者，详见 [`RELEASING.md`](RELEASING.md)）
+## 9. 发布流程（维护者，详见 [`发布npm指南.md`](发布npm指南.md) 与 [`组件发布流程.md`](组件发布流程.md)）
 
 > ⚠️ 发布涉及对外动作，属于不可逆操作，**未获明确授权不要擅自执行发布命令**。
 
@@ -443,6 +450,6 @@ git push --follow-tags
 ## 14. 关联资料
 
 - 使用者文档：[`README.md`](README.md) / 文档站 `https://ktboy.github.io/sh-design/`
-- 维护者发布指南：[`RELEASING.md`](RELEASING.md)
+- 维护者发布指南：[`发布npm指南.md`](发布npm指南.md)（npm 发布细节、2FA、镜像源）/ [`组件发布流程.md`](组件发布流程.md)（组件 → 文档 → 日志 → 版本 → 验证 → 发布 全流程）
 - 更新日志：[`docs/guide/changelog.md`](docs/guide/changelog.md)
 - 组件参考实现：`packages/sh-design/src/components/lazy-image/`（插槽 + 状态机范式）、`waterfall/`（虚拟列表 + 对象式配置 prop 的进阶范式）

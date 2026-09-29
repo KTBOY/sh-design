@@ -71,10 +71,13 @@ export const TOOL_GROUPS: ToolGroup[] = [
       },
       {
         name: 'shukelab',
-        nameZh: '组件实验室',
-        desc: 'uni-app 多端实验组件收容所：联动菜单、底部导航等业务向小组件的在线演示场。',
-        tags: ['uni-app', 'H5'],
-        links: [{ label: '在线演示', href: '/lab/sk-linkage-menu', internal: true }]
+        nameZh: 'uni-app 跨端组件集',
+        desc: '以 uni_modules 目录分发的 uni-app 组件集：左右联动菜单、自定义凹陷弧形 tabBar、H5 拍照相机、WebGL 流体胶囊与频道页三件套，H5 与微信小程序双端。',
+        tags: ['uni-app', 'Vue 3', 'uni_modules'],
+        links: [
+          { label: 'GitHub', href: 'https://github.com/KTBOY/shukelab' },
+          { label: 'Docs', href: '/lab/', internal: true }
+        ]
       }
     ]
   },

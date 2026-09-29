@@ -111,6 +111,14 @@ export default defineConfig({
       ],
       '/lab/': [
         {
+          text: '开始',
+          items: [
+            { text: 'shukelab 总览', link: '/lab/' },
+            { text: '项目指南', link: '/lab/introduction' },
+            { text: '快速上手', link: '/lab/quickstart' }
+          ]
+        },
+        {
           text: 'shukelab 组件',
           items: [
             { text: 'sk-linkage-menu 联动菜单', link: '/lab/sk-linkage-menu' },
