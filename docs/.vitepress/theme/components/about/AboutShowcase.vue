@@ -180,7 +180,6 @@ onBeforeUnmount(() => observer?.disconnect())
       <!-- ===== Contact ===== -->
       <footer class="contact reveal">
         <p class="contact__hi">Let's build something warm.</p>
-        <p class="contact__zh">一起做点有温度的东西。</p>
         <div class="hero__cta">
           <a v-for="link in PROFILE.links" :key="link.href" class="btn" :href="link.href" target="_blank" rel="noreferrer">
             {{ link.label }}
@@ -818,13 +817,6 @@ onBeforeUnmount(() => observer?.disconnect())
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--ink);
-}
-
-.contact__zh {
-  margin: 12px 0 0;
-  font-size: 14px;
-  letter-spacing: 0.3em;
-  color: var(--muted);
 }
 
 .contact .hero__cta {
