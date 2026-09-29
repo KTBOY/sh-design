@@ -10,6 +10,17 @@ aside: left
 > 该组件来自 [shukelab](https://github.com/KTBOY/shukelab)（uni-app 跨端组件库），以 `uni_modules` 目录形式分发、不发布 npm，支持 H5 / 微信小程序。安装方式见[快速上手](/lab/quickstart)，全部组件见[总览](/lab/)。
 > 下方演示实时内嵌 shukelab 的 **H5 在线构建**，可直接交互；本地联调时 shukelab 跑 `pnpm dev:h5`、本站跑 `pnpm docs:dev` 即可热更新预览（需临时把 iframe 地址指向本地，见[快速上手](/lab/quickstart)末节）。
 
+<div style="margin: 20px 0 8px;">
+  <a
+    href="https://ext.dcloud.net.cn/plugin?id=24578"
+    target="_blank"
+    style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; background: linear-gradient(120deg, #2563eb, #3b82f6); color: #fff; font-size: 13px; font-weight: 600; line-height: 1; text-decoration: none; box-shadow: 0 6px 18px -8px rgba(37, 99, 235, 0.6);"
+  >
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm4.28 7.53-4.95 6.6a1 1 0 0 1-1.5.11l-2.83-2.83a1 1 0 1 1 1.42-1.42l2 2 4.26-5.68a1 1 0 1 1 1.6 1.22Z"/></svg>
+    <span>DCloud 插件市场 →</span>
+  </a>
+</div>
+
 ## 在线体验
 
 演示通过手机壳 iframe 实时加载 [shukelab H5 版](https://ktboy.github.io/shukelab/)对应页面，可直接操作。宽屏下停靠在**页面右侧**常驻，随正文滚动自动切换对应示例，也可点击面板内 Tab 手动切换；更宽的屏幕下面板左侧会显示本页目录，点击二维码图标可扫码在手机上打开。窄屏下展示在下方。
@@ -215,3 +226,4 @@ const list = ref<SkTabBarItem[]>([
 
 - 源码与示例：[shukelab](https://github.com/KTBOY/shukelab)
 - 组件目录：[sk-tab-bar](https://github.com/KTBOY/shukelab/tree/main/src/uni_modules/sk-tab-bar)
+- 插件市场：[sk-tab-bar](https://ext.dcloud.net.cn/plugin?id=24578)

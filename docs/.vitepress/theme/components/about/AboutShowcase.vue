@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted } from 'vue'
 import { withBase } from 'vitepress'
-import { EXPERIENCE, PROFILE, PROJECTS, SKILLS } from '../../about/meta'
+import { PROFILE, PROJECTS, SKILLS } from '../../about/meta'
 import { TOOL_GROUPS } from '../../products/meta'
 import MaskBackground from '../MaskBackground.vue'
 

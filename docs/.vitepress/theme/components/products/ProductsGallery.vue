@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted } from 'vue'
-import { ALL_TOOLS, TOOL_GROUPS } from '../../products/meta'
+import { TOOL_GROUPS } from '../../products/meta'
 import ProductCard from './ProductCard.vue'
 import MaskBackground from '../MaskBackground.vue'
 
@@ -11,7 +11,6 @@ import MaskBackground from '../MaskBackground.vue'
  * 卡片单元为共享组件 ProductCard（个人主页「更多工具」区块复用同一模块）。
  * 背景为共享组件 MaskBackground（鼠标探照露出橙色代码点阵）。
  */
-const total = ALL_TOOLS.length
 
 let observer: IntersectionObserver | undefined
 
