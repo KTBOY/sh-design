@@ -33,13 +33,14 @@ export const TOOL_GROUPS: ToolGroup[] = [
     title: 'Products & Sites',
     zh: '精选项目',
     items: [
-      {
-        name: 'Yue Tools',
-        nameZh: '粤电玩',
-        desc: '在线工具箱站点，覆盖日常高频小工具场景。',
-        tags: ['Web App', '独立开发'],
-        links: [{ label: 'Visit', href: 'https://www.ps521.asia/' }]
-      },
+      // 已隐藏（2026-09-30）：Yue Tools 粤电玩
+      // {
+      //   name: 'Yue Tools',
+      //   nameZh: '粤电玩',
+      //   desc: '在线工具箱站点，覆盖日常高频小工具场景。',
+      //   tags: ['Web App', '独立开发'],
+      //   links: [{ label: 'Visit', href: 'https://www.ps521.asia/' }]
+      // },
       {
         name: 'sh-design',
         nameZh: 'Vue3 业务组件库',
@@ -124,20 +125,21 @@ export const TOOL_GROUPS: ToolGroup[] = [
           { label: '画廊', href: '/skills/', internal: true }
         ]
       },
-      {
-        name: 'Fengyu Desktop Pet',
-        nameZh: '漂泊者桌面精灵',
-        desc: 'Electron + Canvas 的 Windows 桌面精灵：呼吸摆动、鼠标跟随、点击反馈与星光特效，多角色画廊一键整体换肤，支持缩放、托盘菜单与配置记忆。',
-        tags: ['Electron', 'Canvas', '桌面应用'],
-        links: [
-          { label: 'GitHub', href: 'https://github.com/KTBOY/fengyu-desktop-pet' },
-          {
-            label: '下载 ZIP',
-            href: 'https://github.com/KTBOY/fengyu-desktop-pet/releases/latest/download/FengyuDesktopPet-Portable-v1.0.0-win64.zip',
-            primary: true
-          }
-        ]
-      }
+      // 已隐藏（2026-09-30）：Fengyu Desktop Pet 漂泊者桌面精灵
+      // {
+      //   name: 'Fengyu Desktop Pet',
+      //   nameZh: '漂泊者桌面精灵',
+      //   desc: 'Electron + Canvas 的 Windows 桌面精灵：呼吸摆动、鼠标跟随、点击反馈与星光特效，多角色画廊一键整体换肤，支持缩放、托盘菜单与配置记忆。',
+      //   tags: ['Electron', 'Canvas', '桌面应用'],
+      //   links: [
+      //     { label: 'GitHub', href: 'https://github.com/KTBOY/fengyu-desktop-pet' },
+      //     {
+      //       label: '下载 ZIP',
+      //       href: 'https://github.com/KTBOY/fengyu-desktop-pet/releases/latest/download/FengyuDesktopPet-Portable-v1.0.0-win64.zip',
+      //       primary: true
+      //     }
+      //   ]
+      // }
     ]
   }
 ]

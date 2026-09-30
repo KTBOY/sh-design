@@ -58,7 +58,7 @@ export const PROJECTS: Project[] = [
   },
 
   {
-    no: '03',
+    no: '02',
     name: 'Coral Coder',
     nameZh: '珊瑚打码小程序',
     desc: '微信小程序：图片瀑布流浏览与打码工具，基于 uni-app 与自研瀑布流组件，兼顾性能与体验。',
@@ -66,20 +66,12 @@ export const PROJECTS: Project[] = [
     links: [{ label: 'Docs', href: 'https://ktboy.github.io/sh-design/mini/sk-image-waterfall' }]
   },
   {
-    no: '04',
+    no: '03',
     name: 'sk-faster-ant',
     nameZh: 'Ant Design Vue 增强',
     desc: '针对 Ant Design Vue 的效率增强工具集，沉淀业务表格 / 表单的高频封装，减少重复代码。',
     tags: ['Ant Design Vue', '效率工具'],
     links: [{ label: 'GitHub', href: 'https://github.com/KTBOY/sk-faster-ant' }]
-  },
-  {
-    no: '02',
-    name: 'Yue Tools',
-    nameZh: '粤电玩',
-    desc: '在线工具箱站点。',
-    tags: ['Web App', '独立开发'],
-    links: [{ label: 'Visit', href: 'https://www.ps521.asia/' }]
   }
 ]
 
@@ -88,7 +80,7 @@ export const EXPERIENCE: ExperienceItem[] = [
   {
     period: '2024 — Now',
     role: 'Independent Developer & Open-source Author',
-    org: 'sh-design / 粤工具',
+    org: 'sh-design',
     desc: '主导组件库架构、文档站与发布流程；独立产品从设计到上线的完整闭环。'
   },
   {
