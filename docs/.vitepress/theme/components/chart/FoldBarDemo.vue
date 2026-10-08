@@ -3,7 +3,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import type { FoldBarChart, FoldBarChartConfig, FoldBarDatum } from 'sk-chart-duo'
 
 /**
- * sk-chart FoldBarChart 实时演示。
+ * sk-chart-duo FoldBarChart 实时演示。
  *
  * 该库是命令式（G2Plot 风格）API：new FoldBarChart(el, config)。组件在 onMounted
  * 里通过动态 import 挂载真实 SVG 图表（避开 VitePress 构建期的 SSR——库只在构造时

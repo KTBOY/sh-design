@@ -174,7 +174,7 @@ body:has(.about-page) {
   background-color: #1a110c;
 }
 
-/* ===== /chart/ sk-chart 图表库文档 =====
+/* ===== /chart/ sk-chart-duo 图表库文档 =====
  * 该页是全站唯一内嵌 .fold-demo（实时图表组件）的文档页，用 :has(.fold-demo)
  * 精确锁定此作用域（沿用本文件 :has() 定位页面的既有写法，无需改路由/加 JS）。
  * API 参数表格里的行内 code 默认是「蓝字 + 灰底」，视觉噪音大；改为朴素黑字、

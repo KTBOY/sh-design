@@ -34,7 +34,7 @@ export default {
     app.component('HomeProducts', HomeProducts)
     // /guide/about 个人项目 + 简历展示页（京都风视频背景）。
     app.component('AboutShowcase', AboutShowcase)
-    // /chart/ sk-chart 图表库实时演示（挂载真实 FoldBarChart）。
+    // /chart/ sk-chart-duo 图表库实时演示（挂载真实 FoldBarChart）。
     app.component('FoldBarDemo', FoldBarDemo)
     // /chart/ 各案例复用的通用预览单元（传入不同 config 渲染不同图表）。
     app.component('ChartPreview', ChartPreview)

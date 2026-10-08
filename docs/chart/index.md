@@ -1,10 +1,10 @@
 ---
-title: sk-chart · 轻量 SVG 图表库
-description: "sk-chart（npm 包名 sk-chart-duo）——零依赖、gzip ~8KB 的 SVG-first 图表库，首版提供折纸漏斗柱状图 FoldBarChart，G2Plot 风格命令式 API，TypeScript strict，多实例安全。"
+title: sk-chart-duo · 轻量 SVG 图表库
+description: "sk-chart-duo——零依赖、gzip ~8KB 的 SVG-first 图表库，首版提供折纸漏斗柱状图 FoldBarChart，G2Plot 风格命令式 API，TypeScript strict，多实例安全。"
 ---
-# sk-chart 图表库
+# sk-chart-duo 图表库
 
-`sk-chart` 是一个**轻量、SVG-first** 的图表库，主打手工打磨的视觉风格。零依赖、gzip **~8KB**，viewBox 设计空间任意容器宽度自适应，G2Plot 风格命令式 API（`new Chart(el, config)` + `update` / `resize` / `destroy` / `on`），TypeScript strict，几何与比例尺全部纯函数 + 单测覆盖。
+`sk-chart-duo` 是一个**轻量、SVG-first** 的图表库，主打手工打磨的视觉风格。零依赖、gzip **~8KB**，viewBox 设计空间任意容器宽度自适应，G2Plot 风格命令式 API（`new Chart(el, config)` + `update` / `resize` / `destroy` / `on`），TypeScript strict，几何与比例尺全部纯函数 + 单测覆盖。
 
 ## 特性
 
@@ -297,5 +297,5 @@ new FoldBarChart(el, { data, theme: { tokens: { ... } } }) // 内联主题包
 
 ## 相关链接
 
-- 源码与示例：[KTBOY/sk-chart](https://github.com/KTBOY/sk-chart)
+- 源码与示例：[KTBOY/sk-chart-duo](https://github.com/KTBOY/sk-chart-duo)
 - npm 包：[sk-chart-duo](https://www.npmjs.com/package/sk-chart-duo)

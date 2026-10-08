@@ -53,12 +53,12 @@ export const TOOL_GROUPS: ToolGroup[] = [
         ]
       },
       {
-        name: 'sk-chart',
+        name: 'sk-chart-duo',
         nameZh: '轻量 SVG 图表库',
-        desc: '零依赖、gzip ~8KB 的 SVG-first 图表库，首版折纸漏斗柱状图 FoldBarChart，G2Plot 风格命令式 API、内置主题预设与导出能力，npm 包名 sk-chart-duo。',
+        desc: '零依赖、gzip ~8KB 的 SVG-first 图表库，首版折纸漏斗柱状图 FoldBarChart，G2Plot 风格命令式 API、内置主题预设与导出能力。',
         tags: ['SVG', 'TypeScript', '零依赖', 'GPL-3.0'],
         links: [
-          { label: 'GitHub', href: 'https://github.com/KTBOY/sk-chart' },
+          { label: 'GitHub', href: 'https://github.com/KTBOY/sk-chart-duo' },
           { label: 'npm', href: 'https://www.npmjs.com/package/sk-chart-duo' },
           { label: 'Docs', href: '/chart', internal: true }
         ]

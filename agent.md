@@ -79,7 +79,7 @@ sh-ui/
 │   ├── .vitepress/theme/      # 自定义主题：Layout.vue、全局注册的演示组件、custom.css
 │   ├── guide/                 # 指南：introduction/installation/quickstart/changelog/about
 │   ├── components/            # sh-design 组件文档，每组件一页（lazy-image.md / waterfall.md …）
-│   ├── chart/                 # sk-chart 图表库文档（index.md，实时挂载 FoldBarDemo/ChartPreview）
+│   ├── chart/                 # sk-chart-duo 图表库文档（index.md，实时挂载 FoldBarDemo/ChartPreview）
 │   ├── lab/                   # shukelab（uni-app 组件）：index 总览 / introduction 指南 / quickstart 快速上手 / 组件页
 │   ├── mini/                  # 珊瑚打码小程序：index.md + sk-image-waterfall.md
 │   ├── products/              # 「更多工具」聚合页（数据源 .vitepress/theme/products/meta.ts）

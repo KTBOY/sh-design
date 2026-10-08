@@ -98,7 +98,7 @@ export default defineConfig({
       ],
       '/chart/': [
         {
-          text: 'sk-chart 图表库',
+          text: 'sk-chart-duo 图表库',
           items: [
             { text: 'FoldBarChart 折纸漏斗柱', link: '/chart/' },
             { text: '返回更多工具', link: '/products/' }

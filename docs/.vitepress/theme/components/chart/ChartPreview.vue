@@ -3,7 +3,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 import type { FoldBarChart, FoldBarChartConfig } from 'sk-chart-duo'
 
 /**
- * sk-chart FoldBarChart 通用预览单元：接收一份 config，onMounted 时动态 import
+ * sk-chart-duo FoldBarChart 通用预览单元：接收一份 config，onMounted 时动态 import
  * 库并在容器内挂载真实 SVG 图表，onBeforeUnmount 时 destroy。文档页的每个案例
  * 都复用它，只在 markdown 的 <script setup> 里换 config。
  *
