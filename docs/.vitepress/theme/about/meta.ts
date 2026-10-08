@@ -72,6 +72,17 @@ export const PROJECTS: Project[] = [
     desc: '针对 Ant Design Vue 的效率增强工具集，沉淀业务表格 / 表单的高频封装，减少重复代码。',
     tags: ['Ant Design Vue', '效率工具'],
     links: [{ label: 'GitHub', href: 'https://github.com/KTBOY/sk-faster-ant' }]
+  },
+  {
+    no: '04',
+    name: 'Resonance HUD-ui skill',
+    nameZh: '共鸣 HUD 设计语言',
+    desc: '深色金调的游戏 HUD 设计语言，打包为 Agent Skill：零图片素材、零 Web 字体，全部装饰由 CSS / 内联 SVG 绘制，任意 DPI 下都锐利。',
+    tags: ['CSS 设计语言', 'Agent Skill', 'npx skills add'],
+    links: [
+      { label: 'GitHub', href: 'https://github.com/KTBOY/resonance-hud' },
+      { label: 'Gallery', href: 'https://ktboy.github.io/sh-design/skills/' }
+    ]
   }
 ]
 

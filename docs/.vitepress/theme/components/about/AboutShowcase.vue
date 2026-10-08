@@ -11,7 +11,11 @@ import MaskBackground from '../MaskBackground.vue'
  * 「更多工具」区块展示开源项目，全部作品跳转 /products/ 聚合页。
  * 背景为共享组件 MaskBackground（与 /products/ 同款鼠标探照效果）。
  */
-const OSS_TOOLS = TOOL_GROUPS.find((g) => g.id === 'oss')?.items ?? []
+/** 精选项目区（PROJECTS）已展示的工具体，不再出现在「更多工具」；/products/ 页仍完整列出 */
+const FEATURED_TOOL_NAMES = ['Resonance HUD-ui skill']
+const OSS_TOOLS = (TOOL_GROUPS.find((g) => g.id === 'oss')?.items ?? []).filter(
+  (t) => !FEATURED_TOOL_NAMES.includes(t.name)
+)
 const productsHref = withBase('/products/')
 
 let observer: IntersectionObserver | undefined

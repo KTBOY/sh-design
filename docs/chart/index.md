@@ -6,14 +6,11 @@ description: "sk-chart-duo——零依赖、gzip ~8KB 的 SVG-first 图表库，
 
 `sk-chart-duo` 是一个**轻量、SVG-first** 的图表库，主打手工打磨的视觉风格。零依赖、gzip **~8KB**，viewBox 设计空间任意容器宽度自适应，G2Plot 风格命令式 API（`new Chart(el, config)` + `update` / `resize` / `destroy` / `on`），TypeScript strict，几何与比例尺全部纯函数 + 单测覆盖。
 
+<ChartVersion />
+
 ## 特性
 
-- **零依赖**，gzip ~8KB，直接引入构建产物（ESM / CJS）或 npm 安装
-- **SVG 渲染**，viewBox 设计空间，容器宽度自适应；SVG 本身透明，底色由宿主页面控制
-- **G2Plot 风格 API**：`new FoldBarChart(el, config)` + `update` / `resize` / `destroy` / `on`
-- **多实例安全**：`defs` id 与样式按实例隔离，同页多图互不干扰
-- **主题系统**：内置 `light` / `dark` 预设，`registerTheme` 注册自定义主题包，皮肤 / token / 格式化三层可配
-- **导出与无障碍**：`toSVGString` / `getDataURL` / `download`；键盘 `←` `→` `Home` `End` 导航，`prefers-reduced-motion` 自动降级
+<!--@include: ../node_modules/sk-chart-duo/README.md#features -->
 
 ## 安装
 
@@ -39,27 +36,7 @@ yarn add sk-chart-duo
 
 首版提供 **FoldBarChart**：折纸漏斗柱状图——渐变柱体由"折面"相连，闲置列呈条纹纸感，高亮列浮起 wash 与 tooltip。
 
-```ts
-import { FoldBarChart } from 'sk-chart-duo'
-
-const chart = new FoldBarChart('#container', {
-  data: [
-    { label: '发起支付', value: 65.2 },
-    { label: '授权支付', value: 54.8 },
-    { label: '支付成功', value: 48.6 },
-    { label: '商户打款', value: 38.3 },
-    { label: '完成交易', value: 32.9 }
-  ],
-  scale: { exponent: 2 }, // 折纸漏斗轮廓；默认 1 = 线性
-  state: { defaultActive: 2 }, // 闲置时高亮第 3 列
-  title: { text: '支付' }
-})
-
-chart.on('column:click', ({ index, datum }) => console.log(index, datum))
-chart.update({ data: nextData }) // 全量重绘
-chart.resize(960, 430) // 变更 viewBox 设计空间
-chart.destroy() // 清理 DOM 与事件
-```
+<!--@include: ../node_modules/sk-chart-duo/README.md#quickstart -->
 
 ## 在线体验
 
@@ -88,6 +65,24 @@ const WEEK = [
   { label: '周五', value: 31.5 },
   { label: '周六', value: 27.8 },
   { label: '周日', value: 21.3 }
+]
+
+// 折痕自适应的最坏情况：首两列断崖落差（斜率约 6.6:1）
+const SHARP_DROP = [
+  { label: '发起支付', value: 65.2 },
+  { label: '授权支付', value: 12.6 },
+  { label: '支付成功', value: 9.4 },
+  { label: '商户打款', value: 6.1 },
+  { label: '完成交易', value: 3.8 }
+]
+
+// 反向：后一列比前一列高，验折痕反向起坡
+const SPIKE_UP = [
+  { label: '曝光', value: 6.0 },
+  { label: '点击', value: 65.2 },
+  { label: '加购', value: 48.6 },
+  { label: '下单', value: 38.3 },
+  { label: '成交', value: 32.9 }
 ]
 
 // 转化率 tooltip：数值 + 相对上一列的环节转化率
@@ -126,6 +121,8 @@ const tealCfg = { data: WEEK, title: { text: '一周活跃（自定义配色）'
 const axisCfg = { data: PAYMENTS, height: 430, scale: { exponent: 2 }, title: { text: '支付（含坐标轴）' }, tooltip: { formatter: convFormatter }, xAxis: { showLine: true, showTick: true, bottomLabels: stageLabels, title: { text: '支付阶段 →' } } }
 const tooltipCfg = { data: PAYMENTS, scale: { exponent: 2 }, state: { defaultActive: 2 }, title: { text: '自定义 tooltip（环节转化率）' }, tooltip: { formatter: convFormatter } }
 const darkCfg = { data: PAYMENTS, scale: { exponent: 2 }, state: { defaultActive: 2 }, title: { text: '暗色主题' }, theme: 'dark' }
+const cliffCfg = { data: SHARP_DROP, scale: { exponent: 1 }, title: { text: '断崖落差 65.2 → 12.6' } }
+const spikeCfg = { data: SPIKE_UP, scale: { exponent: 1 }, title: { text: '反向尖峰 6.0 → 65.2' } }
 </script>
 
 ### 折纸轮廓与线性映射（`scale.exponent`）
@@ -137,6 +134,17 @@ const darkCfg = { data: PAYMENTS, scale: { exponent: 2 }, state: { defaultActive
 
 ```ts
 { scale: { exponent: 2 } } // 折纸漏斗轮廓（默认 1 = 线性）
+```
+
+### 大落差折痕自适应
+
+折面水平跨度固定，相邻两列高差过大时直线折痕会被拉成近垂直的窄条。折痕按斜率 `Δy / fold.run` 自动弯成 S 形（斜率 ≤ 1 保持直线、≥ 4 完全成型），折面渐变区间同步收拢到折痕带。下面两张都是最坏情况：第一张正向断崖，第二张反向起坡。
+
+<ChartPreview :config="cliffCfg" />
+<ChartPreview :config="spikeCfg" />
+
+```ts
+{ data: SHARP_DROP, scale: { exponent: 1 } } // 用线性高度，把高差诚实暴露出来
 ```
 
 ### 普通柱状图（关闭装饰）
@@ -221,79 +229,7 @@ tooltip: {
 
 ## API
 
-### `FoldBarChartConfig`
-
-| 字段                        | 类型                                                 | 默认                         | 说明                                                      |
-| --------------------------- | ---------------------------------------------------- | ---------------------------- | --------------------------------------------------------- |
-| `data`                    | `FoldBarDatum[]`                                   | 必填                         | `{ label, value, ...extra }`                            |
-| `xField` / `yField`     | `string`                                           | `label` / `value`        | 数据字段映射                                              |
-| `width` / `height`      | `number`                                           | `860` / `386`            | viewBox 设计空间                                          |
-| `valueFormat`             | `(v) => string`                                    | `v => v.toFixed(1)+'k'`    | 柱头数值格式                                              |
-| `padding`                 | `Partial<{top,right,bottom,left}>`                 | `64/29/26/73`              | 绘图区留白；启用 `xAxis.bottomLabels` 时底部自动扩高    |
-| `stair`                   | `{ bottomOffset?, topOffset? }`                    | `30` / `74`              | 柱顶阶梯锚点（value=0 与 max 的柱顶位置）                 |
-| `scale.exponent`          | `number`                                           | `1`                        | 高度映射幂次；`2` 还原折纸漏斗轮廓                      |
-| `fold.run`                | `number`                                           | `20`                       | 折面水平跨度                                              |
-| `fold.creaseColor/Width`  | —                                                   | 白 /`1.2`                  | 折痕高光                                                  |
-| `axis.ticks`              | `number[]`                                         | 自动（nice）                 | y 轴刻度值；位置按 `barTopOf` 真实映射                  |
-| `axis.tickFormat`         | `(v) => string`                                    | `v => v+'k'`               | 刻度文案                                                  |
-| `xAxis.labelFormat`       | `(d, i, data) => string`                           | xField 值                    | 顶部类目行文案                                            |
-| `xAxis.bottomLabels`      | `(d, i, data) => string \| string[]`                | 无                           | 底部语义行（如阶段序号 + 环节转化率），渲染在渐隐遮罩之外 |
-| `xAxis.title`             | `{ text?, x?, y? }`                                | 无                           | X 轴标题，位于底部语义行之后的下一行，默认水平居中        |
-| `xAxis.showLine/showTick` | `boolean`                                          | `false`                    | 柱底基线 / 列中心刻度线（均在渐隐带下方）                 |
-| `xAxis.showGrid`          | `boolean`                                          | `true`                     | 竖直分列线                                                |
-| `tooltip.enabled`         | `boolean`                                          | `true`                     |                                                           |
-| `tooltip.formatter`       | `(datum, i, data) => TooltipPart[]`                | 类目 + 数值                  | 自定义 tooltip 内容                                       |
-| `state.defaultActive`     | `number`                                           | 最后一列                     | 闲置高亮列                                                |
-| `title`                   | `{ text?, x?, y? }`                                | 无标题                       | 左上标题                                                  |
-| `style`                   | `FoldBarStyleConfig`                               | 原稿配色                     | 条纹/渐变/pill/阴影/渐隐等全部可换肤                      |
-| `theme`                   | `'light' \| 'dark' \| ThemePack \| DeepPartialTokens` | 原稿外观（等价 `'light'`） | 预设名 / 内联主题包 / 旧版字体 token 局部                 |
-
-### 主题预设
-
-```ts
-import { registerTheme, FoldBarChart } from 'sk-chart-duo'
-
-registerTheme('brand', {
-  style: { barGradient: { normal: myStops } }, // 视觉皮肤
-  tokens: { title: { fill: '#0A0A0A' } }, // 字体/颜色/过渡 token
-  formats: { valueFormat: (v) => `${v}k` } // 默认数值/刻度格式化
-})
-
-new FoldBarChart(el, { data, theme: 'dark' }) // 内置预设
-new FoldBarChart(el, { data, theme: 'brand' }) // 自定义预设
-new FoldBarChart(el, { data, theme: { tokens: { ... } } }) // 内联主题包
-```
-
-- 内置 `light`（原稿折纸皮肤）与 `dark` 两个预设
-- 解析顺序：内置默认 → 主题包 → config 显式字段，后者优先
-- 旧写法 `theme: { number: { fontSize: 22 } }`（直接传 token 局部）完全兼容
-- 未知预设名回退默认并 `console.warn`
-
-### 事件
-
-| 事件名           | 回调参数             | 触发时机                                         |
-| ---------------- | -------------------- | ------------------------------------------------ |
-| `column:enter` | `{ index, datum }` | 鼠标 / 触摸进入某列                              |
-| `column:leave` | `{ index, datum }` | 移出某列                                         |
-| `column:click` | `{ index, datum }` | 点击列，或 SVG 聚焦后 `Enter` / `Space` 触发 |
-
-### 方法
-
-| 方法                                             | 说明                                                                                           |
-| ------------------------------------------------ | ---------------------------------------------------------------------------------------------- |
-| `update(partial)`                              | 合并部分 config 并全量重绘                                                                     |
-| `resize(width, height)`                        | 变更 viewBox 设计空间并重绘                                                                    |
-| `on(event, handler)` / `off(event, handler)` | 绑定 / 解绑事件                                                                                |
-| `setActive(index)`                             | 编程式高亮指定列                                                                               |
-| `activeIndex`                                  | 当前高亮列下标（只读 getter）                                                                  |
-| `toSVGString()`                                | 独立 SVG 文本（内嵌样式与 defs），可直接存 `.svg` 或内联                                     |
-| `getDataURL(options?)`                         | 当前图表 data URL，默认 PNG 2x；`options`：`type` / `scale` / `background`（缺省透明） |
-| `download(options?)`                           | 触发浏览器下载，默认 `sk-chart.png`；`options` 同上另加 `filename`                       |
-| `destroy()`                                    | 清理 DOM 与事件                                                                                |
-
-### 交互与无障碍
-
-悬停/触摸切换高亮列；SVG 聚焦后 `←` / `→` / `Home` / `End` 导航，`Enter` / `Space` 触发 `column:click`；移出回落到 `defaultActive`。列具备 `role="listitem"` 与同步的 `aria-selected`；`prefers-reduced-motion: reduce` 下自动关闭过渡动画。
+<!--@include: ../node_modules/sk-chart-duo/README.md#api -->
 
 ## 相关链接
 

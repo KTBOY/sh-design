@@ -11,6 +11,7 @@ import HomeProducts from './components/products/HomeProducts.vue'
 import AboutShowcase from './components/about/AboutShowcase.vue'
 import FoldBarDemo from './components/chart/FoldBarDemo.vue'
 import ChartPreview from './components/chart/ChartPreview.vue'
+import ChartVersion from './components/chart/ChartVersion.vue'
 import Layout from './Layout.vue'
 import './custom.css'
 
@@ -38,5 +39,7 @@ export default {
     app.component('FoldBarDemo', FoldBarDemo)
     // /chart/ 各案例复用的通用预览单元（传入不同 config 渲染不同图表）。
     app.component('ChartPreview', ChartPreview)
+    // /chart/ 文档版本徽标（@include 真源与 demo 同源于此版本号）。
+    app.component('ChartVersion', ChartVersion)
   }
 } satisfies Theme

@@ -11,3 +11,6 @@ allowBuilds:
   esbuild: false
   # vue-demi ships a safe, pure-JS postinstall.
   vue-demi: true
+
+minimumReleaseAgeExclude:
+  - sk-chart-duo@0.1.1

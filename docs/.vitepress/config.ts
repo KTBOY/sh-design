@@ -143,6 +143,9 @@ export default defineConfig({
     docFooter: { prev: '上一页', next: '下一页' }
   },
   vite: {
+    // 本地预览 sk-chart 未发布的改动时，必须同时跳过依赖预打包：
+    // 否则 optimizeDeps 仍按 node_modules 里的已发布版本产出缓存 bundle，alias 被绕过。
+    optimizeDeps: process.env.SK_CHART_LOCAL ? { exclude: ['sk-chart-duo'] } : {},
     resolve: {
       // Use the library source directly so demos stay live without a build step.
       alias: [
@@ -151,7 +154,19 @@ export default defineConfig({
           replacement: fileURLToPath(
             new URL('../../packages/sh-design/src/index.ts', import.meta.url)
           )
-        }
+        },
+        // 预览未发布的 sk-chart 改动：`SK_CHART_LOCAL=1 pnpm docs:dev`。
+        // 指向兄弟仓库的构建产物，路径与机器布局相关，故默认关闭——CI 与其他人仍用 npm 上的版本。
+        ...(process.env.SK_CHART_LOCAL
+          ? [
+              {
+                find: /^sk-chart-duo$/,
+                replacement: fileURLToPath(
+                  new URL('../../../../sk-chart/dist/index.js', import.meta.url)
+                )
+              }
+            ]
+          : [])
       ]
     },
     server: {
