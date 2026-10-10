@@ -8,6 +8,8 @@ description: "sk-chart-duo——零依赖、gzip ~8KB 的 SVG-first 图表库，
 
 <ChartVersion />
 
+![FoldBarChart 的分层构建：第 1 层柱体竖向渐变 → 第 2 层叠加斜纹 pattern → 第 3 层叠加折面与折棱 → 第 4 层文字、浮标与选中态](./image/index/fold-chart-layers.png)
+
 ## 特性
 
 <!--@include: ../node_modules/sk-chart-duo/README.md#features -->
