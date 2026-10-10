@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import KeepAliveRepro from './KeepAliveRepro.vue'
+
+// 复现入口：访问 /?repro 渲染 keep-alive 触底卡死复现页
+const isRepro = typeof location !== 'undefined' && /[?&]repro\b/.test(location.search)
 
 const log = ref<string[]>([])
 
@@ -67,7 +71,8 @@ function onItemClick(payload: { item: unknown; index: number }) {
 </script>
 
 <template>
-  <div class="play">
+  <KeepAliveRepro v-if="isRepro" />
+  <div v-else class="play">
     <h1>sh-design · playground</h1>
     <p class="hint">在这里快速开发与调试组件。修改 packages/sh-design/src 会实时生效。</p>
 
