@@ -1,0 +1,32 @@
+# 知识卡导出索引文件
+schema_version: 1
+locale: zh-CN
+commit: a982218019e1c21e7dfd75e5cff3f4432a815b02
+branch: main
+exported_at: "2026-10-10T10:03:37Z"
+modules:
+    root:
+        dir_name: sh-design 单仓根配置与发布规范
+        title: sh-design 单仓根配置与发布规范
+        scope:
+            - README.md
+            - agent.md
+            - package.json
+            - pnpm-workspace.yaml
+            - pnpm-lock.yaml
+            - .npmrc
+            - .editorconfig
+            - .gitignore
+            - .gitattributes
+            - .prettierrc.json
+            - .prettierignore
+            - eslint.config.js
+            - tsconfig.json
+            - demo.html
+            - release.bat
+            - 发布npm指南.md
+            - 组件发布流程.md
+        source_files: []
+        children: []
+        depends_on: []
+        related_to: []

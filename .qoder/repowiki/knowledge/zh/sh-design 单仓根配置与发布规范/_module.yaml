@@ -1,0 +1,62 @@
+schema_version: 1
+module_path: root
+title: sh-design 单仓根配置与发布规范
+scope:
+    - README.md
+    - agent.md
+    - package.json
+    - pnpm-workspace.yaml
+    - pnpm-lock.yaml
+    - .npmrc
+    - .editorconfig
+    - .gitignore
+    - .gitattributes
+    - .prettierrc.json
+    - .prettierignore
+    - eslint.config.js
+    - tsconfig.json
+    - demo.html
+    - release.bat
+    - 发布npm指南.md
+    - 组件发布流程.md
+source_files: []
+depends_on: []
+related_to: []
+kk_module_id: c0bb9e41-6069-47b9-a0ef-390e055cc120
+kk_cards:
+    architecture_design:
+        id: 46df9006-5266-4631-b0be-49e48b588359
+        title: sh-design 单仓根配置与发布规范
+    coding_conventions:
+        id: 10f2a28a-8497-4c2c-8162-87ea8cf35940
+        title: sh-design 单仓根配置与发布规范
+    overview:
+        id: bebd1bbd-e9dd-4fb5-85a1-22a20574b08c
+        title: sh-design 单仓根配置与发布规范
+    tech_stack:
+        id: b782b6eb-0715-4a3c-bce9-14cb980f6c4e
+        title: sh-design 单仓根配置与发布规范
+    unique_setup_and_commands:
+        id: a3deccaf-efb1-4eb2-969f-192c789ae3f0
+        title: sh-design 单仓根配置与发布规范
+    build_system:
+        id: f56fa7f3-5617-49d5-b11d-af81e5fb4466
+        title: pnmonorepo + Vite + GitHub Actions 构建与发布体系
+    configuration_system:
+        id: e7ede96c-37ca-425b-a4ba-d9250f9da958
+        title: Monorepo 根级配置体系（pnpm workspace / VitePress / ESLint / TS / Prettier）
+    dependency_management:
+        id: 578e6f2a-d008-4845-bea3-5e36c28737bd
+        title: pnpm 工作区 + npm registry 依赖管理
+    error_handling:
+        id: b069013a-8144-4782-98e8-1b1e5ae67e02
+        title: 错误处理：组件级 try/catch + 事件回调，无统一错误类型体系
+    frontend_style:
+        id: c3182093-34eb-4195-8f3b-4cc044c6efff
+        title: 基于 CSS 自定义属性的设计令牌与 VitePress 文档主题样式体系
+kk_repo_cards:
+    - build_system
+    - configuration_system
+    - dependency_management
+    - error_handling
+    - frontend_style
