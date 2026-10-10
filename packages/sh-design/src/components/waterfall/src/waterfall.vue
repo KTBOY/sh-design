@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import {
+  computed,
+  nextTick,
+  onActivated,
+  onBeforeUnmount,
+  onMounted,
+  ref,
+  watch
+} from 'vue'
 import { waterfallProps, waterfallEmits, waterfallAnimateDefaults } from './waterfall'
 import type { WaterfallItemData, WaterfallItemRect } from './waterfall'
 import { ShLazyImage } from '../../lazy-image'
@@ -271,6 +279,11 @@ function updateScrollState() {
  * （用于数据变化后「内容不足一屏」的自动续载）。
  */
 function maybeLoadMore(force = false) {
+  // 容器不可见（keep-alive 失活 / 祖先 display:none）时宽度归 0，几何判定失真：
+  // 若照常消耗 armed 派发 load-more，父组件多半会忽略（如自身带失活守卫），
+  // 而 loading / items 均不变 → armed 再也无法复位，恢复可见后触底永久失效。
+  // 故不可见时直接跳过、保持 armed 原状，待重新可见（ResizeObserver / onActivated）再评估。
+  if (viewWidth.value <= 0) return
   if (!armed || props.loading || props.finished) return
   if (!force) {
     const remain = totalHeight.value - (scrollTop.value + viewHeight.value)
@@ -288,6 +301,10 @@ function onScroll() {
     rafId = 0
     updateScrollState()
     emit('scroll', { scrollTop: scrollTop.value })
+    // 滚动即「用户正在接近底部」的信号，补一次非强制触底复查：
+    // 覆盖哨兵一直停在视口内、IntersectionObserver 不再产生新交叉边的场景，
+    // 让「滚到底」始终是一条可用的触发通道（armed + remain 双重去重，不会级联）
+    maybeLoadMore()
   })
 }
 
@@ -414,6 +431,18 @@ function measure() {
 
 let ro: ResizeObserver | null = null
 let resizeTimer: ReturnType<typeof setTimeout> | undefined
+
+// keep-alive 恢复可见：立即重测 + 解锁 + 复查触底，不依赖 ResizeObserver 的 120ms 防抖，
+// 回到页面瞬间即可续载；非 keep-alive 场景该钩子永不触发，零副作用。
+onActivated(() => {
+  measure()
+  rebuild()
+  armed = true
+  nextTick(() => {
+    updateScrollState()
+    maybeLoadMore()
+  })
+})
 
 onMounted(() => {
   measure()
