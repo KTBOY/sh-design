@@ -98,9 +98,17 @@ export default defineConfig({
       ],
       '/chart/': [
         {
-          text: 'sk-chart-duo 图表库',
+          text: '开始',
           items: [
-            { text: 'FoldBarChart 折纸漏斗柱', link: '/chart/' },
+            { text: 'sk-chart-duo 总览', link: '/chart/' },
+            { text: '项目指南', link: '/chart/#项目指南' },
+            { text: '快速上手', link: '/chart/#快速上手' }
+          ]
+        },
+        {
+          text: '图表',
+          items: [
+            { text: 'FoldBarChart 折纸漏斗柱', link: '/chart/#在线体验' },
             { text: '返回更多工具', link: '/products/' }
           ]
         }

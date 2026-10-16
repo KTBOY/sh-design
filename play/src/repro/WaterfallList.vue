@@ -65,9 +65,9 @@ async function onLoadMore() {
           <span class="cell-title">{{ item.title }}</span>
         </div>
       </template>
-      <template #footer="{ loading, finished }">
-        <span v-if="loading">加载中…</span>
-        <span v-else-if="finished">—— 已经到底了 ——</span>
+      <template #footer="{ loading: slotLoading, finished: slotFinished }">
+        <span v-if="slotLoading">加载中…</span>
+        <span v-else-if="slotFinished">—— 已经到底了 ——</span>
         <span v-else>共 {{ TOTAL }} 条，已显示 {{ items.length }} 条，向下滚动加载更多</span>
       </template>
     </ShWaterfall>

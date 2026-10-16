@@ -143,3 +143,5 @@
 | 提交 / 推送                                                      | 未执行，等指令（两仓库均为工作区改动）                                                                                                                                                                                 |
 | 浏览器实测                                                       | 未执行（按既定偏好：默认静态检查 + 清单，需要时再跑）                                                                                                                                                                  |
 | 发布许可                                                         | 未获                                                                                                                                                                                                                   |
+
+> **订正（2026-10-16）**：「当前状态」表中 lint 一行对 `EXPERIENCE` 的归因有误——经 `git show HEAD:… | npx eslint --stdin` 复核，它与 `total` 同为 HEAD 既有，并非工作区未提交改动引入；两个错误此后已随提交消失。2026-10-16 复跑全量 lint 为 **0 problems**（行内提到的 `UniDemo.vue` warning 与复跑时另见的 `WaterfallList.vue` 2 条 warning 均已修）。

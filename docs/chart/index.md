@@ -34,6 +34,14 @@ yarn add sk-chart-duo
 
 也可直接引入构建产物：`dist/index.js`（ESM）/ `dist/index.cjs`（CJS）/ `dist/index.d.ts`（类型）。
 
+## 项目指南
+
+本页正文的「特性」「快速上手」「API」三节不是手写副本，而是用 VitePress `@include` 从 `node_modules` 里**已发布**的 `sk-chart-duo` 包直接读取 README 的 `#region` 片段——仓库 README 是唯一真源，不存在需要同步的第二份正文。页顶版本徽标读的也是同一份包，下方 demo 均为真实挂载（非截图）：徽标显示哪个版本，文字与 demo 就是哪个版本。main 分支的最新内容见 [GitHub 仓库](https://github.com/KTBOY/sk-chart-duo#readme)。
+
+`sk-chart-duo` 采用 **GPL-3.0-only** 许可（本站 sh-design 组件均为 MIT）：分发包含它的作品需整体以 GPL-3.0-only 授权并提供对应源码，商用前请先阅读仓库的 [License 说明](https://github.com/KTBOY/sk-chart-duo#license)。
+
+测试、构建等开发命令与版本规划在仓库 README 中维护，本站不复制：见 [开发](https://github.com/KTBOY/sk-chart-duo#开发) 与 [路线图](https://github.com/KTBOY/sk-chart-duo#路线图) 两节。
+
 ## 快速上手
 
 首版提供 **FoldBarChart**：折纸漏斗柱状图——渐变柱体由"折面"相连，闲置列呈条纹纸感，高亮列浮起 wash 与 tooltip。

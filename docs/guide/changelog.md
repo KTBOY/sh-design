@@ -4,6 +4,21 @@
 
 > 说明：这里只记录**组件库**相关的改动（组件、Composable、公共 API）。纯文档 / 站点 / CI 等工程改动一般不单独收录。
 
+## 未发布 (Unreleased)
+
+### ✨ 新增
+
+- `v-skeleton.deep` 支持在真实节点上添加 `data-sh-skeleton-group` 按可见后代合并视觉行，以及 `data-sh-skeleton-width` / `data-sh-skeleton-height` 正数像素提示，只调整绘制尺寸，无需另写骨架模板。
+
+### 🔧 修改
+
+- `v-skeleton.deep` 改为加载期间按需合帧测量真实文本行、图片与有尺寸的空元素，在独立裁剪层绘制；保留真实 DOM、容器背景和圆角，支持嵌套文本、`display: contents`、边框、滚动及普通二维缩放。内容更新会重新测量，关闭 / 切换模式 / 卸载时释放观察器、监听和帧并恢复定位与相关属性。默认 mask、`ShSkeleton` props、`#template` 与公开 `.sh-skeleton__block` 保持不变。
+
+### 🐛 修复
+
+- `v-skeleton` 修复对象参数 `deep` 被忽略、同引用选项更新不生效，以及深度模式父子文本重复涂色、flex / grid 容器误填、图片只有空位和系统减少动态效果失效的问题。
+- `v-skeleton.deep` 修复独立绘制层丢失来源作用域的骨架颜色、微光时长和默认圆角：文本流、媒体及显式 group 保留局部主题，inline 主题变化按需分段，删除覆盖可回退，并随祖先 / 根主题变化更新，避免暗黑切换残留旧 token。
+
 ## 0.1.1
 
 2026-10-10

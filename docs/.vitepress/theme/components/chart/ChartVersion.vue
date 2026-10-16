@@ -13,7 +13,8 @@ const version = (pkg as { version: string }).version
 
 <template>
   <p class="chart-version">
-    本页文档与下方所有 demo 均基于 <code>sk-chart-duo</code> v{{ version }}
+    本页文档与下方所有 demo 均基于 <code>sk-chart-duo</code> v{{ version }} · 最新文档见
+    <a href="https://github.com/KTBOY/sk-chart-duo#readme" target="_blank" rel="noreferrer">GitHub README</a>
   </p>
 </template>
 

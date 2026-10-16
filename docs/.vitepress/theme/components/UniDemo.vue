@@ -15,7 +15,8 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  height: '640px'
+  height: '640px',
+  title: undefined
 })
 
 const frameSrc = computed(() => resolveUniSrc(props.src))
