@@ -1,0 +1,94 @@
+# 设计走查报告
+
+**走查目标**：docs/.vitepress/theme/components/toolcity/** （HomeToolCity.vue、ToolCityStage.vue、scene/cards.ts、scene/city.ts、scene/links.ts、scene/cardMeta.ts）+ components/products/HomeProducts.vue
+
+**走查时间**：2026-10-21T14:06:26
+
+**走查模式**：自动走查（Mode A）+ 规范一致性附表（上游 motion-plan.json）
+
+> 未读到 Brief / Flow / Sitemap / Stories 上下文，第 10 类「与 Brief 一致性」跳过；改以 spark-output/context/motion-plan.json 作为一致性基线。
+
+## 总览
+
+| 严重度 | 数量 |
+| --- | --- |
+| 🔴 Blocker | 0 |
+| 🟠 Major | 7 |
+| 🟡 Minor | 8 |
+| ✅ Pass（未列出的类别） | 2 |
+
+## 为什么会「不和谐」——三个融合方向
+
+1. 方向一 · 让卡片成为城市里的建筑：统一光照与色域（finding 6/8/9）、给卡片落地投影（7）、卡片底边插入地面并带裙房，空间轴与片区轴对齐（5）。改动集中在材质与构图，风险最低、收益最大。
+2. 方向二 · 让卡片成为悬浮 HUD：承认它不是建筑，统一加悬浮证据——一致的离地高度、卡片到片区的常驻牵引线、面板改成半透明玻璃让城市透出来。视觉更「控制面板」，但要重做面板材质。
+3. 方向三 · 让城市成为信息而非装饰：片区按技术栈分区，卡片 hover 不只亮光环还高亮该分区的建筑组，静态列表与 3D 层分工差异化（4/12）。工作量最大，但能根治「功能割裂」。
+
+## Findings（按严重度排序）
+
+### 🟠 Major
+
+1. **[flow-continuity]** 点击卡片后 scrollIntoView 会改写 sticky 段进度，而相机进度每帧从滚动位置重新计算，导致页面正在向下跳到静态列表的同时城市继续向前飞；两段运动同时发生，用户判断不出自己是「离开了舞台」还是「进入了城市」。
+   - 出现位置：docs/.vitepress/theme/components/toolcity/ToolCityStage.vue:173, 253
+   - 修复建议：handlePick 时锁相机进度（引入 cameraLock，滚动定位完成后回弹或直接复位到 0），或把点击语义改成「只聚焦片区」，跳转交给静态列表自己承担。
+2. **[flow-continuity]** 移动端（<768px）只保留 1 张卡片且没有 hover / focus 语义，卡片↔城市这条设计主线在手机上完全不存在，城市退化为纯背景；motion-plan 里定义的 tap-to-preview 未实现。
+   - 出现位置：docs/.vitepress/theme/components/toolcity/scene/cards.ts layout() / HomeToolCity.vue
+   - 修复建议：落地 tap-to-preview：首次 tap 触发片区光环与卡片抬升，二次 tap 才跳转；或移动端改为 tap 卡片 → 相机推进到对应片区，把空间关系讲完。
+4. **[ia]** 同一批 7 个工具在同一屏内出现两次（3D 卡片带 + 静态卡片网格），信息完全重复；3D 层没有承载任何静态层不具备的信息，因此看起来像装饰而不是导航。
+   - 出现位置：docs/.vitepress/theme/components/products/HomeProducts.vue:23, 27
+   - 修复建议：给 3D 层一个独占职责：片区=项目空间索引（技术栈分区、更新时间密度、体量），静态层负责详情；或 3D 只保留 3 个主推项目，其余交给列表。
+6. **[components]** 卡片面板用 unlit MeshBasicMaterial 且 fog:false，颜色写死 0xffffff → 0xe8f3ff；城市受方向光、明暗面与雾影响。两套光照模型使卡片永远不随场景变亮变暗，视觉上贴在城前而不是站在城里。
+   - 出现位置：scene/cards.ts:130, 166-167
+   - 修复建议：面板向城市借色（顶 #f7fbff → 底 #dbe7f3，与墙色 #9bb0c8 同色系），并把顶点色渐变轴改成与城市 key light（0.38, 0.66, 0.65）一致的方向。
+7. **[components]** 卡片在城市地面上没有任何投影，城市也没有阴影落到卡片上；唯一的接触阴影存在于图标与卡片之间，悬浮关系只靠 CSS box-shadow 表达。
+   - 出现位置：scene/cards.ts / scene/city.ts buildBuildings()
+   - 修复建议：复用城市的软阴影实例池，按卡片 footprint 在城市地面加一层极淡阴影（不透明度 0.10–0.14），或给卡片底边加一条与地面呼应的接触光。
+9. **[visual-hierarchy]** 明度断层：卡片白（约 250）直接压在城市钢蓝（墙约 170、路约 140）上，中间没有过渡层，卡片底边是全画面最硬的一条对比线——这是「不和谐」最直接的来源。
+   - 出现位置：scene/city.ts buildGround() / ToolCityStage.vue 相机与雾参数
+   - 修复建议：在城市顶部与卡片带之间加一条天际线雾带（一层渐变面片或提高 ground 的远端亮度），把 250→170 的跳变压成 250→215→170。
+15. **[accessibility]** 降级态（prefers-reduced-motion 或 WebGL 失败）下舞台只剩一张 aria-hidden 海报，没有任何可聚焦元素，「7 件工具」的空间入口在这一态完全消失，只剩下方列表兜底。
+   - 出现位置：docs/.vitepress/theme/components/toolcity/HomeToolCity.vue .htc__poster
+   - 修复建议：降级态把海报换成可聚焦的「查看 7 个工具」锚点按钮，或直接隐藏舞台区块只留列表；同时在列表顶部补一句说明，避免信息层级掉档。
+
+### 🟡 Minor
+
+3. **[flow-continuity]** sticky 段与下方静态列表之间没有「舞台结束」的信号，段尾直接接同内容列表，用户不知道 3D 区已经走完。
+   - 出现位置：docs/.vitepress/theme/components/toolcity/HomeToolCity.vue
+   - 修复建议：段尾加一次性收束：卡片带整体淡出 + 城市渐隐到列表底色，或把底部渐隐从 72px 提到 120px 并配一行「继续查看完整列表」。
+5. **[ia]** 卡片按横向 x（−27.4 → 46.4）排序，片区按大道的纵向弧长（t=0.2+i×0.1）排序，两个轴不一致，用户无法从空间上预期「第 4 张卡对应哪一段路」。
+   - 出现位置：scene/cardMeta.ts（x 值）/ scene/links.ts（DISTRICT_BASE、DISTRICT_STEP）
+   - 修复建议：二选一：把片区改成沿大道由近到远等距排开并在 hover 时同时显示卡片序号与片区编号；或让卡片带本身沿大道纵深排布，使两个轴重合。
+8. **[components]** 城市有完整材质层级（哑光墙 / 玻璃窗 / 沥青路 / 女儿墙压顶），卡片是「白玻璃 + 细蓝边」，两边没有共享材质词汇（同一倒角、同一高光方向、同一反射率）。
+   - 出现位置：scene/cards.ts roundedShape radius / ToolCityStage.vue .t3-card border-color
+   - 修复建议：把卡片面板倒角半径与边线色对齐城市女儿墙压顶（#c6d4e3），图标玻璃与城市玻璃用同一 tint，让卡片读起来像用城市材料建出来的。
+10. **[visual-hierarchy]** 7 张卡片宽度从 20 递减到 9.2 世界单位，但清晰度、对比度、阴影强度完全一致，缺空气透视，与城市的纵深衰减逻辑相反。
+   - 出现位置：scene/cards.ts layout() / refine()
+   - 修复建议：远端卡片按 z 线性降 4–8% 对比（refine 时一次性写 CSS filter，不进每帧），让卡片带也服从大气的远近规律。
+11. **[visual-hierarchy]** 城市持续运动（车流、窗灯呼吸、光环）与卡片主操作层强度接近，Ambient 层与 Primary 层抢注意力。
+   - 出现位置：scene/city.ts update() / shaders.ts BUILDING_FRAGMENT
+   - 修复建议：hover 或滚动时把城市整体降饱和 5–8%（一个 uniform 即可），把视觉优先级让给卡片；空闲时恢复。
+12. **[copy]** 舞台内文案（MORE TOOLS.、七件工具一座微缩城市、7 TOOLS · 1 CITY）与城市之间没有语义桥，用户读不到「为什么是城市」，城市因此只是背景。
+   - 出现位置：components/products/HomeProducts.vue .hp-desc / HomeToolCity.vue .htc__caption
+   - 修复建议：给片区一个 1 行空间注记（如「组件库 · 中央商务区」），或在副标题里把「城市=项目分布」这个比喻说清楚，让空间承载信息。
+13. **[responsive]** 平板 5 张、移动 1 张时片区映射仍按 7 个 t 值分布，被隐藏卡片仍占用片区位置，可见卡片与可见片区数量对不上。
+   - 出现位置：scene/links.ts fire()
+   - 修复建议：片区索引随 visibleCount 重排（在 0.2–0.8 区间按可见卡片数等分），保证「看到的每张卡都有一个能亮的片区」。
+14. **[feedback]** hover 触发没有 motion-plan 里定义的「停留 >80ms、位移 <120px」防抖，pointerenter 立即触发；快速扫过一排卡片会连发脉冲（对象池会覆盖，但视觉上会闪）。
+   - 出现位置：scene/cards.ts:225
+   - 修复建议：pointerenter 后 80ms 定时器再 fire，pointerleave 取消；同一 index 重复进入不重发。
+
+## 规范一致性附表（motion-plan → 实现）
+
+| 规范条目 | 状态 |
+| --- | --- |
+| Premium 签名缓动 cubic-bezier(0.4,0,0.2,1) / 零过冲 | 已实现（links.ts 自实现求解器） |
+| 并发上限 1 脉冲 + 2 光环，新的顶掉最旧 | 已实现 |
+| 入场 stagger 预算 ≤500ms | 已实现（70ms × 6 = 420ms） |
+| hover 停留 >80ms、位移 <120px 才触发 | 未实现（见 finding 14） |
+| 点击后停止相机飞行 | 未实现（见 finding 1） |
+| 移动端 tap-to-preview | 未实现（见 finding 2） |
+
+## 修复优先级建议
+
+- 必须修复（影响主流程与视觉断层）：finding 1、2、4、6、7、9、15
+- 建议修复（一致性）：finding 3、5、8、10、11、13、14
+- 可延后（文案与语义桥）：finding 12

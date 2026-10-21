@@ -8,23 +8,21 @@ import ProductCard from './ProductCard.vue'
  * theme/products/meta.ts 数据源和 ProductCard 卡片单元，
  * 经 Layout 的 home-features-after 插槽插入主页 features 之后。
  * 主页跟随站点明暗主题，暗色样式在此用 :deep 适配（/products/ 页自身锁定浅色）。
+ *
+ * 3D 工具城（../toolcity/）暂未挂载：它编码的信息 /products/ 已用更便宜的方式给完，
+ * 组件与 is-flash / data-tool-card 钩子都保留着，重新挂载只需补回 import 与一行标签。
  */
 </script>
 
 <template>
   <section class="home-products">
-    <div class="hp-head">
-      <span class="hp-eyebrow"><i></i>More Products</span>
-      <h2 class="hp-title">更多工具<span class="hp-title__dot">.</span></h2>
-      <p class="hp-desc">独立开发的产品、组件与开源项目，一站式全部收纳。</p>
-    </div>
-
     <div class="hp-grid">
       <ProductCard
         v-for="(item, i) in ALL_TOOLS"
         :key="item.name"
         :tool="item"
         :no="String(i + 1).padStart(2, '0')"
+        :data-tool-card="item.name"
       />
     </div>
 
@@ -49,54 +47,20 @@ import ProductCard from './ProductCard.vue'
   padding: 16px 24px 80px;
 }
 
-/* ===== 区块标题：与 /products/ 页同款浅色极简头部 ===== */
-.hp-head {
-  margin-bottom: 34px;
-  text-align: center;
-}
-
-.hp-eyebrow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  color: #6b7280;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 12px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-.hp-eyebrow i {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #2563eb;
-}
-
-.hp-title {
-  margin: 14px 0 10px;
-  font-size: clamp(26px, 4vw, 36px);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.15;
-  color: var(--vp-c-text-1);
-}
-.hp-title__dot {
-  color: #2563eb;
-}
-
-.hp-desc {
-  margin: 0 auto;
-  max-width: 520px;
-  font-size: 14.5px;
-  line-height: 1.8;
-  color: var(--vp-c-text-2);
-}
-
 /* ===== 卡片墙：与 /products/ 页同一网格规格 ===== */
 .hp-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 20px;
+  margin-top: 36px;
+}
+
+.home-products :deep(.p-card.is-flash) {
+  border-color: #2563eb;
+  box-shadow:
+    0 0 0 3px rgba(37, 99, 235, 0.14),
+    0 12px 32px -16px rgba(37, 99, 235, 0.4);
+  transform: translateY(-3px);
 }
 
 /* ===== 查看全部入口 ===== */
@@ -136,13 +100,6 @@ import ProductCard from './ProductCard.vue'
 
 /* ===== 暗色适配：主页跟随站点主题；ProductCard 为浅色锁定组件，
        这里仅在本区块作用域内覆盖（不影响 /products/ 页的浅色锁定） ===== */
-.dark .home-products .hp-title {
-  color: #f4f4f5;
-}
-.dark .home-products .hp-desc,
-.dark .home-products .hp-eyebrow {
-  color: #a1a1aa;
-}
 .dark .home-products :deep(.p-card) {
   background: var(--vp-c-bg-soft);
   border-color: #2b2e35;

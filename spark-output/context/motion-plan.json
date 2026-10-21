@@ -1,0 +1,249 @@
+{
+  "project_name": "sh-design docs / 更多工具 3D 工具城",
+  "scope": {
+    "target_pages": ["docs 首页 · 更多工具区块（sticky 3D 舞台 + 静态卡片列表）"],
+    "target_elements": [
+      "tool-card（7 张三维卡片，button）",
+      "city-district（卡片映射的城市片区与地面光环）",
+      "avenue-pulse（沿大道行进的光脉冲）",
+      "card-band（滚动飞行时的卡片带）",
+      "static-card-target（点击后定位到的静态卡片）",
+      "city-ambient（空闲态城市呼吸）"
+    ]
+  },
+  "personality": {
+    "archetype": "Premium",
+    "confirmed_by_user": true,
+    "keywords": ["elegant", "minimal", "sophisticated", "restrained"],
+    "emotional_target": "安静的控制感：城市像一台精密仪器，卡片是它的操作面板"
+  },
+  "brand_motion_identity": {
+    "signature_easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+    "exit_easing": "cubic-bezier(0.4, 0, 1, 1)",
+    "duration_palette": {
+      "quick": 180,
+      "standard": 420,
+      "slow": 600
+    },
+    "entrance_pattern": "自下方 26px 上浮 + opacity 0→1，0 过冲；退场比进场短 40%",
+    "overshoot": "0%"
+  },
+  "element_specs": [
+    {
+      "id": "tool-card-hover",
+      "element": "tool-card",
+      "trigger": "pointerenter，停留 > 80ms 且指针位移 < 120px",
+      "primary": {
+        "property": "position.z + position.y",
+        "from_to": "z +0.55 世界单位 / y +0.12",
+        "duration_ms": 420,
+        "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "visual_description": "卡片几乎无声地向前浮出一层，像从仪表盘上被指尖点亮"
+      },
+      "secondary": {
+        "property": "icon.position.y + icon.rotation.y",
+        "from_to": "图标再抬高 0.12，自转 0.24→0.6 rad/s",
+        "duration_ms": 500,
+        "delay_ms": 80,
+        "visual_description": "图标比卡片慢半拍跟上，带一点惯性"
+      },
+      "ambient": {
+        "property": "其余卡片亮度",
+        "from_to": "1.0 → 0.94",
+        "duration_ms": 420,
+        "visual_description": "其余卡片退一级台阶，不是压暗成灰"
+      },
+      "exit": {
+        "duration_ms": 260,
+        "easing": "cubic-bezier(0.4, 0, 1, 1)"
+      },
+      "disney_principles": ["follow-through", "staging"],
+      "notes": "位移量必须 < 1/3 屏；卡片仍以 CSS3D transform 驱动，不触发重排"
+    },
+    {
+      "id": "city-district-response",
+      "element": "city-district",
+      "trigger": "与 tool-card-hover 同一事件；卡片索引 i 映射到大道参数 t = 0.12 + i × 0.12",
+      "primary": {
+        "property": "地面光环 scale + opacity",
+        "from_to": "半径 0.6 → 4.8，opacity 0 → 0.55 → 0",
+        "duration_ms": 600,
+        "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "visual_description": "片区地面浮起一圈冷光，像雷达扫过一次，随即消散"
+      },
+      "secondary": {
+        "property": "片区 6 单位内路灯亮度",
+        "from_to": "×1.0 → ×1.8 → ×1.0",
+        "duration_ms": 600,
+        "delay_ms": 0,
+        "visual_description": "路灯在光环到达时同时抬亮，形成一段被点亮的路段"
+      },
+      "ambient": {
+        "property": "全城窗灯密度",
+        "from_to": "不变（严禁整屏闪烁）",
+        "duration_ms": 0
+      },
+      "disney_principles": ["anticipation", "follow-through"],
+      "thresholds": {
+        "max_concurrent_pulses": 1,
+        "max_concurrent_rings": 2,
+        "queue": "新请求顶掉最旧的环，不排队堆积"
+      },
+      "notes": "7 张卡片对应 7 个片区，位置必须固定，让用户第二次 hover 时能记住它"
+    },
+    {
+      "id": "avenue-pulse",
+      "element": "avenue-pulse",
+      "trigger": "随 city-district-response 启动，起点为当前相机所在的大道参数",
+      "primary": {
+        "property": "沿曲线的脉冲位置 u",
+        "from_to": "相机 t → 片区 t，速度恒定（约 520ms 跑完 0.3 个 t）",
+        "duration_ms": 520,
+        "easing": "linear（沿路径推进，位移由曲线本身提供缓动）",
+        "visual_description": "一道窄光贴着大道中心线跑过去，像消息在管线里传送"
+      },
+      "secondary": {
+        "property": "脉冲拖尾透明度",
+        "from_to": "0.6 → 0，长度 6 个世界单位",
+        "duration_ms": 520
+      },
+      "ambient": {
+        "property": "大道中央分隔线",
+        "from_to": "亮度 ×1.0 → ×1.15，脉冲经过处",
+        "duration_ms": 300
+      },
+      "disney_principles": ["anticipation", "arcs"],
+      "notes": "线性只允许用在这里：它模拟的是匀速传输，不是空间位移的入场"
+    },
+    {
+      "id": "tool-card-focus",
+      "element": "tool-card",
+      "trigger": ":focus-visible（键盘 Tab）",
+      "primary": {
+        "property": "position.z",
+        "from_to": "+0.28 世界单位（hover 的一半）",
+        "duration_ms": 420,
+        "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "visual_description": "与悬停同构但更克制，同时出现 2px 蓝色聚焦环"
+      },
+      "secondary": {
+        "property": "city-district 光环",
+        "from_to": "同 hover，强度 ×0.8",
+        "duration_ms": 600
+      },
+      "ambient": {
+        "property": "其余卡片亮度",
+        "from_to": "不变（键盘用户需要全局上下文）",
+        "duration_ms": 0
+      },
+      "disney_principles": ["staging"],
+      "notes": "focus 必须与 hover 等价可感知，否则键盘用户拿不到这条交互"
+    },
+    {
+      "id": "tool-card-click",
+      "element": "tool-card",
+      "trigger": "click / Enter / Space",
+      "primary": {
+        "property": "scale",
+        "from_to": "1 → 0.985（120ms）→ 1（200ms）",
+        "duration_ms": 320,
+        "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "visual_description": "按下去像按一个实体键，没有弹跳"
+      },
+      "secondary": {
+        "property": "city-district 光环 + 脉衝",
+        "from_to": "复用 hover 链路，强度 ×1.3、时长 360ms",
+        "duration_ms": 360,
+        "delay_ms": 60
+      },
+      "ambient": {
+        "property": "页面滚动",
+        "from_to": "480ms 后 scrollIntoView 到静态卡片，该卡片高亮 1600ms",
+        "duration_ms": 1600
+      },
+      "disney_principles": ["anticipation", "follow-through"],
+      "notes": "高亮沿用现有 is-flash；不要在滚动过程中继续跑相机飞行，避免两套运动打架"
+    },
+    {
+      "id": "card-band-scroll",
+      "element": "card-band",
+      "trigger": "滚动进度 0→1（sticky 段）",
+      "primary": {
+        "property": "group.position.z / y",
+        "from_to": "z −24、y −2.6 线性跟随滚动",
+        "duration_ms": 0,
+        "easing": "跟随滚动，不做时间缓动",
+        "visual_description": "卡片带随相机一起向前，保持住构图，只留 6% 的逼近感"
+      },
+      "secondary": {
+        "property": "卡片带 active 项 scale",
+        "from_to": "最接近视线中心的一张 1.0，其余 0.9",
+        "duration_ms": 120,
+        "easing": "cubic-bezier(0.4, 0, 0.2, 1)",
+        "visual_description": "滚动时自动判断当前焦点，但不抢鼠标 hover"
+      },
+      "ambient": {
+        "property": "相机",
+        "from_to": "z 118→88、y 34→29、lookAt 前移 46",
+        "duration_ms": 0
+      },
+      "disney_principles": ["staging"],
+      "thresholds": {
+        "recompute_progress_delta": 0.12
+      },
+      "notes": "hover 存在时 active 项让位给 hover 项"
+    },
+    {
+      "id": "city-ambient-idle",
+      "element": "city-ambient",
+      "trigger": "无 hover / focus，且舞台在视口内",
+      "primary": {
+        "property": "窗灯密度 uniform",
+        "from_to": "0.06 ± 0.008，周期 5.2s",
+        "duration_ms": 5200,
+        "easing": "sine ease-in-out",
+        "visual_description": "整座城市极慢地呼吸一次，几乎察觉不到，但停下来会显得死"
+      },
+      "secondary": {
+        "property": "车流、航空障碍灯、路灯",
+        "from_to": "沿用现有循环动画，不叠加新的闪烁",
+        "duration_ms": 0
+      },
+      "ambient": {
+        "property": "卡片 bob / 图标自转",
+        "from_to": "沿用现有 ±0.055 / 0.24 rad/s",
+        "duration_ms": 0
+      },
+      "disney_principles": ["secondary action"],
+      "notes": "任何 hover 发生时暂停呼吸，避免两条节奏互相干扰"
+    }
+  ],
+  "choreography": {
+    "stagger_budget_ms": 420,
+    "rules": [
+      "卡片入场 stagger 70ms × 6 = 420ms（当前实现是 85ms × 6 = 510ms，超出预算，需下调）",
+      "同一时刻只允许 1 条大道脉冲 + 2 个片区光环",
+      "hover → 脉冲（520ms）→ 光环扩散（600ms）严格手递手，不并发开场",
+      "滚动飞行与点击定位互斥：点击后停止飞行推进"
+    ]
+  },
+  "reduced_motion_fallback": {
+    "strategy": "舞台整体不挂载，直接使用静态海报（现有 htc--static 路径）；表单/列表侧只保留颜色与透明度变化",
+    "details": [
+      "prefers-reduced-motion: reduce → 不加载 three chunk、不启动 rAF、相机固定",
+      "若未来要做局部降级：移除位移与相机推进，保留 opacity + 路灯亮度变化，时长 ×0.5",
+      "不使用 auto-play 的无限循环作为唯一信息载体"
+    ]
+  },
+  "platform_adaptation": {
+    "desktop": "1.0x 完整链路（hover 脉冲 + 片区光环 + 键盘 focus）",
+    "mobile": "0.8x：hover 不存在，改 tap-to-preview（第一次 tap 点亮片区，第二次 tap 进入）；相机飞行距离 ×0.6；tap 触发的光环时长 480ms",
+    "tablet": "0.9x：保留 hover（触控笔/鼠标），5 张卡片布局沿用"
+  },
+  "performance_budget": [
+    "所有交互只改 uniform / instanceMatrix / CSS3D transform，不重建几何",
+    "光环用 2 个复用的 ring mesh（对象池），脉冲用 1 条预生成的曲线 ribbon + 偏移 uniform",
+    "每帧新增写操作 < 8 次；不为 7 张卡片各建一套材质",
+    "透明叠加层总数上限 4（环 ×2 + 脉冲 + 卡片投影）"
+  ]
+}

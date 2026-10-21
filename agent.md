@@ -76,7 +76,7 @@ sh-ui/
 │   └── package.json           # 发布配置（exports / files / publishConfig）
 ├── docs/                      # VitePress 文档站（@sh-design/docs，private）
 │   ├── .vitepress/config.ts   # 站点配置：nav / sidebar（按路径前缀分组）/ alias(sh-design→src)
-│   ├── .vitepress/theme/      # 自定义主题：Layout.vue、全局注册的演示组件、custom.css
+│   ├── .vitepress/theme/      # 自定义主题：Layout.vue、演示组件、toolcity 首页 3D 舞台（代码保留、当前未挂载）、custom.css
 │   ├── guide/                 # 指南：introduction/installation/quickstart/changelog/about
 │   ├── components/            # sh-design 组件文档，每组件一页（lazy-image.md / waterfall.md …）
 │   ├── chart/                 # sk-chart-duo 图表库文档（index.md，实时挂载 FoldBarDemo/ChartPreview）
