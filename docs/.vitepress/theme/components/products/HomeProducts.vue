@@ -1,28 +1,92 @@
 <script setup lang="ts">
+import { computed, nextTick, ref } from 'vue'
 import { withBase } from 'vitepress'
 import { ALL_TOOLS } from '../../products/meta'
+import HomeToolCity from '../toolcity/HomeToolCity.vue'
 import ProductCard from './ProductCard.vue'
 
-/**
- * 个人主页「更多工具」区块：与 /products/ 聚合页共用
- * theme/products/meta.ts 数据源和 ProductCard 卡片单元，
- * 经 Layout 的 home-features-after 插槽插入主页 features 之后。
- * 主页跟随站点明暗主题，暗色样式在此用 :deep 适配（/products/ 页自身锁定浅色）。
- *
- * 3D 工具城（../toolcity/）暂未挂载：它编码的信息 /products/ 已用更便宜的方式给完，
- * 组件与 is-flash / data-tool-card 钩子都保留着，重新挂载只需补回 import 与一行标签。
- */
+/** 城市与列表共用产品资料；切换视图释放 WebGL，保留选中的产品。 */
+const view = ref<'city' | 'list'>('city')
+const selectedId = ref(ALL_TOOLS[0]?.id ?? '')
+const failed = ref(false)
+const sectionEl = ref<HTMLElement | null>(null)
+const listButton = ref<HTMLButtonElement | null>(null)
+const products = computed(() =>
+  ALL_TOOLS.map((tool, index) => ({
+    tool,
+    no: String(index + 1).padStart(2, '0')
+  }))
+)
+
+function changeView(value: 'city' | 'list') {
+  failed.value = false
+  view.value = value
+}
+
+function onStageError() {
+  const restoreFocus = sectionEl.value?.querySelector('.district')?.contains(document.activeElement)
+  failed.value = true
+  view.value = 'list'
+  if (restoreFocus) void nextTick(() => listButton.value?.focus())
+}
 </script>
 
 <template>
-  <section class="home-products">
-    <div class="hp-grid">
+  <section ref="sectionEl" class="home-products" aria-labelledby="home-products-title">
+    <header class="hp-heading">
+      <div>
+        <p class="hp-eyebrow"><span aria-hidden="true" /> THE PRODUCT DISTRICT</p>
+        <h2 id="home-products-title">把想法，建成作品。</h2>
+        <p class="hp-intro">
+          {{ ALL_TOOLS.length }} 个项目，一座持续生长的街区。选一栋建筑，看看里面的想法。
+        </p>
+      </div>
+      <div class="hp-views" role="group" aria-label="作品展示方式">
+        <button type="button" :aria-pressed="view === 'city'" @click="changeView('city')">
+          <svg viewBox="0 0 20 20" width="15" height="15" fill="none" aria-hidden="true">
+            <path
+              d="m10 2 7 4v8l-7 4-7-4V6l7-4Zm0 8 7-4M10 10 3 6m7 4v8"
+              stroke="currentColor"
+              stroke-width="1.3"
+              stroke-linejoin="round"
+            />
+          </svg>
+          城市视图
+        </button>
+        <button
+          ref="listButton"
+          type="button"
+          :aria-pressed="view === 'list'"
+          @click="changeView('list')"
+        >
+          <svg viewBox="0 0 20 20" width="15" height="15" fill="none" aria-hidden="true">
+            <path
+              d="M3 3h5v5H3V3Zm9 0h5v5h-5V3ZM3 12h5v5H3v-5Zm9 0h5v5h-5v-5Z"
+              stroke="currentColor"
+              stroke-width="1.3"
+              stroke-linejoin="round"
+            />
+          </svg>
+          列表视图
+        </button>
+      </div>
+    </header>
+    <p v-if="failed" class="hp-fallback" role="status">
+      3D 场景暂时不可用，已切换到列表。所有作品入口仍可正常使用。
+    </p>
+    <HomeToolCity
+      v-if="view === 'city'"
+      v-model="selectedId"
+      :tools="ALL_TOOLS"
+      @error="onStageError"
+    />
+    <div v-else class="hp-grid">
       <ProductCard
-        v-for="(item, i) in ALL_TOOLS"
-        :key="item.name"
-        :tool="item"
-        :no="String(i + 1).padStart(2, '0')"
-        :data-tool-card="item.name"
+        v-for="item in products"
+        :key="item.tool.id"
+        :tool="item.tool"
+        :no="item.no"
+        :data-tool-card="item.tool.name"
       />
     </div>
 
@@ -44,23 +108,94 @@ import ProductCard from './ProductCard.vue'
 .home-products {
   max-width: 1152px;
   margin: 0 auto;
-  padding: 16px 24px 80px;
+  padding: 36px 24px 80px;
+}
+
+.hp-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 28px;
+}
+.hp-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 12px;
+  color: #6b7280;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+}
+.hp-eyebrow span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #2563eb;
+}
+.hp-heading h2 {
+  margin: 0;
+  color: var(--vp-c-text-1);
+  font-size: 27px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.04em;
+}
+.hp-intro {
+  margin: 10px 0 0;
+  color: var(--vp-c-text-2);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.hp-views {
+  display: flex;
+  flex-shrink: 0;
+  padding: 4px;
+  gap: 3px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 10px;
+  background: var(--vp-c-bg-soft);
+}
+.hp-views button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 7px 11px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: var(--vp-c-text-2);
+  font-size: 11px;
+  cursor: pointer;
+}
+.hp-views button[aria-pressed='true'] {
+  border-color: var(--vp-c-divider);
+  background: var(--vp-c-bg);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  color: #2563eb;
+}
+.hp-views button:focus-visible,
+.hp-more a:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+}
+.hp-fallback {
+  margin: 0 0 20px;
+  padding: 12px 16px;
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 10px;
+  background: var(--vp-c-bg-soft);
+  color: var(--vp-c-text-2);
+  font-size: 13px;
 }
 
 /* ===== 卡片墙：与 /products/ 页同一网格规格 ===== */
 .hp-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
   gap: 20px;
-  margin-top: 36px;
-}
-
-.home-products :deep(.p-card.is-flash) {
-  border-color: #2563eb;
-  box-shadow:
-    0 0 0 3px rgba(37, 99, 235, 0.14),
-    0 12px 32px -16px rgba(37, 99, 235, 0.4);
-  transform: translateY(-3px);
 }
 
 /* ===== 查看全部入口 ===== */
@@ -100,11 +235,11 @@ import ProductCard from './ProductCard.vue'
 
 /* ===== 暗色适配：主页跟随站点主题；ProductCard 为浅色锁定组件，
        这里仅在本区块作用域内覆盖（不影响 /products/ 页的浅色锁定） ===== */
-.dark .home-products :deep(.p-card) {
+.dark .home-products :deep(.hp-grid .p-card) {
   background: var(--vp-c-bg-soft);
   border-color: #2b2e35;
 }
-.dark .home-products :deep(.p-card:hover) {
+.dark .home-products :deep(.hp-grid .p-card:hover) {
   border-color: #3f434c;
   box-shadow:
     0 12px 32px -16px rgba(0, 0, 0, 0.6),
@@ -148,10 +283,24 @@ import ProductCard from './ProductCard.vue'
 
 @media (max-width: 640px) {
   .home-products {
-    padding: 8px 18px 60px;
+    padding: 24px 18px 60px;
+  }
+  .hp-heading h2 {
+    font-size: 24px;
+  }
+  .hp-views button {
+    min-height: 40px;
   }
   .hp-grid {
     grid-template-columns: 1fr;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-products :deep(.p-card),
+  .home-products :deep(.p-card__links a),
+  .hp-more a,
+  .hp-more a svg {
+    transition: none;
   }
 }
 </style>

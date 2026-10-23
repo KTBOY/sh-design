@@ -13,6 +13,8 @@ export interface ToolLink {
 }
 
 export interface Tool {
+  /** 稳定标识：用于产品选择及建筑映射，不随名称或排序变化。 */
+  id: string
   name: string
   nameZh: string
   desc: string
@@ -42,6 +44,7 @@ export const TOOL_GROUPS: ToolGroup[] = [
       //   links: [{ label: 'Visit', href: 'https://www.ps521.asia/' }]
       // },
       {
+        id: 'sh-design',
         name: 'sh-design',
         nameZh: 'Vue3 业务组件库',
         desc: '高性能瀑布流（虚拟列表 / 无限滚动）、图片懒加载、无缝滚动、骨架屏，TypeScript 友好，已发布 npm。你正在看的文档站就是它。',
@@ -53,6 +56,7 @@ export const TOOL_GROUPS: ToolGroup[] = [
         ]
       },
       {
+        id: 'sk-chart-duo',
         name: 'sk-chart-duo',
         nameZh: '轻量 SVG 图表库',
         desc: '零依赖、gzip ~8KB 的 SVG-first 图表库，首版折纸漏斗柱状图 FoldBarChart，G2Plot 风格命令式 API、内置主题预设与导出能力。',
@@ -64,6 +68,7 @@ export const TOOL_GROUPS: ToolGroup[] = [
         ]
       },
       {
+        id: 'coral-coder',
         name: 'Coral Coder',
         nameZh: '珊瑚打码小程序',
         desc: 'NASA壁纸+工具，累计用户2000+',
@@ -71,6 +76,7 @@ export const TOOL_GROUPS: ToolGroup[] = [
         links: [{ label: '在线演示', href: '/mini', internal: true }]
       },
       {
+        id: 'shukelab',
         name: 'shukelab',
         nameZh: 'uni-app 跨端组件集',
         desc: '以 uni_modules 目录分发的 uni-app 组件集：左右联动菜单、自定义凹陷弧形 tabBar、H5 拍照相机、WebGL 流体胶囊与频道页三件套，H5 与微信小程序双端。',
@@ -88,6 +94,7 @@ export const TOOL_GROUPS: ToolGroup[] = [
     zh: '其他项目',
     items: [
       {
+        id: 'flash',
         name: '闪电Flash',
         nameZh: '通用 Flash 游戏修改器',
         desc: '通用 Flash 游戏修改器：内置 Ruffle(WASM) 模拟器运行 SWF，直接对其内存扫描 / 修改 / 锁定，支持变速齿轮、游戏库与配置存档，无需针对单个游戏做任何配置。',
@@ -102,6 +109,7 @@ export const TOOL_GROUPS: ToolGroup[] = [
         ]
       },
       {
+        id: 'novel-atlas',
         name: 'NovelAtlas',
         nameZh: '墨枢 · AI 小说一致性工作台',
         desc: '把小说设定沉淀为知识图谱，在写作的每一步校验一致性，并把「恰好够用」的设定喂给 AI——让任何模型写长篇都不崩人设。纯前端，数据 100% 存本地。',
@@ -116,6 +124,7 @@ export const TOOL_GROUPS: ToolGroup[] = [
         ]
       },
       {
+        id: 'resonance-hud',
         name: 'Resonance HUD-ui skill',
         nameZh: '共鸣 HUD 设计语言',
         desc: '深色金调的游戏 HUD 设计语言，打包为 Agent Skill：零图片素材、零 Web 字体，全部装饰由 CSS / 内联 SVG 绘制，任意 DPI 下都锐利。',
