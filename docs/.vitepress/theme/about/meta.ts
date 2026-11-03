@@ -105,7 +105,7 @@ export const PROJECTS: Project[] = [
   },
   {
     no: '06',
-    name: 'shuke Lab',
+    name: 'shuke-lab-flux',
     nameZh: 'FLUX 流体颜色生成器',
     desc: '零依赖 WebGL 流体颜色实验室与手写的 Vue 3 内容仪表盘：六块画布共用一套 FBM 噪声材质，玻璃胶囊里的烟雾持续流动，不接任何 UI 组件库。',
     tags: ['Vue 3', 'WebGL', 'TypeScript', 'Vite'],
