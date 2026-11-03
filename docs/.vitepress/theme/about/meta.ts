@@ -6,6 +6,8 @@
 export interface ProfileLink {
   label: string
   href: string
+  /** 站内链接（组件内自动 withBase、不新开标签页）；缺省视为外链 */
+  internal?: boolean
 }
 
 export interface Project {
@@ -83,6 +85,14 @@ export const PROJECTS: Project[] = [
       { label: 'GitHub', href: 'https://github.com/KTBOY/resonance-hud' },
       { label: 'Gallery', href: 'https://ktboy.github.io/sh-design/skills/' }
     ]
+  },
+  {
+    no: '05',
+    name: 'Driver Console UI',
+    nameZh: '司机端双模界面设计',
+    desc: '网约车司机端小程序的完整界面设计：白班与夜班两套光环境共用一套系统，16 张设计稿、两支 30 秒动效片，附 token 表与 TDesign 主题覆写规范。',
+    tags: ['UI Design', 'Design System', 'TDesign', 'Motion Graphics'],
+    links: [{ label: 'Spec', href: '/design/driver', internal: true }]
   }
 ]
 
@@ -130,3 +140,199 @@ export const SKILLS: SkillGroup[] = [
     items: ['Design System', 'Responsive Layout', 'Motion & Micro-interaction']
   }
 ]
+
+/** 设计稿条目：src 为站点内路径（不含 base），组件内 withBase */
+export interface UiScreen {
+  id: string
+  label: string
+  src: string
+  alt: string
+}
+
+export interface UiMode {
+  id: 'day' | 'night'
+  label: string
+  labelEn: string
+  /** 一句话说明这一套光环境在解决什么问题 */
+  note: string
+  /** 3:4 双模对照板 */
+  lead: UiScreen
+  /** 375×812 手机屏，一行样张墙 */
+  screens: UiScreen[]
+  /** 3:4 系统规范板 */
+  board: UiScreen
+}
+
+export interface UiFilm {
+  id: string
+  title: string
+  titleZh: string
+  /** 动效风格流派，来自影片 treatment */
+  style: string
+  video: string
+  poster: string
+  alt: string
+  spec: string[]
+  credit: string
+}
+
+export interface UiDesign {
+  name: string
+  nameZh: string
+  desc: string
+  chips: string[]
+  /** 完整设计规范的站内页 */
+  specHref: string
+  modes: UiMode[]
+  films: UiFilm[]
+}
+
+/**
+ * 个人主页 03 UI Design 区块的作品数据。
+ * 媒体资源在 docs/public/design/driver/，由源仓库设计稿离线转 WebP、影片转 CRF30 得到。
+ */
+export const UI_DESIGN: UiDesign = {
+  name: 'Driver Console, Two Light Conditions',
+  nameZh: '司机端小程序 · 白班与夜班',
+  desc: '面向城市网约车司机的工具型小程序设计。使用场景在车内：单手、强光、时间敏感，所以一屏只留一个主操作，订单信息必须在三秒内读完。白班与夜班共用同一套系统，只换表面层级与信号色。',
+  chips: ['375 × 812 基准', 'TDesign 主题覆写', '4 级表面，2 个信号色', '一屏一个主操作'],
+  specHref: '/design/driver',
+  modes: [
+    {
+      id: 'day',
+      label: '白班',
+      labelEn: 'Day',
+      note: '暖白 canvas 配墨黑主操作，车内强光下靠明度差而不是颜色分层。',
+      lead: {
+        id: 'cover',
+        label: '双模对照板',
+        src: '/design/driver/day/cover.webp',
+        alt: '司机端小程序白班与夜班双模对照板，白天是工具夜里是搭档'
+      },
+      screens: [
+        {
+          id: 'hall',
+          label: '接单大厅',
+          src: '/design/driver/day/hall.webp',
+          alt: '白班接单大厅：收入概览卡与附近订单卡片列表，黑色胶囊接单按钮'
+        },
+        {
+          id: 'detail',
+          label: '订单详情与路线',
+          src: '/design/driver/day/detail.webp',
+          alt: '白班订单详情：地图路线与底部路线面板，起终点和价格'
+        },
+        {
+          id: 'mine',
+          label: '我的',
+          src: '/design/driver/day/mine.webp',
+          alt: '白班个人中心：司机资料卡与入口列表'
+        },
+        {
+          id: 'records',
+          label: '接单记录',
+          src: '/design/driver/day/records.webp',
+          alt: '白班接单记录：进行中与已完成分段切换的订单列表'
+        },
+        {
+          id: 'edit',
+          label: '编辑资料',
+          src: '/design/driver/day/edit.webp',
+          alt: '白班编辑资料：表单字段与保存按钮'
+        },
+        {
+          id: 'login',
+          label: '微信登录',
+          src: '/design/driver/day/login.webp',
+          alt: '白班微信登录页：品牌标记、登录按钮与协议勾选'
+        }
+      ],
+      board: {
+        id: 'system',
+        label: '系统规范板',
+        src: '/design/driver/day/system.webp',
+        alt: '白班系统规范板：颜色、字号、间距与圆角的取值说明'
+      }
+    },
+    {
+      id: 'night',
+      label: '夜班',
+      labelEn: 'Night',
+      note: '四级表面逐级提亮把卡片从背景里拉开，荧光绿只给主操作和夜间单。',
+      lead: {
+        id: 'cover',
+        label: '双模对照板',
+        src: '/design/driver/night/cover.webp',
+        alt: '司机端小程序夜班双模对照板，黑底荧光绿的接单大厅'
+      },
+      screens: [
+        {
+          id: 'hall',
+          label: '接单大厅',
+          src: '/design/driver/night/hall.webp',
+          alt: '夜班接单大厅：深色卡片列表与荧光绿立即接单按钮'
+        },
+        {
+          id: 'detail',
+          label: '订单详情与路线',
+          src: '/design/driver/night/detail.webp',
+          alt: '夜班订单详情：暗色地图路线与底部面板'
+        },
+        {
+          id: 'mine',
+          label: '我的',
+          src: '/design/driver/night/mine.webp',
+          alt: '夜班个人中心：深色资料卡与入口列表'
+        },
+        {
+          id: 'records',
+          label: '接单记录',
+          src: '/design/driver/night/records.webp',
+          alt: '夜班接单记录：进行中与已完成列表'
+        },
+        {
+          id: 'edit',
+          label: '编辑资料',
+          src: '/design/driver/night/edit.webp',
+          alt: '夜班编辑资料：暗色表单与保存按钮'
+        },
+        {
+          id: 'login',
+          label: '微信登录',
+          src: '/design/driver/night/login.webp',
+          alt: '夜班微信登录页：黑底白字与荧光绿按钮'
+        }
+      ],
+      board: {
+        id: 'system',
+        label: '系统规范板',
+        src: '/design/driver/night/system.webp',
+        alt: '夜班系统规范板：四级表面色阶与两个信号色的取值说明'
+      }
+    }
+  ],
+  films: [
+    {
+      id: 'day',
+      title: 'Day Shift, Nine Rides',
+      titleZh: '白班：九单',
+      style: 'Swiss Motion Graphics',
+      video: '/design/driver/film/day-30s.mp4',
+      poster: '/design/driver/film/day-poster.webp',
+      alt: '白班三十秒动效片封面：排班表网格与落进格子的订单块',
+      spec: ['1080 × 1920', '24 fps', '30 s', '无旁白'],
+      credit: 'Design, direction, code and sound: 舒克-KTBOY'
+    },
+    {
+      id: 'night',
+      title: 'Night Is the Partner',
+      titleZh: '夜里是搭档',
+      style: 'Dark Tech Keynote',
+      video: '/design/driver/film/night-30s.mp4',
+      poster: '/design/driver/film/night-poster.webp',
+      alt: '夜班三十秒动效片封面：黑场中唯一亮着的听单状态点',
+      spec: ['1080 × 1920', '24 fps', '30 s', '无旁白'],
+      credit: 'Design, direction, code and sound: 舒克-KTBOY'
+    }
+  ]
+}

@@ -81,7 +81,17 @@ export default defineConfig({
           text: '关于',
           items: [
             { text: '个人主页 · Portfolio', link: '/guide/about' },
+            { text: '司机端界面设计规范', link: '/design/driver' },
             { text: '更多工具 · Products', link: '/products/' }
+          ]
+        }
+      ],
+      '/design/': [
+        {
+          text: '界面设计',
+          items: [
+            { text: '司机端小程序设计规范', link: '/design/driver' },
+            { text: '返回个人主页', link: '/guide/about' }
           ]
         }
       ],

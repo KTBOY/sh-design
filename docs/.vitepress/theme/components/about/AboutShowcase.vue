@@ -4,6 +4,7 @@ import { withBase } from 'vitepress'
 import { PROFILE, PROJECTS, SKILLS } from '../../about/meta'
 import { TOOL_GROUPS } from '../../products/meta'
 import MaskBackground from '../MaskBackground.vue'
+import UiDesignShowcase from './UiDesignShowcase.vue'
 
 /**
  * /guide/about 个人主页：浅色极简风格，与 /skills/ /products/ 同一套视觉
@@ -84,7 +85,14 @@ onBeforeUnmount(() => observer?.disconnect())
             <div class="proj-card__top">
               <span class="proj-card__no">{{ p.no }}</span>
               <div class="proj-card__links">
-                <a v-for="l in p.links" :key="l.href" :href="l.href" target="_blank" rel="noreferrer">{{ l.label }}</a>
+                <a
+                  v-for="l in p.links"
+                  :key="l.href"
+                  :href="l.internal ? withBase(l.href) : l.href"
+                  :target="l.internal ? undefined : '_blank'"
+                  :rel="l.internal ? undefined : 'noreferrer'"
+                  >{{ l.label }}</a
+                >
               </div>
             </div>
             <h3 class="proj-card__name">{{ p.name }}</h3>
@@ -145,10 +153,20 @@ onBeforeUnmount(() => observer?.disconnect())
         </a>
       </section>
 
-      <!-- ===== Experience ===== -->
-      <!-- <section id="experience" class="sec">
+      <!-- ===== UI Design ===== -->
+      <section id="design" class="sec">
         <div class="sec-head reveal">
           <span class="sec-no">03</span>
+          <h2 class="sec-title">UI Design</h2>
+          <span class="sec-zh">界面设计</span>
+        </div>
+        <UiDesignShowcase />
+      </section>
+
+      <!-- ===== Experience（若恢复，编号接在 04 Toolbox 之后） ===== -->
+      <!-- <section id="experience" class="sec">
+        <div class="sec-head reveal">
+          <span class="sec-no">05</span>
           <h2 class="sec-title">Experience</h2>
           <span class="sec-zh">经历</span>
         </div>
