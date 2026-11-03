@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { computed, nextTick, ref } from 'vue'
 import { withBase } from 'vitepress'
-import { ALL_TOOLS } from '../../products/meta'
+import { VISIBLE_TOOLS } from '../../products/meta'
 import HomeToolCity from '../toolcity/HomeToolCity.vue'
 import ProductCard from './ProductCard.vue'
 
 /** 城市与列表共用产品资料；切换视图释放 WebGL，保留选中的产品。 */
 const view = ref<'city' | 'list'>('city')
-const selectedId = ref(ALL_TOOLS[0]?.id ?? '')
+const selectedId = ref(VISIBLE_TOOLS[0]?.id ?? '')
 const failed = ref(false)
 const sectionEl = ref<HTMLElement | null>(null)
 const listButton = ref<HTMLButtonElement | null>(null)
 const products = computed(() =>
-  ALL_TOOLS.map((tool, index) => ({
+  VISIBLE_TOOLS.map((tool, index) => ({
     tool,
     no: String(index + 1).padStart(2, '0')
   }))
@@ -39,7 +39,7 @@ function onStageError() {
           <span aria-hidden="true" /> THE PRODUCT DISTRICT
         </p>
         <p class="hp-intro">
-          {{ ALL_TOOLS.length }} 个项目，一座持续生长的街区。选一栋建筑，看看里面的想法。
+          {{ VISIBLE_TOOLS.length }} 个项目，一座持续生长的街区。选一栋建筑，看看里面的想法。
         </p>
       </div>
       <div class="hp-views" role="group" aria-label="作品展示方式">
@@ -78,7 +78,7 @@ function onStageError() {
     <HomeToolCity
       v-if="view === 'city'"
       v-model="selectedId"
-      :tools="ALL_TOOLS"
+      :tools="VISIBLE_TOOLS"
       @error="onStageError"
     />
     <div v-else class="hp-grid">

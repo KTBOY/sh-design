@@ -2,7 +2,7 @@
 import { onBeforeUnmount, onMounted } from 'vue'
 import { withBase } from 'vitepress'
 import { PROFILE, PROJECTS, SKILLS } from '../../about/meta'
-import { TOOL_GROUPS } from '../../products/meta'
+import { VISIBLE_GROUPS } from '../../products/meta'
 import MaskBackground from '../MaskBackground.vue'
 import UiDesignShowcase from './UiDesignShowcase.vue'
 import RepoStars from './RepoStars.vue'
@@ -15,9 +15,14 @@ import RepoStars from './RepoStars.vue'
  */
 /** 精选项目区（PROJECTS）已展示的工具体，不再出现在「更多工具」；/products/ 页仍完整列出 */
 const FEATURED_TOOL_NAMES = ['Resonance HUD-ui skill']
-const OSS_TOOLS = (TOOL_GROUPS.find((g) => g.id === 'oss')?.items ?? []).filter(
+const OSS_TOOLS = (VISIBLE_GROUPS.find((g) => g.id === 'oss')?.items ?? []).filter(
   (t) => !FEATURED_TOOL_NAMES.includes(t.name)
 )
+/** 精选项目按可见顺序重新编号，隐藏项不留空号 */
+const VISIBLE_PROJECTS = PROJECTS.filter((p) => !p.hidden).map((p, index) => ({
+  ...p,
+  no: String(index + 1).padStart(2, '0')
+}))
 const productsHref = withBase('/products/')
 
 /** 深链白名单：只接受这些区块 id，非法值不滚动，避免任意 DOM 查询跳错位置 */
@@ -96,7 +101,7 @@ onBeforeUnmount(() => observer?.disconnect())
           <span class="sec-zh">精选项目</span>
         </div>
         <div class="proj-grid">
-          <article v-for="p in PROJECTS" :key="p.no" class="proj-card reveal">
+          <article v-for="p in VISIBLE_PROJECTS" :key="p.no" class="proj-card reveal">
             <div class="proj-card__top">
               <div class="proj-card__meta">
                 <span class="proj-card__no">{{ p.no }}</span>

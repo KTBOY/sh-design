@@ -19,6 +19,8 @@ export interface Project {
   links: ProfileLink[]
   /** GitHub 仓库 owner/name，用于在卡片上取星标数；无仓库则省略 */
   repo?: string
+  /** 下架标记：数据保留，只是不在主页精选项目区出现 */
+  hidden?: boolean
 }
 
 export interface ExperienceItem {
@@ -74,6 +76,7 @@ export const PROJECTS: Project[] = [
     no: '03',
     name: 'sk-faster-ant',
     nameZh: 'Ant Design Vue 增强',
+    hidden: true,
     desc: '针对 Ant Design Vue 的效率增强工具集，沉淀业务表格 / 表单的高频封装，减少重复代码。',
     tags: ['Ant Design Vue', '效率工具'],
     repo: 'KTBOY/sk-faster-ant',
@@ -95,6 +98,7 @@ export const PROJECTS: Project[] = [
     no: '05',
     name: 'Driver Console UI',
     nameZh: '司机端双模界面设计',
+    hidden: true,
     desc: '网约车司机端小程序的完整界面设计：白班与夜班两套光环境共用一套系统，16 张设计稿、两支 30 秒动效片，附 token 表与 TDesign 主题覆写规范。',
     tags: ['UI Design', 'Design System', 'TDesign', 'Motion Graphics'],
     links: [{ label: 'Spec', href: '/design/driver', internal: true }]

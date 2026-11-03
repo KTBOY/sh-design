@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted } from 'vue'
-import { TOOL_GROUPS } from '../../products/meta'
+import { VISIBLE_GROUPS } from '../../products/meta'
 import ProductCard from './ProductCard.vue'
 import MaskBackground from '../MaskBackground.vue'
 
@@ -55,7 +55,7 @@ onBeforeUnmount(() => observer?.disconnect())
     </header>
 
     <!-- ===== 分组卡片墙 ===== -->
-    <section v-for="(group, gi) in TOOL_GROUPS" :id="group.id" :key="group.id" class="p-group">
+    <section v-for="(group, gi) in VISIBLE_GROUPS" :id="group.id" :key="group.id" class="p-group">
       <div class="p-group__head reveal">
         <span class="p-group__no">0{{ gi + 1 }}</span>
         <h2 class="p-group__title">{{ group.title }}</h2>

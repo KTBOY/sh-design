@@ -20,6 +20,8 @@ export interface Tool {
   desc: string
   tags: string[]
   links: ToolLink[]
+  /** 下架标记：数据、路由与街区地标全部保留，只在渲染层过滤，随时能翻回来。 */
+  hidden?: boolean
 }
 
 export interface ToolGroup {
@@ -123,6 +125,7 @@ export const TOOL_GROUPS: ToolGroup[] = [
         id: 'novel-atlas',
         name: 'NovelAtlas',
         nameZh: '墨枢 · AI 小说一致性工作台',
+        hidden: true,
         desc: '把小说设定沉淀为知识图谱，在写作的每一步校验一致性，并把「恰好够用」的设定喂给 AI——让任何模型写长篇都不崩人设。纯前端，数据 100% 存本地。',
         tags: ['React 18', 'D3 力导向图', 'Zustand'],
         links: [
@@ -165,3 +168,14 @@ export const TOOL_GROUPS: ToolGroup[] = [
 ]
 
 export const ALL_TOOLS: Tool[] = TOOL_GROUPS.flatMap((g) => g.items)
+
+/**
+ * 渲染层用的可见数据：打了 hidden 标记的项目不进工具页、首页街区与主页「更多工具」，
+ * 但元数据、路由与地标全部原样保留，去掉标记即可翻回来。
+ */
+export const VISIBLE_GROUPS: ToolGroup[] = TOOL_GROUPS.map((group) => ({
+  ...group,
+  items: group.items.filter((tool) => !tool.hidden)
+})).filter((group) => group.items.length > 0)
+
+export const VISIBLE_TOOLS: Tool[] = VISIBLE_GROUPS.flatMap((group) => group.items)
