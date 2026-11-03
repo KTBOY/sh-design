@@ -5,6 +5,7 @@ import { PROFILE, PROJECTS, SKILLS } from '../../about/meta'
 import { TOOL_GROUPS } from '../../products/meta'
 import MaskBackground from '../MaskBackground.vue'
 import UiDesignShowcase from './UiDesignShowcase.vue'
+import RepoStars from './RepoStars.vue'
 
 /**
  * /guide/about 个人主页：浅色极简风格，与 /skills/ /products/ 同一套视觉
@@ -97,7 +98,10 @@ onBeforeUnmount(() => observer?.disconnect())
         <div class="proj-grid">
           <article v-for="p in PROJECTS" :key="p.no" class="proj-card reveal">
             <div class="proj-card__top">
-              <span class="proj-card__no">{{ p.no }}</span>
+              <div class="proj-card__meta">
+                <span class="proj-card__no">{{ p.no }}</span>
+                <RepoStars v-if="p.repo" :repo="p.repo" />
+              </div>
               <div class="proj-card__links">
                 <a
                   v-for="l in p.links"
@@ -271,7 +275,7 @@ onBeforeUnmount(() => observer?.disconnect())
 
 .hero__name {
   margin: 18px 0 0;
-  font-size: clamp(56px, 9vw, 108px);
+  font-size: clamp(40px, 6vw, 76px);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.05;
@@ -473,6 +477,12 @@ onBeforeUnmount(() => observer?.disconnect())
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16px;
+}
+
+.proj-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .proj-card__no {

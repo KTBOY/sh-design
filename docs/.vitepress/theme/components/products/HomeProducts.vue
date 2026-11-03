@@ -35,8 +35,9 @@ function onStageError() {
   <section ref="sectionEl" class="home-products" aria-labelledby="home-products-title">
     <header class="hp-heading">
       <div>
-        <p class="hp-eyebrow"><span aria-hidden="true" /> THE PRODUCT DISTRICT</p>
-        <h2 id="home-products-title">把想法，建成作品。</h2>
+        <p id="home-products-title" class="hp-eyebrow">
+          <span aria-hidden="true" /> THE PRODUCT DISTRICT
+        </p>
         <p class="hp-intro">
           {{ ALL_TOOLS.length }} 个项目，一座持续生长的街区。选一栋建筑，看看里面的想法。
         </p>
@@ -134,14 +135,6 @@ function onStageError() {
   height: 5px;
   border-radius: 50%;
   background: #2563eb;
-}
-.hp-heading h2 {
-  margin: 0;
-  color: var(--vp-c-text-1);
-  font-size: 27px;
-  font-weight: 600;
-  line-height: 1.4;
-  letter-spacing: -0.04em;
 }
 .hp-intro {
   margin: 10px 0 0;
@@ -284,9 +277,6 @@ function onStageError() {
 @media (max-width: 640px) {
   .home-products {
     padding: 24px 18px 60px;
-  }
-  .hp-heading h2 {
-    font-size: 24px;
   }
   .hp-views button {
     min-height: 40px;

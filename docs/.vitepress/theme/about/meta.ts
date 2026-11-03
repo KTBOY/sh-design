@@ -17,6 +17,8 @@ export interface Project {
   desc: string
   tags: string[]
   links: ProfileLink[]
+  /** GitHub 仓库 owner/name，用于在卡片上取星标数；无仓库则省略 */
+  repo?: string
 }
 
 export interface ExperienceItem {
@@ -52,6 +54,7 @@ export const PROJECTS: Project[] = [
     nameZh: 'Vue3 业务组件库',
     desc: '面向业务场景的 Vue 3 组件库：高性能瀑布流（虚拟列表 / 无限滚动）、图片懒加载、无缝滚动、骨架屏，TypeScript 友好，支持按需引入，已发布 npm。',
     tags: ['Vue 3', 'TypeScript', 'Vite', 'pnpm Monorepo'],
+    repo: 'KTBOY/sh-design',
     links: [
       { label: 'GitHub', href: 'https://github.com/KTBOY/sh-design' },
       { label: 'npm', href: 'https://www.npmjs.com/package/sh-design' },
@@ -73,6 +76,7 @@ export const PROJECTS: Project[] = [
     nameZh: 'Ant Design Vue 增强',
     desc: '针对 Ant Design Vue 的效率增强工具集，沉淀业务表格 / 表单的高频封装，减少重复代码。',
     tags: ['Ant Design Vue', '效率工具'],
+    repo: 'KTBOY/sk-faster-ant',
     links: [{ label: 'GitHub', href: 'https://github.com/KTBOY/sk-faster-ant' }]
   },
   {
@@ -81,6 +85,7 @@ export const PROJECTS: Project[] = [
     nameZh: '共鸣 HUD 设计语言',
     desc: '深色金调的游戏 HUD 设计语言，打包为 Agent Skill：零图片素材、零 Web 字体，全部装饰由 CSS / 内联 SVG 绘制，任意 DPI 下都锐利。',
     tags: ['CSS 设计语言', 'Agent Skill', 'npx skills add'],
+    repo: 'KTBOY/resonance-hud',
     links: [
       { label: 'GitHub', href: 'https://github.com/KTBOY/resonance-hud' },
       { label: 'Gallery', href: 'https://ktboy.github.io/sh-design/skills/' }
@@ -93,6 +98,18 @@ export const PROJECTS: Project[] = [
     desc: '网约车司机端小程序的完整界面设计：白班与夜班两套光环境共用一套系统，16 张设计稿、两支 30 秒动效片，附 token 表与 TDesign 主题覆写规范。',
     tags: ['UI Design', 'Design System', 'TDesign', 'Motion Graphics'],
     links: [{ label: 'Spec', href: '/design/driver', internal: true }]
+  },
+  {
+    no: '06',
+    name: 'shuke Lab',
+    nameZh: 'FLUX 流体颜色生成器',
+    desc: '零依赖 WebGL 流体颜色实验室与手写的 Vue 3 内容仪表盘：六块画布共用一套 FBM 噪声材质，玻璃胶囊里的烟雾持续流动，不接任何 UI 组件库。',
+    tags: ['Vue 3', 'WebGL', 'TypeScript', 'Vite'],
+    links: [
+      { label: 'GitHub', href: 'https://github.com/KTBOY/shuke-lab-flux' },
+      { label: 'Preview', href: 'https://ktboy.github.io/shuke-lab-flux/' }
+    ],
+    repo: 'KTBOY/shuke-lab-flux'
   }
 ]
 
