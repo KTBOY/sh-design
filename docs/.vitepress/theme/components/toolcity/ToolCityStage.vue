@@ -12,6 +12,7 @@ const props = defineProps<{
   tools: Tool[]
   selectedId: string
   reducedMotion: boolean
+  dusk: boolean
 }>()
 const emit = defineEmits<{ ready: []; error: []; select: [id: string] }>()
 const rootEl = ref<HTMLDivElement | null>(null)
@@ -65,6 +66,7 @@ onMounted(() => {
       },
       onError: () => emit('error')
     })
+    if (props.dusk) stage.setDusk(true)
   } catch {
     emit('error')
   }
@@ -77,6 +79,10 @@ watch(
 watch(
   () => props.reducedMotion,
   (value) => stage?.setReducedMotion(value)
+)
+watch(
+  () => props.dusk,
+  (value) => stage?.setDusk(value)
 )
 onBeforeUnmount(() => {
   stage?.dispose()

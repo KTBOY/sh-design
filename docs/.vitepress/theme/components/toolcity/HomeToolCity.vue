@@ -10,6 +10,7 @@ const rootEl = ref<HTMLElement | null>(null)
 const Stage = shallowRef<Component | null>(null)
 const ready = ref(false)
 const reducedMotion = ref(false)
+const dusk = ref(false)
 const activeIndex = computed(() =>
   Math.max(
     0,
@@ -87,11 +88,19 @@ onBeforeUnmount(() => {
 <template>
   <div ref="rootEl" class="district">
     <div class="district__body">
-      <div class="district__scene">
-        <div class="district__map-title" aria-hidden="true">
-          <span class="district__map-mark" />
-          <span>SHUKE'S NEIGHBORHOOD</span>
-          <span class="district__edition">VOL. 01</span>
+      <div class="district__scene" :class="{ 'is-dusk': dusk }">
+        <div class="district__map-title">
+          <span class="district__map-mark" aria-hidden="true" />
+          <span aria-hidden="true">SHUKE'S NEIGHBORHOOD</span>
+          <button
+            type="button"
+            class="district__edition"
+            :aria-pressed="dusk"
+            :aria-label="dusk ? '切回白天色温' : '切到黄昏色温'"
+            @click="dusk = !dusk"
+          >
+            VOL. {{ dusk ? '02' : '01' }}
+          </button>
         </div>
         <div v-if="!ready" class="district__loading" role="status">
           <svg viewBox="0 0 80 64" width="80" height="64" fill="none" aria-hidden="true">
@@ -112,6 +121,7 @@ onBeforeUnmount(() => {
           :tools="tools"
           :selected-id="modelValue"
           :reduced-motion="reducedMotion"
+          :dusk="dusk"
           @ready="ready = true"
           @error="emit('error')"
           @select="select"
@@ -121,7 +131,7 @@ onBeforeUnmount(() => {
             <path d="m14 3 5 18-5-4-5 4 5-18Z" stroke="currentColor" />
             <path d="M14 3v14" stroke="currentColor" />
           </svg>
-          <span>{{ total }} LANDMARKS<span>点击建筑，发现作品</span></span>
+          <span>{{ total }} LANDMARKS<span>拖拽转视角，点击建筑发现作品</span></span>
         </div>
       </div>
       <aside v-if="activeTool" class="district__detail" aria-label="选中产品详情">
@@ -224,7 +234,33 @@ onBeforeUnmount(() => {
 }
 .district__edition {
   margin-left: auto;
-  color: #929285;
+  padding: 4px 9px;
+  border: 1px solid rgba(206, 199, 183, 0.8);
+  border-radius: 6px;
+  background: rgba(255, 254, 250, 0.78);
+  color: #7d7c70;
+  font: inherit;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  /* 标题层整体不吃指针，只有这个色温开关例外 */
+  pointer-events: auto;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+.district__edition:hover {
+  border-color: rgba(37, 99, 235, 0.4);
+  color: #2563eb;
+}
+.district__edition:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+.district__scene.is-dusk {
+  background:
+    radial-gradient(circle at 78% 16%, rgba(255, 224, 190, 0.95), transparent 34%),
+    linear-gradient(180deg, #f7ece1 0%, #f0e1d3 58%, #e7d7c9 100%);
 }
 .district__map-caption {
   position: absolute;

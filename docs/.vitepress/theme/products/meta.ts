@@ -85,6 +85,17 @@ export const TOOL_GROUPS: ToolGroup[] = [
           { label: 'GitHub', href: 'https://github.com/KTBOY/shukelab' },
           { label: 'Docs', href: '/lab/', internal: true }
         ]
+      },
+      {
+        id: 'shuke-lab-flux',
+        name: 'shuke Lab',
+        nameZh: 'FLUX 流体颜色生成器',
+        desc: '零依赖 WebGL 流体颜色实验室：烟雾在 iOS 风格玻璃胶囊里持续流动，六块画布共用一套 FBM 噪声材质；同站还带一个不接 UI 组件库、全部手写的 Vue 3 内容仪表盘工作台。',
+        tags: ['Vue 3', 'WebGL', 'TypeScript', 'Vite'],
+        links: [
+          { label: 'GitHub', href: 'https://github.com/KTBOY/shuke-lab-flux' },
+          { label: '在线预览', href: 'https://ktboy.github.io/shuke-lab-flux/' }
+        ]
       }
     ]
   },

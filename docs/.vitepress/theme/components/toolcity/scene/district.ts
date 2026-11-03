@@ -15,8 +15,12 @@ export interface District {
   setHover(id: string | null): void
   /** 由外部驱动一次动画，进度 0 和 1 均为基础形态。 */
   animate(id: string, progress: number): void
-  /** 驱动河面流纹时间；只更新材质 uniform，不重建场景。 */
-  update(elapsed: number): void
+  /** 入场生长：elapsed 为本轮入场已进行的毫秒；返回是否仍在生长。 */
+  intro(elapsed: number, reduced: boolean): boolean
+  /** 屋顶当前高度占静息高度的比例，供铭牌投影跟随生长。 */
+  growthOf(id: string): number
+  /** 驱动水面、树冠、小船、悬停抬升与选中光路；delta 为秒。返回是否仍有连续动画未结算。 */
+  update(elapsed: number, delta: number): boolean
   /** 幂等释放本模型资源，不管理外部 renderer。 */
   dispose(): void
 }
@@ -94,6 +98,57 @@ function createWaterMaterial(model: DistrictModeling) {
   return { material, time }
 }
 
+/** 树冠微风：合批后的几何仍带着各自的街区坐标，用它给每棵树错开相位。 */
+function attachSway(material: THREE.MeshStandardMaterial, time: { value: number }) {
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.uSwayTime = time
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', `#include <common>\n        uniform float uSwayTime;`)
+      .replace(
+        '#include <begin_vertex>',
+        `#include <begin_vertex>
+        float swayPhase = position.x * 0.33 + position.z * 0.41;
+        transformed.x += sin(uSwayTime * 0.9 + swayPhase) * 0.05;
+        transformed.z += cos(uSwayTime * 0.75 + swayPhase * 1.3) * 0.035;`
+      )
+  }
+  material.customProgramCacheKey = () => 'cream-district-foliage'
+}
+
+/** 选中建筑的坐标连线：虚线 + 沿路径推进的头部高光。 */
+function createRouteMaterial() {
+  return new THREE.ShaderMaterial({
+    transparent: true,
+    depthWrite: false,
+    side: THREE.DoubleSide,
+    uniforms: {
+      uProgress: { value: 0 },
+      uOpacity: { value: 0 },
+      uColor: { value: new THREE.Color(0xd8a86a) }
+    },
+    vertexShader: `
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+      }
+    `,
+    fragmentShader: `
+      uniform float uProgress;
+      uniform float uOpacity;
+      uniform vec3 uColor;
+      varying vec2 vUv;
+      void main() {
+        float dash = step(0.42, fract(vUv.x * 18.0));
+        float head = exp(-pow((vUv.x - uProgress) * 11.0, 2.0));
+        float alpha = (dash * 0.3 + head * 0.9) * uOpacity;
+        if (alpha < 0.01) discard;
+        gl_FragColor = vec4(uColor, alpha);
+      }
+    `
+  })
+}
+
 interface BuildingContext {
   model: DistrictModeling
   palette: Palette
@@ -113,7 +168,15 @@ interface BuildingState {
   accent: THREE.MeshStandardMaterial
   outline: THREE.MeshStandardMaterial
   border: THREE.Group
+  root: THREE.Group
   pose(amount: number): void
+  /** 悬停抬升的当前值与目标值，0..1 */
+  lift: number
+  liftTarget: number
+  /** 入场生长比例，0..1 */
+  growth: number
+  /** 入场错峰序号 */
+  order: number
 }
 
 const BUILDINGS: Readonly<Record<string, BuildingSpec>> = {
@@ -123,7 +186,8 @@ const BUILDINGS: Readonly<Record<string, BuildingSpec>> = {
   shukelab: { width: 6.9, depth: 5.8, anchorHeight: 5.75, build: buildLab },
   flash: { width: 6.8, depth: 5.2, anchorHeight: 3.55, build: buildArcade },
   'novel-atlas': { width: 6.8, depth: 6.4, anchorHeight: 5.55, build: buildLibrary },
-  'resonance-hud': { width: 7.2, depth: 5.5, anchorHeight: 4.15, build: buildHud }
+  'resonance-hud': { width: 7.2, depth: 5.5, anchorHeight: 4.15, build: buildHud },
+  'shuke-lab-flux': { width: 5.4, depth: 5.0, anchorHeight: 4.6, build: buildColorLab }
 }
 
 function part(parent: THREE.Group, name: string, position: Point3 = [0, 0, 0]) {
@@ -389,6 +453,35 @@ function buildHud({ model, palette: p, root, accent, signal }: BuildingContext) 
   }
 }
 
+/** FLUX 色彩实验室：圆形展亭 + 三支玻璃胶囊，选中时胶囊升起、液面增高。 */
+function buildColorLab({ model, palette: p, root, accent, signal }: BuildingContext) {
+  model.cylinder(root, p.limestone, 2.9, 0.28, [0, 0.24, 0])
+  model.cylinder(root, p.cream, 2.55, 1.45, [0, 1.0, 0])
+  model.cylinder(root, p.glass, 2.6, 0.42, [0, 1.93, 0])
+  model.cylinder(root, p.roof, 2.75, 0.2, [0, 2.24, 0])
+  const ring = model.ring(root, p.gold, 2.72, 0.035, [0, 2.36, 0])
+  ring.rotation.x = Math.PI / 2
+  const flows = [-1.05, 0, 1.05].map((x, index) => {
+    const tube = part(root, `colorlab-flow-${index}`, [x, 0.42, 1.72])
+    model.cylinder(tube, p.glass, 0.3, 2.15, [0, 1.08, 0])
+    model.sphere(tube, p.glass, [0, 2.15, 0], [0.3, 0.3, 0.3])
+    const liquid = model.cylinder(tube, signal, 0.22, 1.05 + index * 0.24, [
+      0,
+      0.6 + index * 0.12,
+      0
+    ])
+    return { tube, liquid, index }
+  })
+  model.box(root, accent, [1.15, 0.72, 0.07], [0, 1.02, 2.5], 0.04)
+  return (amount: number) => {
+    for (const { tube, liquid, index } of flows) {
+      tube.position.y = 0.42 + amount * (0.07 + index * 0.05)
+      liquid.scale.y = 1 + amount * 0.16
+    }
+    signal.emissiveIntensity = 0.08 + amount * 0.9
+  }
+}
+
 function plantTree(
   model: DistrictModeling,
   root: THREE.Group,
@@ -564,6 +657,7 @@ function buildWaterfront(model: DistrictModeling, root: THREE.Group, p: Palette)
   plantTree(model, root, p, 17.8, 15.6, 1.45, 1.08)
   buildBench(model, root, p, 15.2, 13.9, -Math.PI * 0.45)
   buildBench(model, root, p, 19, 11.5, Math.PI * 0.65)
+  return { boat }
 }
 
 function buildHorizon(model: DistrictModeling, root: THREE.Group, p: Palette) {
@@ -654,7 +748,7 @@ function buildLandscape(model: DistrictModeling, root: THREE.Group, p: Palette) 
     [7.3, -10.2],
     [12.3, -10.5],
     [14.5, -5.5],
-    [14.6, 3.7],
+    [17.4, -6.2],
     [14.3, 10.5],
     [11.8, 13.8],
     [6, 13.8],
@@ -707,7 +801,7 @@ function buildLandscape(model: DistrictModeling, root: THREE.Group, p: Palette) 
     [-16.6, 0.3, 1.6],
     [-16.4, 9.8, 1.25],
     [16.2, -8.2, 1.2],
-    [16.2, 0, 1.15]
+    [17.2, 8.6, 1.15]
   ]
   background.forEach(([x, z, height], index) => {
     const width = index < 8 ? 2.2 : 1.5
@@ -732,6 +826,14 @@ export function createDistrict(ids: readonly string[]): District {
   let hovered: string | null = null
   let animated: string | null = null
   let waterTime = { value: 0 }
+  const swayTime = { value: 0 }
+  let boat: THREE.Group | null = null
+  let beam: THREE.Mesh | null = null
+  let beamMaterial: THREE.MeshBasicMaterial | null = null
+  let routeLine: THREE.Mesh | null = null
+  let routeMaterial: THREE.ShaderMaterial | null = null
+  let routeProgress = 0
+  let routeTarget = 0
   let disposed = false
 
   function resetAnimation() {
@@ -753,10 +855,66 @@ export function createDistrict(ids: readonly string[]): District {
     }
   }
 
+  /** 广场到建筑的坐标连线；直连而不是沿街，避免把「示意路径」误读成真实导航。 */
+  function buildRoute(id: string) {
+    if (!routeLine) return
+    const landmark = LANDMARKS[id]
+    if (!landmark) return
+    const [bx, bz] = landmark.position
+    const from = new THREE.Vector3(0.4, 0.07, 11.2)
+    const to = new THREE.Vector3(bx, 0.07, bz + (bz > 6 ? -1.9 : 1.9))
+    const direction = to.clone().sub(from).normalize()
+    const side = new THREE.Vector3(-direction.z, 0, direction.x).multiplyScalar(0.09)
+    const positions = new Float32Array([
+      from.x - side.x,
+      from.y,
+      from.z - side.z,
+      from.x + side.x,
+      from.y,
+      from.z + side.z,
+      to.x - side.x,
+      to.y,
+      to.z - side.z,
+      from.x + side.x,
+      from.y,
+      from.z + side.z,
+      to.x + side.x,
+      to.y,
+      to.z + side.z,
+      to.x - side.x,
+      to.y,
+      to.z - side.z
+    ])
+    const uvs = new Float32Array([0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0])
+    const geometry = routeLine.geometry
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+    geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2))
+    geometry.computeBoundingSphere()
+  }
+
+  function placeBeam(id: string | null) {
+    if (!beam) return
+    const anchor = id ? anchors.get(id) : null
+    if (!anchor) {
+      beam.visible = false
+      return
+    }
+    beam.position.set(anchor.x, anchor.y + 3, anchor.z)
+  }
+
   function dispose() {
     if (disposed) return
     disposed = true
     resetAnimation()
+    beam?.geometry.dispose()
+    beamMaterial?.dispose()
+    routeLine?.geometry.dispose()
+    routeMaterial?.dispose()
+    beam = null
+    beamMaterial = null
+    routeLine = null
+    routeMaterial = null
+    boat = null
     model.dispose()
     group.removeFromParent()
     group.clear()
@@ -792,8 +950,9 @@ export function createDistrict(ids: readonly string[]): District {
       wood: model.material(COLORS.wood, { roughness: 0.88 }),
       reed: model.material(COLORS.reed, { roughness: 0.9 })
     }
+    attachSway(p.tree, swayTime)
     const surroundings = part(group, 'district-surroundings')
-    buildWaterfront(model, surroundings, p)
+    boat = buildWaterfront(model, surroundings, p).boat
     buildHorizon(model, surroundings, p)
     buildStreets(model, surroundings, p)
     buildLandscape(model, surroundings, p)
@@ -840,7 +999,18 @@ export function createDistrict(ids: readonly string[]): District {
         ).castShadow = false
       }
       const pose = spec.build({ model, palette: p, root, accent, signal })
-      buildings.set(id, { accent, outline, border, pose })
+      root.scale.y = 0.02
+      buildings.set(id, {
+        accent,
+        outline,
+        border,
+        root,
+        pose,
+        lift: 0,
+        liftTarget: 0,
+        growth: 0.02,
+        order: buildings.size
+      })
       anchors.set(id, new THREE.Vector3(x, spec.anchorHeight, z))
     }
 
@@ -853,6 +1023,24 @@ export function createDistrict(ids: readonly string[]): District {
       })
     }
     updateHighlights()
+
+    beamMaterial = new THREE.MeshBasicMaterial({
+      color: 0xf0c98a,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      side: THREE.DoubleSide
+    })
+    beam = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.34, 6, 14, 1, true), beamMaterial)
+    beam.visible = false
+    beam.renderOrder = 3
+    group.add(beam)
+
+    routeMaterial = createRouteMaterial()
+    routeLine = new THREE.Mesh(new THREE.BufferGeometry(), routeMaterial)
+    routeLine.visible = false
+    routeLine.renderOrder = 2
+    group.add(routeLine)
   } catch (error) {
     dispose()
     throw error
@@ -869,6 +1057,12 @@ export function createDistrict(ids: readonly string[]): District {
       resetAnimation()
       selected = next
       updateHighlights()
+      placeBeam(selected)
+      routeTarget = selected ? 1 : 0
+      if (selected) {
+        routeProgress = 0
+        buildRoute(selected)
+      }
     },
     setHover(id) {
       if (disposed) return
@@ -888,8 +1082,65 @@ export function createDistrict(ids: readonly string[]): District {
       building.pose(amount)
       animated = amount === 0 ? null : id
     },
-    update(elapsed) {
-      if (!disposed) waterTime.value = elapsed
+    intro(elapsed, reduced) {
+      if (disposed) return false
+      let running = false
+      for (const building of buildings.values()) {
+        const start = reduced ? 0 : building.order * 40
+        const raw = reduced ? 1 : THREE.MathUtils.clamp((elapsed - start) / 520, 0, 1)
+        const eased = 1 - Math.pow(1 - raw, 3)
+        building.growth = 0.02 + 0.98 * eased
+        building.root.scale.y = building.growth
+        if (raw < 1) running = true
+      }
+      return running
+    },
+    growthOf(id) {
+      return buildings.get(id)?.growth ?? 1
+    },
+    update(elapsed, delta) {
+      if (disposed) return false
+      waterTime.value = elapsed
+      swayTime.value = elapsed
+      if (boat) {
+        boat.position.y = 0.15 + Math.sin(elapsed * 0.9) * 0.02
+        boat.rotation.z = Math.sin(elapsed * 0.7) * 0.022
+      }
+      let busy = false
+      for (const [id, building] of buildings) {
+        building.liftTarget = id === hovered ? 1 : id === selected ? 0.55 : 0
+        const step = Math.min(1, delta * 9)
+        if (Math.abs(building.liftTarget - building.lift) > 0.003) {
+          building.lift += (building.liftTarget - building.lift) * step
+          busy = true
+        } else {
+          building.lift = building.liftTarget
+        }
+        building.root.position.y = building.lift * 0.42
+      }
+      if (routeTarget !== routeProgress) {
+        routeProgress += (routeTarget - routeProgress) * Math.min(1, delta * 5)
+        if (Math.abs(routeTarget - routeProgress) < 0.004) routeProgress = routeTarget
+        busy = true
+      }
+      if (routeMaterial) {
+        routeMaterial.uniforms.uProgress.value = routeProgress
+        routeMaterial.uniforms.uOpacity.value = selected ? 1 : routeProgress
+      }
+      if (routeLine) routeLine.visible = routeProgress > 0.01
+      if (beamMaterial) {
+        const pulse = 0.34 + Math.sin(elapsed * 2.1) * 0.1
+        beamMaterial.opacity = routeProgress * pulse
+      }
+      if (beam) {
+        beam.visible = routeProgress > 0.01 && selected !== null
+        const anchor = selected ? anchors.get(selected) : null
+        if (anchor) {
+          const growth = buildings.get(selected as string)?.growth ?? 1
+          beam.position.y = anchor.y * growth + 3
+        }
+      }
+      return busy
     },
     dispose
   }

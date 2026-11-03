@@ -14,5 +14,6 @@ export const LANDMARKS: Readonly<Record<string, LandmarkSpec>> = {
   shukelab: { title: '跨端实验室', position: [-9, -7], label: 'shukelab' },
   flash: { title: '街机游艺馆', position: [-5, 11], label: '闪电Flash' },
   'novel-atlas': { title: '设定图书馆', position: [10, -5], label: 'NovelAtlas' },
-  'resonance-hud': { title: '交互设计馆', position: [8, 9], label: 'Resonance HUD' }
+  'resonance-hud': { title: '交互设计馆', position: [8, 9], label: 'Resonance HUD' },
+  'shuke-lab-flux': { title: '色彩实验室', position: [13.8, 1.6], label: 'shuke Lab' }
 }
