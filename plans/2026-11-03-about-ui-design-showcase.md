@@ -2,7 +2,7 @@
 
 **Goal:** 把 `D:\my\test-html\其他设计` 里的司机端小程序设计稿（白班/夜班双模 16 屏 + 两支 30s 动效片 + 设计文档）接入 `/guide/about` 个人主页，新增一个与设计语言一致的 `03 UI Design` 区块；不改动现有 01/02/04 区块的结构、数据与链接。
 
-**当前阶段:** 2026-11-03 阶段 1–4 已全部交付到本地工作区并通过自检，**未提交、未推送、未获发布许可**。人工验收清单见第 8 节。
+**当前阶段:** 2026-11-03 阶段 1–4 已交付并完成本地提交（`0afda28` 资源、`e125d11` 代码与文档）；第二轮追加（设计规范撤出菜单 + 深链定位）见第 9 节，已自检待提交。**全程未推送、未获发布许可。**
 
 **源目录:** `D:\my\test-html\其他设计`（365 MB，含第三方渲染工具链 `design/video-lemo/lib` 与逐帧中间产物，不可整体复制）
 
@@ -240,3 +240,45 @@ DOM 探针实测：三档视口下 6 张样张 `naturalWidth` 均为 750（全�
 | 点影片「播放 30 秒」        | 原位换成 video，静音起播，原生控制条可见                                |
 | 390 视口                    | 样张墙两列、展示板与影片单列、影片缩略图 132px、徽标不换行              |
 | 网络面板                    | 首屏不请求任何 `film/*.mp4`（`preload=none` 且点击才挂 src）            |
+
+---
+
+## 9. 第二轮追加（2026-11-03）
+
+### 9.1 设计规范撤出左侧菜单
+
+`/design/driver` 此前同时挂在 `/guide/` 的「关于」组和新增的 `/design/` sidebar 块里。按要求全部撤掉：它是个人作品的设计规范，不该出现在组件库文档的导航树里。撤后唯一入口是 03 区块的「查看完整设计规范」与精选项目卡的 `Spec`；`config.ts` 留了两行注释说明这是刻意为之，避免以后被当成漏配补回去。
+
+验收：`/sh-design/design/driver` 仍 200 可达，about 页 HTML 里菜单文案 0 命中。
+
+### 9.2 深链定位 `?to=`
+
+口径（用户选定）：query 为主、原生 `#hash` 兼容；参数驱动到「滚到区块 + 顺带切日夜」，不做进页即弹放大层。
+
+| 位置                | 做法                                                                                                                                                                |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AboutShowcase.vue` | `SECTION_IDS = ['projects','tools','design','skills']` 白名单；`to = params.get('to') \|\| hash.slice(1)`；命中才 `scrollIntoView({behavior:'auto',block:'start'})` |
+| 顺序约束            | **必须先滚再量坐标**：首版把「点亮视口上方区块」写在 `scrollIntoView` 之前，拿到的是滚动前的位置，深链后上方 10–16 个 reveal 元素保持透明，调换顺序后归零           |
+| 落位补偿            | `.sec` 加 `scroll-margin-top: calc(var(--vp-nav-height, 56px) + 16px)`，同时修好所有原生锚点被固定导航压住的问题                                                    |
+| 模式参数            | `UiDesignShowcase.vue` 在 `onMounted` 读 `mode`，用 `UI_DESIGN.modes.find` 做白名单，非法值保持默认白班                                                             |
+| 首屏不用 smooth     | 长页 smooth 会滑好几秒，深链一律 `auto` 直接落位                                                                                                                    |
+
+实测矩阵（CDP 探针，1440×900，dev 服务）：
+
+| URL                     | scrollY | `#design` 顶 | 激活模式   | 首张样张   | 上方未点亮 |
+| ----------------------- | ------- | ------------ | ---------- | ---------- | ---------- |
+| 无参数                  | 0       | 2237         | 白班 Day   | day/hall   | 0          |
+| `?to=design`            | 2158    | 79           | 白班 Day   | day/hall   | 0          |
+| `#design`               | 2175    | 62           | 白班 Day   | day/hall   | 0          |
+| `?to=design&mode=night` | 2159    | 78           | 夜班 Night | night/hall | 0          |
+| `?to=bogus`             | 0       | 2237         | 白班 Day   | day/hall   | 0          |
+| `?to=skills`            | 4210    | -1973        | 白班 Day   | day/hall   | 0          |
+
+已知边界（判定为不需要处理，写清不藏）：
+
+- SPA 内停在同页再换 `?to=` 不会重新定位（`onMounted` 只跑一次）。当前站内没有任何这样的入口，要做需引入 `useRoute()` 监听，成本不对等。
+- `#design` 落点比 `?to=design` 高 17px：VitePress 的原生 hash 滚动在我方 `scrollIntoView` 之后又调了一次。两者都在导航之下、区块标题不被遮挡，未继续追平。
+
+### 9.3 本轮自伤：对存量文件跑了 `prettier --write`
+
+`prettier --write` 顺手带上了 `AboutShowcase.vue` 与 `config.ts` 两个存量文件，产生 5 处与本次无关的格式化（hero 标题折行、两处 CTA 链接展开、tool-card 名称展开、`readFileSync` 换行）。已逐处手工还原，最终 `git diff` 只含预期改动：config.ts 净 -10 行（撤菜单）、AboutShowcase.vue 净 +16 行、UiDesignShowcase.vue 净 +4 行。复测 `prettier` 剩余告警行号与 HEAD 基线一致，确认没有新增债务。

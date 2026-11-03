@@ -19,15 +19,29 @@ const OSS_TOOLS = (TOOL_GROUPS.find((g) => g.id === 'oss')?.items ?? []).filter(
 )
 const productsHref = withBase('/products/')
 
+/** 深链白名单：只接受这些区块 id，非法值不滚动，避免任意 DOM 查询跳错位置 */
+const SECTION_IDS = ['projects', 'tools', 'design', 'skills']
+
 let observer: IntersectionObserver | undefined
 
 onMounted(() => {
+  const params = new URLSearchParams(location.search)
+  const wanted = params.get('to') || location.hash.slice(1)
+  const target = SECTION_IDS.includes(wanted) ? document.getElementById(wanted) : null
+
+  // 首屏深链用 auto 直接落位：长页 smooth 会滑好几秒。
+  // 必须先滚再量坐标，否则「上方区块」判定拿到的是滚动前的位置。
+  target?.scrollIntoView({ behavior: 'auto', block: 'start' })
+
   const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
   const targets = document.querySelectorAll('.about-page .reveal')
   if (reduce || !('IntersectionObserver' in window)) {
     targets.forEach((el) => el.classList.add('in'))
     return
   }
+  // 落位后已在视口上方的区块不会再有机会进入视口，先点亮，
+  // 否则往回滚会看到半页透明。
+  targets.forEach((el) => el.getBoundingClientRect().bottom < 0 && el.classList.add('in'))
   observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
@@ -380,6 +394,8 @@ onBeforeUnmount(() => observer?.disconnect())
   max-width: 1120px;
   margin: 0 auto;
   padding: 72px 32px;
+  /* 锚点落位时让出固定导航的高度，原生 #hash 与 ?to= 深链共用这一条 */
+  scroll-margin-top: calc(var(--vp-nav-height, 56px) + 16px);
 }
 
 .sec-head {

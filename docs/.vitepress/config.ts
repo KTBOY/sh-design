@@ -81,20 +81,12 @@ export default defineConfig({
           text: '关于',
           items: [
             { text: '个人主页 · Portfolio', link: '/guide/about' },
-            { text: '司机端界面设计规范', link: '/design/driver' },
             { text: '更多工具 · Products', link: '/products/' }
           ]
         }
       ],
-      '/design/': [
-        {
-          text: '界面设计',
-          items: [
-            { text: '司机端小程序设计规范', link: '/design/driver' },
-            { text: '返回个人主页', link: '/guide/about' }
-          ]
-        }
-      ],
+      // /design/ 是个人作品的设计规范，刻意不进左侧菜单与顶部导航，
+      // 唯一入口是个人主页 03 UI Design 区块与精选项目卡的 Spec 链接。
       '/components/': [
         {
           text: 'sh-design组件',

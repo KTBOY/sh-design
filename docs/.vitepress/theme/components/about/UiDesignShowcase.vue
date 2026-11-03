@@ -41,6 +41,10 @@ function play(id: string) {
 
 onMounted(() => {
   mounted.value = true
+  // 深链可指定光环境（?to=design&mode=night）；非法值保持默认白班
+  const wanted = new URLSearchParams(location.search).get('mode')
+  const matched = UI_DESIGN.modes.find((m) => m.id === wanted)
+  if (matched) modeId.value = matched.id
 })
 
 onBeforeUnmount(() => {
