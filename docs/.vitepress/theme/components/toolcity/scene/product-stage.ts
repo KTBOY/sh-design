@@ -92,7 +92,13 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
   let lastPaintAt = 0
   let pointerDown: { x: number; y: number; id: string | null } | null = null
   let pendingPointer: PointerEvent | null = null
-  let drag: { x: number; y: number; active: boolean } | null = null
+  let drag: {
+    startX: number
+    startY: number
+    lastX: number
+    lastY: number
+    active: boolean
+  } | null = null
   let azimuth = 0
   let elevation = 0
   let zoom = 1
@@ -293,17 +299,21 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
   function onPointerMove(event: PointerEvent) {
     if (event.pointerType === 'touch' || !(event.target instanceof HTMLCanvasElement)) return
     if (drag) {
-      const dx = event.clientX - drag.x
-      const dy = event.clientY - drag.y
-      if (!drag.active && Math.hypot(dx, dy) > DRAG_THRESHOLD) drag.active = true
+      const totalDx = event.clientX - drag.startX
+      const totalDy = event.clientY - drag.startY
+      const dx = event.clientX - drag.lastX
+      const dy = event.clientY - drag.lastY
+      drag.lastX = event.clientX
+      drag.lastY = event.clientY
+      if (!drag.active && Math.hypot(totalDx, totalDy) > DRAG_THRESHOLD) drag.active = true
       if (drag.active) {
         if (walkMode && firstPerson) {
-          // 第一人称：拖拽环顾，不回到默认角度
+          // 第一人称：逐事件增量环顾，不回到默认角度
           lookYaw -= dx * 0.0035
           lookPitch = THREE.MathUtils.clamp(lookPitch - dy * 0.0028, -0.5, 0.5)
         } else {
-          azimuth = THREE.MathUtils.clamp(dx * 0.0024, -AZIMUTH_LIMIT, AZIMUTH_LIMIT)
-          elevation = THREE.MathUtils.clamp(-dy * 0.0016, -TILT_LIMIT, TILT_LIMIT)
+          azimuth = THREE.MathUtils.clamp(totalDx * 0.0024, -AZIMUTH_LIMIT, AZIMUTH_LIMIT)
+          elevation = THREE.MathUtils.clamp(-totalDy * 0.0016, -TILT_LIMIT, TILT_LIMIT)
         }
         pendingPointer = null
         wake()
@@ -325,7 +335,13 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
     if (!event.isPrimary || event.button !== 0) return
     pointerDown = { x: event.clientX, y: event.clientY, id: pick(event) }
     if (event.pointerType !== 'touch' && event.target instanceof HTMLCanvasElement) {
-      drag = { x: event.clientX, y: event.clientY, active: false }
+      drag = {
+        startX: event.clientX,
+        startY: event.clientY,
+        lastX: event.clientX,
+        lastY: event.clientY,
+        active: false,
+      }
     }
   }
 
@@ -581,6 +597,7 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
         if (Math.abs(duskTarget - dusk) < 0.004) dusk = duskTarget
         applyDusk()
       }
+      const firstPersonLooking = walkMode && firstPerson && drag?.active === true
       const fullRate =
         focusRunning ||
         introRunning ||
@@ -588,7 +605,8 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
         districtBusy ||
         duskRunning ||
         needsResize ||
-        walkBusy
+        walkBusy ||
+        firstPersonLooking
       if (!reducedMotion && !fullRate && now - lastPaintAt < WATER_FRAME_MS) {
         frame = requestAnimationFrame(draw)
         return
