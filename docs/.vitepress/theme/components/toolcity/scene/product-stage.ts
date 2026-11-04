@@ -1,8 +1,18 @@
 import * as THREE from 'three'
 import { createDistrict, type District } from './district'
+import { LANDMARKS } from './landmarks'
+import { createWalker, type Walker } from './walker'
 
 export interface CityLabelPosition {
   id: string
+  x: number
+  y: number
+}
+
+export type WalkDirection = 'up' | 'down' | 'left' | 'right'
+
+export interface WalkTip {
+  nearId: string | null
   x: number
   y: number
 }
@@ -14,6 +24,8 @@ interface StageOptions {
   onSelect: (id: string) => void
   onHover: (id: string | null) => void
   onProject: (labels: CityLabelPosition[]) => void
+  onWalk?: (tip: WalkTip | null) => void
+  onWalkChange?: (walking: boolean) => void
   onError: () => void
 }
 
@@ -22,6 +34,8 @@ export interface ProductStage {
   hover: (id: string | null) => void
   setReducedMotion: (reduced: boolean) => void
   setDusk: (on: boolean) => void
+  setWalk: (on: boolean) => void
+  setDirection: (direction: WalkDirection, pressed: boolean) => void
   reset: () => void
   dispose: () => void
 }
@@ -33,6 +47,22 @@ const CAMERA_POSITION = new THREE.Vector3(30, 40, 46)
 const AZIMUTH_LIMIT = 0.32
 const TILT_LIMIT = 0.14
 const DRAG_THRESHOLD = 8
+/** 漫游：视距缩放、出生点、步速与近建筑提示半径。 */
+const WALK_SCALE = 0.42
+const WALK_SPAWN = { x: 0, z: 7 }
+const WALK_SPEED = 3.4
+const WALK_SPRINT = 5.4
+const NEAR_DISTANCE = 5.5
+const MOVE_CODES = new Set([
+  'KeyW',
+  'KeyA',
+  'KeyS',
+  'KeyD',
+  'ArrowUp',
+  'ArrowDown',
+  'ArrowLeft',
+  'ArrowRight'
+])
 
 const SUN_WARM = new THREE.Color(0xfff4dd)
 const SUN_AMBER = new THREE.Color(0xffd2a0)
@@ -72,6 +102,23 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
   let width = 1
   let height = 1
   let needsResize = true
+  let walkMode = false
+  let walker: Walker | null = null
+  let walkAppear = 0
+  let walkAppearTarget = 0
+  let viewScale = 1
+  let viewScaleTarget = 1
+  let walkHeading = Math.PI
+  let walkMoving = false
+  const walkPos = new THREE.Vector3(WALK_SPAWN.x, 0.05, WALK_SPAWN.z)
+  const walkVelocity = new THREE.Vector2()
+  const keys = new Set<string>()
+  const directions: Record<WalkDirection, boolean> = {
+    up: false,
+    down: false,
+    left: false,
+    right: false
+  }
   const scene = new THREE.Scene()
   const camera = new THREE.OrthographicCamera(-26, 26, 20, -20, 0.1, 200)
   const raycaster = new THREE.Raycaster()
@@ -95,8 +142,13 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
     host.removeEventListener('pointerup', onPointerUp)
     host.removeEventListener('pointercancel', onPointerLeave)
     host.removeEventListener('wheel', onWheel)
+    window.removeEventListener('keydown', onKeyDown)
+    window.removeEventListener('keyup', onKeyUp)
+    window.removeEventListener('blur', clearKeys)
     renderer?.domElement.removeEventListener('webglcontextlost', onContextLost)
     district?.dispose()
+    walker?.dispose()
+    walker = null
     scene.traverse((object) => {
       if (object instanceof THREE.DirectionalLight) object.shadow.dispose()
     })
@@ -120,6 +172,7 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
   }
 
   function wake() {
+    if (document.hidden) clearKeys()
     if (disposed || frame || !onScreen || document.hidden) return
     frame = requestAnimationFrame(draw)
   }
@@ -133,7 +186,7 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
     width = Math.max(1, host.clientWidth)
     height = Math.max(1, host.clientHeight)
     const aspect = width / height
-    const halfHeight = Math.max(19, 26 / aspect) * zoom
+    const halfHeight = Math.max(19, 26 / aspect) * zoom * viewScale
     camera.left = -halfHeight * aspect
     camera.right = halfHeight * aspect
     camera.top = halfHeight
@@ -278,6 +331,7 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
     district.animate(selectedId, 1)
     selectedId = id
     district.setSelection(id)
+    if (walkMode) return
     const anchor = district.anchors.get(id)
     focusTo.set((anchor?.x ?? 0) * 0.055, 0, (anchor?.z ?? 0) * 0.055)
     beginTransition()
@@ -285,6 +339,10 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
 
   function reset() {
     focusTo.set(0, 0, 0)
+    zoom = 1
+    azimuth = 0
+    elevation = 0
+    needsResize = true
     beginTransition()
   }
 
@@ -299,6 +357,74 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
     wake()
   }
 
+  function clearKeys() {
+    keys.clear()
+    directions.up = false
+    directions.down = false
+    directions.left = false
+    directions.right = false
+  }
+
+  function onKeyDown(event: KeyboardEvent) {
+    if (!walkMode) return
+    if (event.code === 'Escape') {
+      setWalk(false)
+      return
+    }
+    if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
+      keys.add(event.code)
+      return
+    }
+    if (!MOVE_CODES.has(event.code)) return
+    const target = event.target
+    if (
+      target instanceof HTMLElement &&
+      (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
+    )
+      return
+    keys.add(event.code)
+    event.preventDefault()
+    wake()
+  }
+
+  function onKeyUp(event: KeyboardEvent) {
+    keys.delete(event.code)
+  }
+
+  function setWalk(on: boolean) {
+    if (disposed || !district || walkMode === on) return
+    walkMode = on
+    clearKeys()
+    azimuth = 0
+    elevation = 0
+    if (on) {
+      walkPos.set(WALK_SPAWN.x, district.groundY(WALK_SPAWN.x, WALK_SPAWN.z), WALK_SPAWN.z)
+      walkVelocity.set(0, 0)
+      walkHeading = Math.PI
+      walker?.setPosition(walkPos.x, walkPos.y, walkPos.z)
+      walker?.setHeading(walkHeading)
+      viewScaleTarget = WALK_SCALE
+      walkAppearTarget = 1
+    } else {
+      walkVelocity.set(0, 0)
+      viewScaleTarget = 1
+      walkAppearTarget = 0
+      zoom = 1
+      options.onWalk?.(null)
+    }
+    focusTo.set(walkMode ? walkPos.x : 0, 0, walkMode ? walkPos.z : 0)
+    needsResize = true
+    beginTransition()
+    options.onWalkChange?.(on)
+    wake()
+  }
+
+  function setDirection(direction: WalkDirection, pressed: boolean) {
+    if (disposed) return
+    directions[direction] = pressed
+    wake()
+  }
+
   function draw(now: number) {
     frame = 0
     if (disposed || !onScreen || document.hidden || !renderer || !district) return
@@ -309,6 +435,65 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
 
       if (introStartedAt < 0) introStartedAt = now
       if (introRunning) introRunning = district.intro(now - introStartedAt, reducedMotion)
+
+      // 漫游：相机相对方向换算到地面位移，逐轴试探实现贴墙滑动。
+      let walkBusy = false
+      if (walkMode) {
+        const up = directions.up || keys.has('KeyW') || keys.has('ArrowUp')
+        const down = directions.down || keys.has('KeyS') || keys.has('ArrowDown')
+        const left = directions.left || keys.has('KeyA') || keys.has('ArrowLeft')
+        const right = directions.right || keys.has('KeyD') || keys.has('ArrowRight')
+        const ix = (right ? 1 : 0) - (left ? 1 : 0)
+        const iz = (up ? 1 : 0) - (down ? 1 : 0)
+        let wishX = 0
+        let wishZ = 0
+        if (ix || iz) {
+          const theta = baseTheta + azimuth
+          const sin = Math.sin(theta)
+          const cos = Math.cos(theta)
+          const norm = 1 / Math.hypot(ix, iz)
+          // 屏幕：上 = (-sin, -cos)，右 = (cos, -sin)
+          wishX = (ix * cos - iz * sin) * norm
+          wishZ = (-ix * sin - iz * cos) * norm
+        }
+        const speed = keys.has('ShiftLeft') || keys.has('ShiftRight') ? WALK_SPRINT : WALK_SPEED
+        const accel = Math.min(1, delta * 12)
+        walkVelocity.x += (wishX * speed - walkVelocity.x) * accel
+        walkVelocity.y += (wishZ * speed - walkVelocity.y) * accel
+        if (!ix && !iz && Math.hypot(walkVelocity.x, walkVelocity.y) < 0.06) walkVelocity.set(0, 0)
+        const stepX = walkVelocity.x * delta
+        const stepZ = walkVelocity.y * delta
+        if (stepX && district.canWalk(walkPos.x + stepX, walkPos.z)) walkPos.x += stepX
+        else if (stepX) walkVelocity.x = 0
+        if (stepZ && district.canWalk(walkPos.x, walkPos.z + stepZ)) walkPos.z += stepZ
+        else if (stepZ) walkVelocity.y = 0
+        const ground = district.groundY(walkPos.x, walkPos.z)
+        walkPos.y += (ground - walkPos.y) * Math.min(1, delta * 10)
+        walkMoving = Math.hypot(walkVelocity.x, walkVelocity.y) > 0.2
+        if (walkMoving) {
+          const target = Math.atan2(walkVelocity.x, walkVelocity.y)
+          const diff = ((target - walkHeading + Math.PI * 3) % (Math.PI * 2)) - Math.PI
+          walkHeading += diff * Math.min(1, delta * 10)
+        }
+        if (walker) {
+          walker.setPosition(walkPos.x, walkPos.y, walkPos.z)
+          walker.setHeading(walkHeading)
+          walker.update(reducedMotion ? 0 : waterElapsed, walkMoving && !reducedMotion)
+        }
+        walkBusy = walkMoving || walkVelocity.x !== 0 || walkVelocity.y !== 0
+      }
+      if (walkAppear !== walkAppearTarget) {
+        walkAppear += (walkAppearTarget - walkAppear) * Math.min(1, reducedMotion ? 1 : delta * 6)
+        if (Math.abs(walkAppearTarget - walkAppear) < 0.005) walkAppear = walkAppearTarget
+        walker?.setAppear(walkAppear)
+        walkBusy = true
+      }
+      if (viewScale !== viewScaleTarget) {
+        viewScale += (viewScaleTarget - viewScale) * Math.min(1, reducedMotion ? 1 : delta * 5)
+        if (Math.abs(viewScaleTarget - viewScale) < 0.002) viewScale = viewScaleTarget
+        needsResize = true
+        walkBusy = true
+      }
 
       // 松手后回正视角；减少动态时直接归零
       if (!drag?.active && (azimuth !== 0 || elevation !== 0)) {
@@ -335,7 +520,13 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
         applyDusk()
       }
       const fullRate =
-        focusRunning || introRunning || orbitSettling || districtBusy || duskRunning || needsResize
+        focusRunning ||
+        introRunning ||
+        orbitSettling ||
+        districtBusy ||
+        duskRunning ||
+        needsResize ||
+        walkBusy
       if (!reducedMotion && !fullRate && now - lastPaintAt < WATER_FRAME_MS) {
         frame = requestAnimationFrame(draw)
         return
@@ -347,16 +538,18 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
         needsResize = false
       }
       const progress = reducedMotion ? 1 : Math.min(1, (now - animationStart) / ANIMATION_MS)
+      if (walkMode) focusTo.set(walkPos.x, 0, walkPos.z)
       const eased = 1 - Math.pow(1 - progress, 3)
       focus.lerpVectors(focusFrom, focusTo, eased)
       applyCamera()
       district.animate(selectedId, progress)
-      if (
+      const shadowBusy =
         !reducedMotion &&
-        (now - animationStart < ANIMATION_MS + WATER_FRAME_MS || introRunning || duskRunning)
-      ) {
-        renderer.shadowMap.needsUpdate = true
-      }
+        (now - animationStart < ANIMATION_MS + WATER_FRAME_MS ||
+          introRunning ||
+          duskRunning ||
+          walkBusy)
+      if (shadowBusy) renderer.shadowMap.needsUpdate = true
       renderer.render(scene, camera)
       if (pendingPointer) {
         hover(pick(pendingPointer))
@@ -373,6 +566,28 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
         })
       })
       options.onProject(labels)
+      if (walkMode && walker && options.onWalk) {
+        let nearId: string | null = null
+        let near = NEAR_DISTANCE
+        for (const id of options.ids) {
+          const landmark = LANDMARKS[id]
+          if (!landmark) continue
+          const distance = Math.hypot(
+            walkPos.x - landmark.position[0],
+            walkPos.z - landmark.position[1]
+          )
+          if (distance < near) {
+            near = distance
+            nearId = id
+          }
+        }
+        projected.set(walkPos.x, walkPos.y + 1.7, walkPos.z).project(camera)
+        options.onWalk({
+          nearId,
+          x: Math.round(Math.max(40, Math.min(width - 40, ((projected.x + 1) / 2) * width))),
+          y: Math.round(Math.max(40, Math.min(height - 40, ((1 - projected.y) / 2) * height)))
+        })
+      }
       if (!reducedMotion) wake()
     } catch {
       fail()
@@ -418,6 +633,9 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
     district = createDistrict(options.ids)
     scene.add(district.group)
     district.setSelection(selectedId)
+    walker = createWalker()
+    walker.setAppear(0)
+    scene.add(walker.group)
     host.addEventListener('pointermove', onPointerMove, { passive: true })
     host.addEventListener('pointerleave', onPointerLeave)
     host.addEventListener('pointerdown', onPointerDown, { passive: true })
@@ -425,6 +643,9 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
     host.addEventListener('pointercancel', onPointerLeave)
     host.addEventListener('wheel', onWheel, { passive: false })
     document.addEventListener('visibilitychange', wake)
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup', onKeyUp)
+    window.addEventListener('blur', clearKeys)
     if (typeof ResizeObserver !== 'undefined') {
       resizeObserver = new ResizeObserver(requestResize)
       resizeObserver.observe(host)
@@ -443,7 +664,7 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
       intersectionObserver.observe(host)
     }
     wake()
-    return { select, hover, setReducedMotion, setDusk, reset, dispose }
+    return { select, hover, setReducedMotion, setDusk, setWalk, setDirection, reset, dispose }
   } catch (error) {
     dispose()
     throw error

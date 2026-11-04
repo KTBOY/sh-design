@@ -21,11 +21,15 @@ export interface District {
   growthOf(id: string): number
   /** 驱动水面、树冠、小船、悬停抬升与选中光路；delta 为秒。返回是否仍有连续动画未结算。 */
   update(elapsed: number, delta: number): boolean
+  /** 漫游通行判定：世界边界、建筑占地与河道（拱桥除外）。 */
+  canWalk(x: number, z: number): boolean
+  /** 脚下地面高度：普通地面约 0.05，桥面 0.84，坡道线性过渡。 */
+  groundY(x: number, z: number): number
   /** 幂等释放本模型资源，不管理外部 renderer。 */
   dispose(): void
 }
 
-const COLORS = {
+export const COLORS = {
   cream: 0xf5f1e7,
   limestone: 0xe5dfd2,
   roof: 0xd3c6ac,
@@ -51,6 +55,30 @@ const COLORS = {
 } as const
 
 type Palette = Record<keyof typeof COLORS, THREE.MeshStandardMaterial>
+
+/** 河道中心线：水面、河岸与漫游阻挡共用。 */
+const RIVER_PATH: readonly Point3[] = [
+  [-26, 0, -24],
+  [-24, 0, -16],
+  [-21, 0, -8],
+  [-20, 0, 0],
+  [-21, 0, 8],
+  [-25, 0, 16],
+  [-24, 0, 23]
+]
+
+/** 拱桥几何与漫游通行区共用同一组参数。 */
+const BRIDGE = {
+  x: -20.3,
+  z: -1.5,
+  walkHalfLength: 7.6,
+  walkHalfWidth: 0.78,
+  deckY: 0.84
+} as const
+const BRIDGE_FLAT_HALF_LENGTH = 5
+const WALK_BOUNDS = { minX: -28.4, maxX: 28.4, minZ: -17.4, maxZ: 24.4 } as const
+const WALK_GROUND_Y = 0.05
+const RIVER_BLOCK_RADIUS = 3.9
 
 function createWaterMaterial(model: DistrictModeling) {
   const time = { value: 0 }
@@ -525,20 +553,11 @@ function buildWaterfront(model: DistrictModeling, root: THREE.Group, p: Palette)
   const trim = model.box(root, p.limestone, [60.7, 0.1, 56.7], [0, -0.2, -2], 0.2)
   trim.castShadow = false
 
-  const river: readonly Point3[] = [
-    [-26, 0, -24],
-    [-24, 0, -16],
-    [-21, 0, -8],
-    [-20, 0, 0],
-    [-21, 0, 8],
-    [-25, 0, 16],
-    [-24, 0, 23]
-  ]
-  const shore = model.ribbon(root, p.shore, river, 4.35, 0.006)
+  const shore = model.ribbon(root, p.shore, RIVER_PATH, 4.35, 0.006)
   shore.receiveShadow = false
-  const depth = model.ribbon(root, p.waterDeep, river, 3.3, 0.012)
+  const depth = model.ribbon(root, p.waterDeep, RIVER_PATH, 3.3, 0.012)
   depth.receiveShadow = false
-  const water = model.ribbon(root, p.water, river, 3.1, 0.017)
+  const water = model.ribbon(root, p.water, RIVER_PATH, 3.1, 0.017)
   water.receiveShadow = false
 
   const promenade: readonly Point3[] = [
@@ -553,8 +572,8 @@ function buildWaterfront(model: DistrictModeling, root: THREE.Group, p: Palette)
   model.ribbon(root, p.paving, promenade, 1.1, 0.022)
 
   // 浅拱桥：桥面平缓，拱圈压扁后只露出河岸之间的一小段弧线。
-  const bridgeX = -20.3
-  const bridgeZ = -1.5
+  const bridgeX = BRIDGE.x
+  const bridgeZ = BRIDGE.z
   model.box(root, p.paving, [11, 0.24, 2.1], [bridgeX, 0.72, bridgeZ], 0.1)
   for (const [x, rotation] of [
     [-26.2, 0.11],
@@ -835,6 +854,8 @@ export function createDistrict(ids: readonly string[]): District {
   let routeProgress = 0
   let routeTarget = 0
   let disposed = false
+  /** 漫游阻挡体：已建地标的轴对齐占地，含少量贴身余量。 */
+  const solids: { x: number; z: number; halfWidth: number; halfDepth: number }[] = []
 
   function resetAnimation() {
     if (animated) buildings.get(animated)?.pose(0)
@@ -902,6 +923,55 @@ export function createDistrict(ids: readonly string[]): District {
     beam.position.set(anchor.x, anchor.y + 3, anchor.z)
   }
 
+  function riverDistance(x: number, z: number) {
+    let nearest = Infinity
+    for (let index = 1; index < RIVER_PATH.length; index++) {
+      const from = RIVER_PATH[index - 1]
+      const to = RIVER_PATH[index]
+      const dx = to[0] - from[0]
+      const dz = to[2] - from[2]
+      const lengthSq = dx * dx + dz * dz
+      const t = lengthSq
+        ? THREE.MathUtils.clamp(((x - from[0]) * dx + (z - from[2]) * dz) / lengthSq, 0, 1)
+        : 0
+      nearest = Math.min(nearest, Math.hypot(x - (from[0] + dx * t), z - (from[2] + dz * t)))
+    }
+    return nearest
+  }
+
+  function onBridge(x: number, z: number) {
+    return (
+      Math.abs(x - BRIDGE.x) <= BRIDGE.walkHalfLength &&
+      Math.abs(z - BRIDGE.z) <= BRIDGE.walkHalfWidth
+    )
+  }
+
+  function canWalk(x: number, z: number) {
+    if (
+      x < WALK_BOUNDS.minX ||
+      x > WALK_BOUNDS.maxX ||
+      z < WALK_BOUNDS.minZ ||
+      z > WALK_BOUNDS.maxZ
+    )
+      return false
+    for (const solid of solids) {
+      if (Math.abs(x - solid.x) < solid.halfWidth && Math.abs(z - solid.z) < solid.halfDepth)
+        return false
+    }
+    return onBridge(x, z) || riverDistance(x, z) >= RIVER_BLOCK_RADIUS
+  }
+
+  function groundY(x: number, z: number) {
+    if (!onBridge(x, z)) return WALK_GROUND_Y
+    const rest = BRIDGE.walkHalfLength - Math.abs(x - BRIDGE.x)
+    const climb = THREE.MathUtils.clamp(
+      rest / (BRIDGE.walkHalfLength - BRIDGE_FLAT_HALF_LENGTH),
+      0,
+      1
+    )
+    return WALK_GROUND_Y + (BRIDGE.deckY - WALK_GROUND_Y) * climb
+  }
+
   function dispose() {
     if (disposed) return
     disposed = true
@@ -966,6 +1036,12 @@ export function createDistrict(ids: readonly string[]): District {
       const landmark = LANDMARKS[id]
       const spec = BUILDINGS[id]
       const [x, z] = landmark.position
+      solids.push({
+        x,
+        z,
+        halfWidth: spec.width / 2 + 0.55,
+        halfDepth: spec.depth / 2 + 0.55
+      })
       const root = part(group, id, [x, 0, z])
       root.userData.toolId = id
       const accent = model.material(0xa6bdc5, {
@@ -1142,6 +1218,8 @@ export function createDistrict(ids: readonly string[]): District {
       }
       return busy
     },
+    canWalk,
+    groundY,
     dispose
   }
 }
