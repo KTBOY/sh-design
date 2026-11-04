@@ -26,6 +26,7 @@ interface StageOptions {
   onProject: (labels: CityLabelPosition[]) => void
   onWalk?: (tip: WalkTip | null) => void
   onWalkChange?: (walking: boolean) => void
+  onView?: (firstPerson: boolean) => void
   onError: () => void
 }
 
@@ -36,6 +37,8 @@ export interface ProductStage {
   setDusk: (on: boolean) => void
   setWalk: (on: boolean) => void
   setDirection: (direction: WalkDirection, pressed: boolean) => void
+  /** 漫游内切换第一人称/等距视角；非漫游态调用无效。 */
+  setFirstPerson: (on: boolean) => void
   reset: () => void
   dispose: () => void
 }
@@ -48,7 +51,7 @@ const AZIMUTH_LIMIT = 0.32
 const TILT_LIMIT = 0.14
 const DRAG_THRESHOLD = 8
 /** 漫游：视距缩放、出生点、步速与近建筑提示半径。 */
-const WALK_SCALE = 0.42
+const WALK_SCALE = 0.3
 const WALK_SPAWN = { x: 0, z: 7 }
 const WALK_SPEED = 3.4
 const WALK_SPRINT = 5.4
@@ -109,6 +112,9 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
   let viewScale = 1
   let viewScaleTarget = 1
   let walkHeading = Math.PI
+  let firstPerson = false
+  let lookYaw = 0
+  let lookPitch = 0
   let walkMoving = false
   const walkPos = new THREE.Vector3(WALK_SPAWN.x, 0.05, WALK_SPAWN.z)
   const walkVelocity = new THREE.Vector2()
@@ -121,6 +127,7 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
   }
   const scene = new THREE.Scene()
   const camera = new THREE.OrthographicCamera(-26, 26, 20, -20, 0.1, 200)
+  const fpCamera = new THREE.PerspectiveCamera(55, 1, 0.1, 200)
   const raycaster = new THREE.Raycaster()
   const pointer = new THREE.Vector2()
   const focus = new THREE.Vector3()
@@ -192,6 +199,8 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
     camera.top = halfHeight
     camera.bottom = -halfHeight
     camera.updateProjectionMatrix()
+    fpCamera.aspect = aspect
+    fpCamera.updateProjectionMatrix()
     renderer?.setPixelRatio(Math.min(window.devicePixelRatio || 1, width < 640 ? 1.5 : 2))
     renderer?.setSize(width, height, false)
     if (renderer) renderer.shadowMap.needsUpdate = true
@@ -215,6 +224,27 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
     camera.position.copy(focus).add(cameraOffset)
     camera.lookAt(focus)
     camera.updateMatrixWorld()
+  }
+
+  /** 第一人称：眼位贴人物头部，俯仰/偏航由拖拽控制；行走时轻微起伏。 */
+  function applyFirstPerson() {
+    const bob = walkMoving && !reducedMotion ? Math.sin(waterElapsed * 9.5) * 0.03 : 0
+    const eyeY = walkPos.y + 1.02 + bob
+    const cosPitch = Math.cos(lookPitch)
+    fpCamera.position.set(walkPos.x, eyeY, walkPos.z)
+    fpCamera.lookAt(
+      walkPos.x - Math.sin(lookYaw) * cosPitch,
+      eyeY + Math.sin(lookPitch),
+      walkPos.z - Math.cos(lookYaw) * cosPitch
+    )
+    fpCamera.updateMatrixWorld()
+    return fpCamera
+  }
+
+  function viewCamera() {
+    if (walkMode && firstPerson) return applyFirstPerson()
+    applyCamera()
+    return camera
   }
 
   function applyDusk() {
@@ -250,7 +280,7 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
       ((event.clientX - rect.left) / rect.width) * 2 - 1,
       -((event.clientY - rect.top) / rect.height) * 2 + 1
     )
-    raycaster.setFromCamera(pointer, camera)
+    raycaster.setFromCamera(pointer, walkMode && firstPerson ? fpCamera : camera)
     const hit = raycaster.intersectObjects(district.pickables, true)[0]
     let object: THREE.Object3D | null = hit?.object ?? null
     while (object) {
@@ -267,8 +297,14 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
       const dy = event.clientY - drag.y
       if (!drag.active && Math.hypot(dx, dy) > DRAG_THRESHOLD) drag.active = true
       if (drag.active) {
-        azimuth = THREE.MathUtils.clamp(dx * 0.0024, -AZIMUTH_LIMIT, AZIMUTH_LIMIT)
-        elevation = THREE.MathUtils.clamp(-dy * 0.0016, -TILT_LIMIT, TILT_LIMIT)
+        if (walkMode && firstPerson) {
+          // 第一人称：拖拽环顾，不回到默认角度
+          lookYaw -= dx * 0.0035
+          lookPitch = THREE.MathUtils.clamp(lookPitch - dy * 0.0028, -0.5, 0.5)
+        } else {
+          azimuth = THREE.MathUtils.clamp(dx * 0.0024, -AZIMUTH_LIMIT, AZIMUTH_LIMIT)
+          elevation = THREE.MathUtils.clamp(-dy * 0.0016, -TILT_LIMIT, TILT_LIMIT)
+        }
         pendingPointer = null
         wake()
         return
@@ -316,6 +352,13 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
     if (!event.ctrlKey && !event.metaKey) return
     event.preventDefault()
     zoom = THREE.MathUtils.clamp(zoom * Math.exp(event.deltaY * 0.0012), 0.78, 1.45)
+    if (walkMode && firstPerson) {
+      // 第一人称下滚轮改为调视野，保持等距时的手感一致
+      fpCamera.fov = THREE.MathUtils.clamp(55 / zoom, 40, 78)
+      fpCamera.updateProjectionMatrix()
+      wake()
+      return
+    }
     needsResize = true
     wake()
   }
@@ -371,17 +414,21 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
       setWalk(false)
       return
     }
-    if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
-      keys.add(event.code)
-      return
-    }
-    if (!MOVE_CODES.has(event.code)) return
     const target = event.target
     if (
       target instanceof HTMLElement &&
       (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName))
     )
       return
+    if (event.code === 'ShiftLeft' || event.code === 'ShiftRight') {
+      keys.add(event.code)
+      return
+    }
+    if (event.code === 'KeyV') {
+      setFirstPerson(!firstPerson)
+      return
+    }
+    if (!MOVE_CODES.has(event.code)) return
     keys.add(event.code)
     event.preventDefault()
     wake()
@@ -395,6 +442,7 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
     if (disposed || !district || walkMode === on) return
     walkMode = on
     clearKeys()
+    firstPerson = false
     azimuth = 0
     elevation = 0
     if (on) {
@@ -425,6 +473,19 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
     wake()
   }
 
+  function setFirstPerson(on: boolean) {
+    if (disposed || !walkMode || firstPerson === on) return
+    firstPerson = on
+    drag = null
+    if (on) {
+      // 朝向当前行走方向：walkHeading 的 +z 约定换算到视线 yaw 的 -z 约定
+      lookYaw = walkHeading + Math.PI
+      lookPitch = 0
+    }
+    options.onView?.(on)
+    wake()
+  }
+
   function draw(now: number) {
     frame = 0
     if (disposed || !onScreen || document.hidden || !renderer || !district) return
@@ -448,7 +509,7 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
         let wishX = 0
         let wishZ = 0
         if (ix || iz) {
-          const theta = baseTheta + azimuth
+          const theta = firstPerson ? lookYaw : baseTheta + azimuth
           const sin = Math.sin(theta)
           const cos = Math.cos(theta)
           const norm = 1 / Math.hypot(ix, iz)
@@ -479,6 +540,7 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
           walker.setPosition(walkPos.x, walkPos.y, walkPos.z)
           walker.setHeading(walkHeading)
           walker.update(reducedMotion ? 0 : waterElapsed, walkMoving && !reducedMotion)
+          walker.group.visible = walkAppear > 0.001 && !firstPerson
         }
         walkBusy = walkMoving || walkVelocity.x !== 0 || walkVelocity.y !== 0
       }
@@ -495,8 +557,8 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
         walkBusy = true
       }
 
-      // 松手后回正视角；减少动态时直接归零
-      if (!drag?.active && (azimuth !== 0 || elevation !== 0)) {
+      // 松手后回正视角；减少动态时直接归零。第一人称保持当前视线不回调。
+      if (!(walkMode && firstPerson) && !drag?.active && (azimuth !== 0 || elevation !== 0)) {
         if (reducedMotion) {
           azimuth = 0
           elevation = 0
@@ -541,7 +603,7 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
       if (walkMode) focusTo.set(walkPos.x, 0, walkPos.z)
       const eased = 1 - Math.pow(1 - progress, 3)
       focus.lerpVectors(focusFrom, focusTo, eased)
-      applyCamera()
+      const view = viewCamera()
       district.animate(selectedId, progress)
       const shadowBusy =
         !reducedMotion &&
@@ -550,7 +612,7 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
           duskRunning ||
           walkBusy)
       if (shadowBusy) renderer.shadowMap.needsUpdate = true
-      renderer.render(scene, camera)
+      renderer.render(scene, view)
       if (pendingPointer) {
         hover(pick(pendingPointer))
         pendingPointer = null
@@ -558,7 +620,7 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
       const labels: CityLabelPosition[] = []
       district.anchors.forEach((anchor, id) => {
         // 铭牌跟着屋顶长起来，否则入场那 0.8 秒里它会悬在半空
-        projected.set(anchor.x, anchor.y * district.growthOf(id), anchor.z).project(camera)
+        projected.set(anchor.x, anchor.y * district.growthOf(id), anchor.z).project(view)
         labels.push({
           id,
           x: Math.max(30, Math.min(width - 30, ((projected.x + 1) / 2) * width)),
@@ -567,26 +629,30 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
       })
       options.onProject(labels)
       if (walkMode && walker && options.onWalk) {
-        let nearId: string | null = null
-        let near = NEAR_DISTANCE
-        for (const id of options.ids) {
-          const landmark = LANDMARKS[id]
-          if (!landmark) continue
-          const distance = Math.hypot(
-            walkPos.x - landmark.position[0],
-            walkPos.z - landmark.position[1]
-          )
-          if (distance < near) {
-            near = distance
-            nearId = id
+        if (firstPerson) {
+          options.onWalk(null)
+        } else {
+          let nearId: string | null = null
+          let near = NEAR_DISTANCE
+          for (const id of options.ids) {
+            const landmark = LANDMARKS[id]
+            if (!landmark) continue
+            const distance = Math.hypot(
+              walkPos.x - landmark.position[0],
+              walkPos.z - landmark.position[1]
+            )
+            if (distance < near) {
+              near = distance
+              nearId = id
+            }
           }
+          projected.set(walkPos.x, walkPos.y + 1.7, walkPos.z).project(view)
+          options.onWalk({
+            nearId,
+            x: Math.round(Math.max(40, Math.min(width - 40, ((projected.x + 1) / 2) * width))),
+            y: Math.round(Math.max(40, Math.min(height - 40, ((1 - projected.y) / 2) * height)))
+          })
         }
-        projected.set(walkPos.x, walkPos.y + 1.7, walkPos.z).project(camera)
-        options.onWalk({
-          nearId,
-          x: Math.round(Math.max(40, Math.min(width - 40, ((projected.x + 1) / 2) * width))),
-          y: Math.round(Math.max(40, Math.min(height - 40, ((1 - projected.y) / 2) * height)))
-        })
       }
       if (!reducedMotion) wake()
     } catch {
@@ -664,7 +730,17 @@ export function createProductStage(host: HTMLElement, options: StageOptions): Pr
       intersectionObserver.observe(host)
     }
     wake()
-    return { select, hover, setReducedMotion, setDusk, setWalk, setDirection, reset, dispose }
+    return {
+      select,
+      hover,
+      setReducedMotion,
+      setDusk,
+      setWalk,
+      setDirection,
+      setFirstPerson,
+      reset,
+      dispose
+    }
   } catch (error) {
     dispose()
     throw error

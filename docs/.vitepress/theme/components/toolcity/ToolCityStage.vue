@@ -22,6 +22,7 @@ const hoveredId = ref<string | null>(null)
 const ready = ref(false)
 const walking = ref(false)
 const touch = ref(false)
+const firstPerson = ref(false)
 const walkAnnounce = ref('')
 const nearTip = ref<{ id: string; x: number; y: number } | null>(null)
 let stage: ProductStage | null = null
@@ -56,6 +57,12 @@ const nearTitle = computed(() => {
   const tool = nearTool.value
   return tool ? (LANDMARKS[tool.id]?.title ?? '街区地标') : ''
 })
+const hintText = computed(() => {
+  if (touch.value) return '方向键走动 · 点击建筑查看 · 「退出」返回全景'
+  if (firstPerson.value)
+    return 'WASD / 方向键走动 · 拖拽环顾 · V 切换等距视角 · 点击建筑查看 · Esc 退出'
+  return 'WASD / 方向键走动 · Shift 小跑 · 拖拽转视角 · V 第一人称 · 点击建筑查看 · Esc 退出'
+})
 
 function select(id: string) {
   if (id === props.selectedId) stage?.select(id)
@@ -68,6 +75,10 @@ function setDirection(direction: WalkDirection, pressed: boolean) {
 
 function toggleWalk() {
   stage?.setWalk(!walking.value)
+}
+
+function toggleView() {
+  stage?.setFirstPerson(!firstPerson.value)
 }
 
 function exitWalk() {
@@ -106,7 +117,14 @@ onMounted(() => {
         walkAnnounce.value = on
           ? '已进入街区漫游，使用 WASD 或方向键移动，Esc 退出'
           : '已退出漫游，回到全景视图'
-        if (!on) nearTip.value = null
+        if (!on) {
+          firstPerson.value = false
+          nearTip.value = null
+        }
+      },
+      onView: (on) => {
+        firstPerson.value = on
+        walkAnnounce.value = on ? '已切换第一人称视角' : '已切换等距视角'
       },
       onWalk: (tip) => {
         if (!tip || !tip.nearId) {
@@ -188,6 +206,25 @@ onBeforeUnmount(() => {
         全景
       </button>
       <button
+        v-if="walking"
+        type="button"
+        class="tc-stage__control"
+        :class="{ 'is-active': firstPerson }"
+        :aria-pressed="firstPerson"
+        :aria-label="firstPerson ? '切换为等距视角' : '切换为第一人称视角'"
+        @click="toggleView"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path
+            d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12Z"
+            stroke="currentColor"
+            stroke-width="1.5"
+          />
+          <circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.5" />
+        </svg>
+        {{ firstPerson ? '等距' : '第一人称' }}
+      </button>
+      <button
         type="button"
         class="tc-stage__control"
         :class="{ 'is-active': walking }"
@@ -218,13 +255,7 @@ onBeforeUnmount(() => {
       <span class="tc-stage__tip-title">{{ nearTitle }}</span>
       <span class="tc-stage__tip-name">{{ nearTool.name }} · 查看</span>
     </button>
-    <p v-if="walking" class="tc-stage__hint">
-      {{
-        touch
-          ? '方向键走动 · 点击建筑查看 · 「退出」返回全景'
-          : 'WASD / 方向键走动 · Shift 小跑 · 拖拽转视角 · 点击建筑查看 · Esc 退出'
-      }}
-    </p>
+    <p v-if="walking" class="tc-stage__hint">{{ hintText }}</p>
     <div v-if="walking && touch" class="tc-stage__pad" role="group" aria-label="漫游方向键">
       <button
         type="button"
