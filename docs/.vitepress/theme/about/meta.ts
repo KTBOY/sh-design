@@ -74,6 +74,17 @@ export const PROJECTS: Project[] = [
   },
   {
     no: '03',
+    name: 'pla7-mod',
+    nameZh: '仙剑七 MOD 管理器',
+    desc: 'Windows 便携桌面应用：用 Electron + Vue 3 管理主游戏与 DLC 的 MOD 库，支持内容哈希去重、文件夹批量导入、同槽位互斥替换与缺失签名补齐；深色金调界面把 resonance-hud 设计语言落进可下载成品。',
+    tags: ['Electron', 'Vue 3', 'Windows 便携版', '本地文件管理'],
+    links: [
+      { label: 'Download', href: 'https://github.com/KTBOY/pla7-mod/releases/latest' },
+      { label: 'GitHub', href: 'https://github.com/KTBOY/pla7-mod' }
+    ]
+  },
+  {
+    no: '03',
     name: 'sk-faster-ant',
     nameZh: 'Ant Design Vue 增强',
     hidden: true,
