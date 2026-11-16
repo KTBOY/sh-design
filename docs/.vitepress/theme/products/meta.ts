@@ -22,6 +22,8 @@ export interface Tool {
   links: ToolLink[]
   /** 下架标记：数据、路由与街区地标全部保留，只在渲染层过滤，随时能翻回来。 */
   hidden?: boolean
+  /** 仅作品目录展示：不上首页 3D 街区，避免出现没有配套地标建筑的项目。 */
+  catalogOnly?: boolean
 }
 
 export interface ToolGroup {
@@ -122,6 +124,22 @@ export const TOOL_GROUPS: ToolGroup[] = [
         ]
       },
       {
+        id: 'pla7-mod',
+        name: 'pla7-mod',
+        nameZh: '仙剑七 MOD 管理器',
+        catalogOnly: true,
+        desc: 'Electron + Vue 3 的 Windows 便携桌面应用：管理主游戏与 DLC 双 MOD 库，支持内容哈希去重、文件夹批量导入、同槽位互斥替换与缺失签名补齐；深色金调界面把 resonance-hud 设计语言落进可下载成品。',
+        tags: ['Electron', 'Vue 3', 'Windows 便携版', '本地文件管理'],
+        links: [
+          { label: 'GitHub', href: 'https://github.com/KTBOY/pla7-mod' },
+          {
+            label: '下载软件',
+            href: 'https://github.com/KTBOY/pla7-mod/releases/latest',
+            primary: true
+          }
+        ]
+      },
+      {
         id: 'novel-atlas',
         name: 'NovelAtlas',
         nameZh: '墨枢 · AI 小说一致性工作台',
@@ -179,3 +197,6 @@ export const VISIBLE_GROUPS: ToolGroup[] = TOOL_GROUPS.map((group) => ({
 })).filter((group) => group.items.length > 0)
 
 export const VISIBLE_TOOLS: Tool[] = VISIBLE_GROUPS.flatMap((group) => group.items)
+
+/** 首页街区专用：目录专属项目没有配套地标与建筑，不进入 3D 场景与城市索引。 */
+export const DISTRICT_TOOLS: Tool[] = VISIBLE_TOOLS.filter((tool) => !tool.catalogOnly)
