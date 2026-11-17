@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { withBase } from 'vitepress'
-import { UI_DESIGN, type UiScreen } from '../../about/meta'
+import { UI_DESIGN, UI_DESIGN_LANGUAGES, type UiScreen } from '../../about/meta'
+import SkillResonanceHud from '../../showcase/demos/skill-resonance-hud.vue'
 
 /**
  * 个人主页 03 UI Design 区块：司机端双模设计稿与两支 30s 影片。
@@ -55,6 +56,45 @@ onBeforeUnmount(() => {
 
 <template>
   <div class="ui-design">
+    <!-- ===== 设计语言：复用技能画廊的纯 CSS 演示 ===== -->
+    <article
+      v-for="language in UI_DESIGN_LANGUAGES"
+      :key="language.name"
+      class="ui-language reveal"
+    >
+      <div class="ui-language__preview" aria-hidden="true" inert>
+        <SkillResonanceHud />
+      </div>
+      <div class="ui-language__body">
+        <p class="ui-language__eyebrow">Design Language · 设计语言</p>
+        <h3 class="ui-language__name">
+          {{ language.name }}<em>{{ language.nameZh }}</em>
+        </h3>
+        <p class="ui-language__desc">{{ language.desc }}</p>
+        <ul class="ui-chips">
+          <li v-for="tag in language.tags" :key="tag">{{ tag }}</li>
+        </ul>
+        <div class="ui-language__actions">
+          <a
+            v-for="link in language.links"
+            :key="link.href"
+            class="ui-spec-link"
+            :href="link.internal ? withBase(link.href) : link.href"
+            :target="link.internal ? undefined : '_blank'"
+            :rel="link.internal ? undefined : 'noreferrer'"
+          >
+            {{ link.label }}
+            <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M13.22 5.47a.75.75 0 0 1 1.06 0l5.25 5.25a.75.75 0 0 1 0 1.06l-5.25 5.25a.75.75 0 1 1-1.06-1.06l3.97-3.97H4.75a.75.75 0 0 1 0-1.5h12.44l-3.97-3.97a.75.75 0 0 1 0-1.06Z"
+              />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </article>
+
     <!-- ===== 导语 ===== -->
     <article class="ui-intro reveal">
       <h3 class="ui-intro__name">{{ UI_DESIGN.name }}</h3>
@@ -189,6 +229,81 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+/* ===== 设计语言 ===== */
+.ui-language {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  min-height: 320px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.ui-language__preview {
+  display: flex;
+  min-height: 320px;
+  background: #0e1013;
+}
+
+.ui-language__preview :deep(.demo) {
+  height: 100%;
+  min-height: 320px;
+}
+
+.ui-language__body {
+  align-self: center;
+  padding: 28px;
+}
+
+.ui-language__eyebrow {
+  margin: 0;
+  color: var(--blue);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.ui-language__name {
+  margin: 10px 0 0;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.ui-language__name em {
+  display: block;
+  margin-top: 6px;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  color: var(--muted);
+}
+
+.ui-language__desc {
+  max-width: 62ch;
+  margin: 14px 0 0;
+  font-size: 14px;
+  line-height: 1.85;
+  color: var(--muted);
+}
+
+.ui-language__body .ui-chips {
+  margin-top: 18px;
+}
+
+.ui-language__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
 }
 
 /* ===== 导语 ===== */
@@ -640,6 +755,13 @@ onBeforeUnmount(() => {
 
 /* ===== 塌缩 ===== */
 @media (max-width: 820px) {
+  .ui-language {
+    grid-template-columns: 1fr;
+  }
+  .ui-language__preview,
+  .ui-language__preview :deep(.demo) {
+    min-height: 260px;
+  }
   .ui-boards,
   .ui-films {
     grid-template-columns: 1fr;
@@ -650,7 +772,8 @@ onBeforeUnmount(() => {
   .ui-wall {
     grid-template-columns: repeat(2, 1fr);
   }
-  .ui-intro {
+  .ui-intro,
+  .ui-language__body {
     padding: 20px;
   }
   .ui-film {

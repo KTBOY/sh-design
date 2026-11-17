@@ -74,17 +74,6 @@ export const PROJECTS: Project[] = [
   },
   {
     no: '03',
-    name: 'pla7-mod',
-    nameZh: '仙剑七 MOD 管理器',
-    desc: 'Windows 便携桌面应用：用 Electron + Vue 3 管理主游戏与 DLC 的 MOD 库，支持内容哈希去重、文件夹批量导入、同槽位互斥替换与缺失签名补齐；深色金调界面把 resonance-hud 设计语言落进可下载成品。',
-    tags: ['Electron', 'Vue 3', 'Windows 便携版', '本地文件管理'],
-    links: [
-      { label: 'Download', href: 'https://github.com/KTBOY/pla7-mod/releases/latest' },
-      { label: 'GitHub', href: 'https://github.com/KTBOY/pla7-mod' }
-    ]
-  },
-  {
-    no: '03',
     name: 'sk-faster-ant',
     nameZh: 'Ant Design Vue 增强',
     hidden: true,
@@ -92,18 +81,6 @@ export const PROJECTS: Project[] = [
     tags: ['Ant Design Vue', '效率工具'],
     repo: 'KTBOY/sk-faster-ant',
     links: [{ label: 'GitHub', href: 'https://github.com/KTBOY/sk-faster-ant' }]
-  },
-  {
-    no: '04',
-    name: 'Resonance HUD-ui skill',
-    nameZh: '共鸣 HUD 设计语言',
-    desc: '深色金调的游戏 HUD 设计语言，打包为 Agent Skill：零图片素材、零 Web 字体，全部装饰由 CSS / 内联 SVG 绘制，任意 DPI 下都锐利。',
-    tags: ['CSS 设计语言', 'Agent Skill', 'npx skills add'],
-    repo: 'KTBOY/resonance-hud',
-    links: [
-      { label: 'GitHub', href: 'https://github.com/KTBOY/resonance-hud' },
-      { label: 'Gallery', href: 'https://ktboy.github.io/sh-design/skills/' }
-    ]
   },
   {
     no: '05',
@@ -218,6 +195,28 @@ export interface UiDesign {
   modes: UiMode[]
   films: UiFilm[]
 }
+
+export interface UiDesignLanguage {
+  name: string
+  nameZh: string
+  desc: string
+  tags: string[]
+  links: ProfileLink[]
+}
+
+/** UI Design 区块内的设计语言条目，排在具体设计案例之前。 */
+export const UI_DESIGN_LANGUAGES: UiDesignLanguage[] = [
+  {
+    name: 'Resonance HUD-ui skill',
+    nameZh: '共鸣 HUD · 深色金调设计语言',
+    desc: '从游戏界面出发的深色金调设计语言：角标括号、菱形标记与发丝分隔线全部由 CSS / 内联 SVG 绘制，零图片素材、零 Web 字体；已落地到 pla7-mod 与闪电Flash。',
+    tags: ['CSS 设计语言', '内联 SVG', 'Agent Skill', '零图片素材'],
+    links: [
+      { label: 'GitHub', href: 'https://github.com/KTBOY/resonance-hud' },
+      { label: '画廊', href: '/skills/', internal: true }
+    ]
+  }
+]
 
 /**
  * 个人主页 03 UI Design 区块的作品数据。

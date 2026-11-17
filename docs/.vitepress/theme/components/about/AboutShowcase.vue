@@ -13,10 +13,10 @@ import RepoStars from './RepoStars.vue'
  * 「更多工具」区块展示开源项目，全部作品跳转 /products/ 聚合页。
  * 背景为共享组件 MaskBackground（与 /products/ 同款鼠标探照效果）。
  */
-/** 精选项目区（PROJECTS）已展示的工具体，不再出现在「更多工具」；/products/ 页仍完整列出 */
-const FEATURED_TOOL_NAMES = ['Resonance HUD-ui skill', 'pla7-mod']
+/** 个人主页其他区块已展示的工具，不再在「更多工具」重复出现；/products/ 页仍完整列出 */
+const DEDUPED_TOOL_NAMES = ['Resonance HUD-ui skill']
 const OSS_TOOLS = (VISIBLE_GROUPS.find((g) => g.id === 'oss')?.items ?? []).filter(
-  (t) => !FEATURED_TOOL_NAMES.includes(t.name)
+  (t) => !DEDUPED_TOOL_NAMES.includes(t.name)
 )
 /** 精选项目按可见顺序重新编号，隐藏项不留空号 */
 const VISIBLE_PROJECTS = PROJECTS.filter((p) => !p.hidden).map((p, index) => ({
@@ -280,7 +280,7 @@ onBeforeUnmount(() => observer?.disconnect())
 
 .hero__name {
   margin: 18px 0 0;
-  font-size: clamp(40px, 6vw, 76px);
+  font-size: clamp(34px, 4.4vw, 56px);
   font-weight: 700;
   letter-spacing: -0.02em;
   line-height: 1.05;

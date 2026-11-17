@@ -1,8 +1,8 @@
 # pla7-mod 个人主页收录计划
 
-**目标:** 将 `pla7-mod` 作为「可下载的 Windows 桌面成品」加入个人主页精选项目，补足现有作品集中在组件库、小程序、设计语言与 WebGL 实验上的空白。
+**目标:** 将 `pla7-mod` 作为「可下载的 Windows 桌面成品」收录到作品目录与个人主页「更多工具」，补足现有作品集中在组件库、小程序、设计语言与 WebGL 实验上的空白。
 
-**当前阶段:** 阶段 1、1.1 已完成。阶段 2、3 不随本轮上线。
+**当前阶段:** 阶段 1、1.1、1.2 已完成。阶段 2、3 不随本轮上线。
 
 **非目标:** 首页街区保持现有 7 个地标，本轮不新增第八栋建筑；不新增独立案例页面、不修改 `Resonance HUD` 现有内容。
 
@@ -18,18 +18,18 @@
 | 界面采用 `resonance-hud` 深色金调设计语言，已有主界面、MOD 库、大图预览三张截图 | 仓库 `docs/screenshots/` |
 | 仓库当前 0 star，未配置 LICENSE 与 topics | GitHub API |
 
-## 2. 定位与排序（D1 定案）
+## 2. 定位与排序（D4 取代 D1）
 
-- 放在个人主页 `Selected Projects` 的可见第 03 位：`Coral Coder` 之后、`Resonance HUD` 之前。
-- 叙事顺序调整为：组件库技术深度 → 小程序用户验证 → 桌面成品交付 → HUD 设计语言 → WebGL 视觉实验。
+- 最初定案：个人主页 `Selected Projects` 可见第 03 位。
+- 2026-11-16 调整：从 `Selected Projects` 移除，通过 `Open Source & Desktop` 工具数据进入个人主页 `More Tools`，同时保留 `/products` 目录入口。
 - 对外文案先讲工程与交付，再讲游戏场景，避免只被理解为兴趣项目。
 
-## 3. 卡片内容（D2 定案）
+## 3. 卡片内容（D2/D4 定案）
 
 - 名称：`pla7-mod`
 - 中文名：`仙剑七 MOD 管理器`
 - 标签：`Electron`、`Vue 3`、`Windows 便携版`、`本地文件管理`
-- 链接：`Download` 指向 GitHub `releases/latest`，`GitHub` 指向源码仓库。
+- 链接：`GitHub` 指向源码仓库，强调按钮 `下载软件` 指向 GitHub `releases/latest`。
 - 描述强调：主游戏 / DLC 双库、哈希去重、批量导入、同槽位自动替换、签名补齐、`resonance-hud` 设计语言落地。
 - 不配置 `repo` 星标字段：当前 0 star 会在卡片上显示，削弱第一印象；有真实关注后再开。
 
@@ -46,6 +46,7 @@
 | --- | --- | --- | --- |
 | 1 | 精选项目卡：数据、文案、下载与 GitHub 入口 | 已完成 | 可见顺序第 03 位；eslint 与 `docs:build` 通过 |
 | 1.1 | `/products` 的 Open Source & Desktop 入口 + 目录专属标记 | 已完成 | 卡片含 GitHub 与下载按钮；首页街区仍为 7 地标 |
+| 1.2 | 将个人主页入口从 Selected Projects 调整到 More Tools | 已完成 | 精选项目不再出现该项目；More Tools 出现 GitHub 与下载按钮 |
 | 2 | 小案例展示：三张界面截图 + 三条工程决策 | 待启动 | 需先确定展示位置、资产压缩与移动端布局 |
 | 3 | 首页街区第八个地标 | 暂缓 | 移除 `catalogOnly` 时，需同时补 `LANDMARKS`、`BUILDINGS`、碰撞与视觉验收 |
 
@@ -61,3 +62,4 @@
 - 2026-11-16：方案成文，阶段 1 开始实现。
 - 2026-11-16：阶段 1 完成。`PROJECTS` 可见顺序第 03 位新增 `pla7-mod`，下载指向 GitHub 最新 Release，未配置星标字段；变更文件 eslint 通过，`docs:build` 17.58s 通过。
 - 2026-11-16：追加阶段 1.1。按用户要求在 `/products` 的 `Open Source & Desktop` 增加 GitHub 与下载入口，同时引入 `catalogOnly` / `DISTRICT_TOOLS` 保持首页街区仍为 7 个地标；个人主页「更多工具」按名称去重。相关文件 eslint 通过，`docs:build` 11.73s 通过。
+- 2026-11-16：阶段 1.2 完成。按用户要求从 `Selected Projects` 移除，并解除「更多工具」去重，使其通过 `Open Source & Desktop` 数据出现在个人主页 More Tools；`/products` 入口保持不变。eslint 通过，`docs:build` 13.30s 通过。
